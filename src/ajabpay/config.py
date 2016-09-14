@@ -4,8 +4,8 @@ from setup import basedir
 
 class BaseConfig(object):
     SECRET_KEY = "=6hkjs..-.||05b32j782ajg08guoy24t129thjvd?/@>@%6jhwmna966241?kGSHHY2932hnaj8892n?==\\\\"
+    SQLALCHEMY_DATABASE_URI = 'mysql://ajabpay:ajabpay@localhost:3306/ajabpay'
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///db/ajabpay.sqlite3'
 
 class TestingConfig(object):
     """Development configuration."""
