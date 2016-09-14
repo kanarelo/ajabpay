@@ -29,9 +29,6 @@ class Transaction(db.Model):
     status = db.relationship('ConfigTransactionStatus')
     status_id = db.Column(db.Integer, db.ForeignKey('configtransactionstatus.id'))
 
-    paypal_transaction = db.relationship("PaypalTransaction", back_populates="pptransaction", uselist=False)
-    mpesa_transaction = db.relationship("MPesaTransaction", back_populates="mtransaction", uselist=False) 
-
     status_date = db.Column(db.Date())
     date_created = db.Column(db.Date())
 

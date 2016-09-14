@@ -1,3 +1,3 @@
-from application.app import app
+from ajabpay.app import app
 
 app = app

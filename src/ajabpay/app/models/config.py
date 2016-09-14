@@ -88,7 +88,7 @@ class ConfigLedgerAccount(db.Model):
     name = db.Column(db.String(100), unique=True)
     code = db.Column(db.String(100), unique=True)
 
-    account_category_id = db.relationship('ConfigLedgerAccountCategory')
+    account_category = db.relationship('ConfigLedgerAccountCategory')
     account_category_id = db.Column(db.Integer, db.ForeignKey('configledgeraccountcategory.id'))
     
     #contra|normal
@@ -104,11 +104,11 @@ class ConfigLedgerAccountingRule(db.Model):
     transaction_type = db.relationship('ConfigTransactionType', backref='accounting_rules')
     transaction_type_id = db.Column(db.Integer, db.ForeignKey('configtransactiontype.id'))
 
-    debit_account = db.relationship('ConfigLedgerAccount', backref='debits')
     debit_account_id = db.Column(db.Integer, db.ForeignKey('configledgeraccount.id'))
+    debit_account = db.relationship('ConfigLedgerAccount', backref='debits', foreign_keys=[debit_account_id])
 
-    credit_account = db.relationship('ConfigLedgerAccount', backref='credits')
     credit_account_id = db.Column(db.Integer, db.ForeignKey('configledgeraccount.id'))
+    credit_account = db.relationship('ConfigLedgerAccount', backref='credits', foreign_keys=[credit_account_id])
 
     date_created = db.Column(db.Date())
 

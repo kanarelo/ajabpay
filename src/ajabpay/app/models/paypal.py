@@ -12,7 +12,7 @@ class PaypalProfile(db.Model):
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
     account    = db.relationship('Account', backref='paypal_accounts')
 
-    address = db.relationship('Address', backref='paypal_addresses')
+    address = db.relationship('PaypalAddress', backref='paypal_addresses')
 
     payer_id = db.Column(db.String(20), unique=True)
     paypal_user_id = name = db.Column(db.String(50), unique=True)
