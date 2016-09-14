@@ -2,15 +2,14 @@ from ajabpay.index import db
 from decimal import Decimal as D
 
 class Product(db.Model):
+    __tablename__ = "product"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(10))
 
     is_active = db.Column(db.Boolean, default=True)
-
-    fund = db.relationship('ProductFund', backref='funded_accounts')
-    fund_id = db.Column(db.Integer, db.ForeignKey('productfund.id'))
 
     product_type_id = db.Column(db.Integer, db.ForeignKey('configproducttype.id'))
     product_type = db.relationship('ConfigProductType', backref='type_accounts')
@@ -37,6 +36,8 @@ class Product(db.Model):
     date_created = db.Column(db.Date())
 
 class Account(db.Model):
+    __tablename__ = "account"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     account_number = db.Column(db.String(20), unique=True)
@@ -48,9 +49,6 @@ class Account(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
 
     notes = db.Column(db.String(400))
-
-    account_status_id = db.Column(db.Integer, db.ForeignKey('accountstatus.id'))
-    account_status = db.relationship('AccountStatus', backref='statuses')
     account_status_date = db.Column(db.Date())
 
     txn_withdraw_limit = db.Column(db.Numeric(6, 2), default=D('0.0'))
@@ -66,10 +64,12 @@ class Account(db.Model):
     date_updated = db.Column(db.Date())
 
 class AccountStatus(db.Model):
+    __tablename__ = "accountstatus"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
-    account = db.relationship('ProductAccount', backref='statuses')
-    account_id = db.Column(db.Integer, db.ForeignKey('productaccount.id'))
+    account = db.relationship('Account', backref='statuses')
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
     status_id = db.Column(db.Integer, db.ForeignKey('configaccountstatus.id'))
     status    = db.relationship('ConfigAccountStatus', backref='statuses')

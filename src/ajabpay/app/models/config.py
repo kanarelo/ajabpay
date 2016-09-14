@@ -2,6 +2,8 @@ from ajabpay.index import db
 from decimal import Decimal as D
 
 class ConfigPaypalAPIAccount(db.Model):
+    __tablename__ = "configpaypalapiaccount"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     access_id = db.Column(db.String(100))
@@ -12,6 +14,8 @@ class ConfigPaypalAPIAccount(db.Model):
     date_created = db.Column(db.Date())
 
 class ConfigExchangeRate(db.Model):
+    __tablename__ = "configexchangerate"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
@@ -26,12 +30,16 @@ class ConfigExchangeRate(db.Model):
     date_created = db.Column(db.Date())
     
 class ConfigProductType(db.Model):
+    __tablename__ = "configproducttype"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(20), unique=True)
 
 class ConfigCurrency(db.Model):
+    __tablename__ = "configcurrency"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
@@ -40,20 +48,40 @@ class ConfigCurrency(db.Model):
     is_active = db.Column(db.Boolean, default=False)
 
 class ConfigAccountStatus(db.Model):
+    __tablename__ = "configaccountstatus"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
 
-class ConfigLedgerTransactionType(db.Model):
+class ConfigTransactionStatus(db.Model):
+    __tablename__ = "configtransactionstatus"
+    
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(100), unique=True)
+
+class ConfigLedgerAccountCategory(db.Model):
+    __tablename__ = "configledgeraccountcategory"
+    
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(100), unique=True)
+
+class ConfigTransactionType(db.Model):
+    __tablename__ = "configtransactiontype"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100), unique=True)
     code = db.Column(db.String(100))
 
-    posts_to_ledger = db.Column(db.Boolean, default=True)
-
 class ConfigLedgerAccount(db.Model):
+    __tablename__ = "configledgeraccount"
+    
     # __tablename__ = "configledgeraccount"
     id = db.Column(db.Integer(), primary_key=True)
 
@@ -69,10 +97,12 @@ class ConfigLedgerAccount(db.Model):
     date_created = db.Column(db.Date())
 
 class ConfigLedgerAccountingRule(db.Model):
+    __tablename__ = "configledgeraccountingrule"
+    
     id = db.Column(db.Integer(), primary_key=True)
     
-    transaction_type = db.relationship('ConfigLedgerTransactionType', backref='accounting_rules')
-    transaction_type_id = db.Column(db.Integer, db.ForeignKey('configledgertransactiontype.id'))
+    transaction_type = db.relationship('ConfigTransactionType', backref='accounting_rules')
+    transaction_type_id = db.Column(db.Integer, db.ForeignKey('configtransactiontype.id'))
 
     debit_account = db.relationship('ConfigLedgerAccount', backref='debits')
     debit_account_id = db.Column(db.Integer, db.ForeignKey('configledgeraccount.id'))
@@ -83,6 +113,8 @@ class ConfigLedgerAccountingRule(db.Model):
     date_created = db.Column(db.Date())
 
 class ConfigSMSGateway(db.Model):
+    __tablename__ = "configsmsgateway"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
@@ -91,6 +123,8 @@ class ConfigSMSGateway(db.Model):
     endpoint = db.Column(db.String(255))
 
 class ConfigSMSTemplate(db.Model):
+    __tablename__ = "configsmstemplate"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
@@ -99,6 +133,8 @@ class ConfigSMSTemplate(db.Model):
     template = db.Column(db.String(160))
 
 class SMSMessage(db.Model):
+    __tablename__ = "smsmessage"
+    
     INCOMING = 0
     OUTGOING = 1
 

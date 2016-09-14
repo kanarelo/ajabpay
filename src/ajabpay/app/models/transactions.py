@@ -1,7 +1,11 @@
 from ajabpay.index import db
 from decimal import Decimal as D
 
+from .config import *
+
 class Transaction(db.Model):
+    __tablename__ = "transaction"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     transaction_no = db.Column(db.String(100), unique=True)
@@ -32,10 +36,12 @@ class Transaction(db.Model):
     date_created = db.Column(db.Date())
 
 class PaypalTransaction(db.Model):
+    __tablename__ = "paypaltransaction"
+    
     id = db.Column(db.Integer(), primary_key=True)
     paypal_transaction_id = db.Column(db.String(50), unique=True)
 
-    transaction    = db.relationship('Transaction', backref='paypal_transactions')
+    transaction = db.relationship('Transaction', backref='paypal_transactions')
     transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'))
 
     create_time = db.Column(db.Date())
@@ -46,15 +52,19 @@ class PaypalTransaction(db.Model):
     date_created = db.Column(db.Date())
 
 class MPesaTransaction(db.Model):
+    __tablename__ = "mpesatransaction"
+    
     id = db.Column(db.Integer(), primary_key=True)
     mpesa_transaction_no = db.Column(db.String(100), unique=True)
 
-    transaction    = db.relationship('Transaction', backref='mpesa_transactions')
+    transaction = db.relationship('Transaction', backref='mpesa_transactions')
     transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'))
 
     date_created = db.Column(db.Date())
 
 class TransactionStatus(db.Model):
+    __tablename__ = "transactionstatus"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     transaction = db.relationship('Transaction', backref='transaction_statuses')
@@ -69,6 +79,8 @@ class TransactionStatus(db.Model):
     date_created = db.Column(db.Date())
 
 class TransactionEntry(db.Model):
+    __tablename__ = "transactionentry"
+    
     (DEBIT, CREDIT) = (0, 1)
     (ITEM_TYPES) = ((DEBIT, 'Debit'), (CREDIT, 'Credit'))
 

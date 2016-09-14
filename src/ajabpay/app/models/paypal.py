@@ -2,6 +2,8 @@ from ajabpay.index import db
 from decimal import Decimal as D
 
 class PaypalProfile(db.Model):
+    __tablename__ = "paypalprofile"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
@@ -31,10 +33,14 @@ class PaypalProfile(db.Model):
     date_created = db.Column(db.Date())
     date_updated = db.Column(db.Date())
 
-class PaypalHistory(db.Model):
-    id = db.Column(db.Integer(), primary_key=True)
+# class PaypalHistory(db.Model):
+#     __tablename__ = "paypalhistory"
+    
+#     id = db.Column(db.Integer(), primary_key=True)
 
 class PaypalAddress(db.Model):
+    __tablename__ = "paypaladdress"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     paypal_profile    = db.relationship('PaypalProfile', backref='addresses')
@@ -49,6 +55,8 @@ class PaypalAddress(db.Model):
     date_created = db.Column(db.Date())
 
 class PaypalToken(db.Model):
+    __tablename__ = "paypaltoken"
+    
     id = db.Column(db.Integer(), primary_key=True)
 
     paypal_profile    = db.relationship('PaypalProfile', backref='paypal_tokens')
