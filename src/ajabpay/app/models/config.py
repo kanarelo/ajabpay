@@ -217,8 +217,8 @@ class ConfigNotificationTemplate(db.Model):
         db.ForeignKey('confignotificationtype.id'))
     notification_type = db.relationship('ConfigNotificationType')
 
-    email_template = db.Column(db.String(500))
-    sms_template = db.Column(db.String(160))
+    email_template = db.Column(db.String(500), nullable=True)
+    sms_template = db.Column(db.String(160), nullable=True)
 
     def __unicode__(self):
         return self.name

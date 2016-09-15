@@ -251,7 +251,7 @@ def reverse_transaction(transaction, user, notes, transaction_date=None):
 
     transaction_type = transaction.transaction_type
     
-    if transaction.last_status.code == (POSTED,):
+    if transaction.last_status.code == POSTED:
         with db_transaction.atomic():
             #get all the transaction entries
             entries = transaction.entries.all()

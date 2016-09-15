@@ -189,3 +189,4 @@ captures/
 gen-external-apklibs
 
 *.sqlite3
+.DS_Store
