@@ -32,8 +32,8 @@ class Product(db.Model):
     yearly_withdraw_limit = db.Column(db.Numeric(6, 2), default=D('0.0'))
     yearly_deposit_limit  = db.Column(db.Numeric(6,2), default=D('0.0'))
 
-    date_updated = db.Column(db.Date())
-    date_created = db.Column(db.Date())
+    date_updated = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime())
 
 class Account(db.Model):
     __tablename__ = "account"
@@ -79,4 +79,4 @@ class AccountStatus(db.Model):
     approved_by_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     approved_by    = db.relationship('User', backref='account_approvals')
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())

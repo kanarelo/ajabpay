@@ -11,6 +11,9 @@ class User(db.Model):
     password = db.Column(db.String(255))
     phone = db.Column(db.String(25))
 
+    date_joined = db.Column(db.DateTime())
+    last_login = db.Column(db.DateTime())
+
     def __init__(self, first_name=None, last_name=None, email=None, password=None, phone=None):
         self.first_name = first_name
         self.last_name = last_name

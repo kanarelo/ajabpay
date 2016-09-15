@@ -13,7 +13,7 @@ class ConfigPaypalAPIAccount(db.Model):
     client_secret = db.Column(db.String(100))
 
     live = db.Column(db.Boolean, default=False)
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
         return self.account_email
@@ -154,7 +154,7 @@ class ConfigLedgerAccount(db.Model):
     #contra|normal
     balance_direction = db.Column(ChoiceType(BALANCE_DIRECTIONS))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
         return self.name
@@ -173,7 +173,7 @@ class ConfigLedgerAccountingRule(db.Model):
     credit_account_id = db.Column(db.Integer, db.ForeignKey('configledgeraccount.id'))
     credit_account = db.relationship('ConfigLedgerAccount', backref='credits', foreign_keys=[credit_account_id])
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
         return self.transaction_type.name
@@ -194,15 +194,31 @@ class ConfigSMSGateway(db.Model):
     def __unicode__(self):
         return self.name
 
-class ConfigSMSTemplate(db.Model):
-    __tablename__ = "configsmstemplate"
+class ConfigNotificationType(db.Model):
+    __tablename__ = "confignotificationtype"
     
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
 
-    template = db.Column(db.String(160))
+    def __unicode__(self):
+        return self.name
+
+class ConfigNotificationTemplate(db.Model):
+    __tablename__ = "confignotificationtemplate"
+    
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(100), unique=True)
+
+    notification_type_id = db.Column(db.Integer, 
+        db.ForeignKey('confignotificationtype.id'))
+    notification_type = db.relationship('ConfigNotificationType')
+
+    email_template = db.Column(db.String(500))
+    sms_template = db.Column(db.String(160))
 
     def __unicode__(self):
         return self.name
@@ -217,14 +233,35 @@ class SMSMessage(db.Model):
 
     #incoming|outgoing
     message_type = db.Column(db.Integer(), default=INCOMING)
-    message_text = db.Column(db.String(160))
+    message_arguments = db.Column(db.String(255))
     message_recipient = db.Column(db.String(15))
 
     sms_gateway_id = db.Column(db.Integer, db.ForeignKey('configsmsgateway.id'))
     sms_gateway = db.relationship('ConfigSMSGateway')
 
-    sms_template_id = db.Column(db.Integer, db.ForeignKey('configsmstemplate.id'))
-    sms_template = db.relationship('ConfigSMSTemplate')
+    template_id = db.Column(db.Integer, db.ForeignKey('confignotificationtemplate.id'))
+    template = db.relationship('ConfigNotificationTemplate')
 
     delivered = db.Column(db.Boolean, default=False)
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
+    date_delivered = db.Column(db.DateTime())
+
+class EmailMessage(db.Model):
+    __tablename__ = "emailmessage"
+    
+    INCOMING = 0
+    OUTGOING = 1
+
+    id = db.Column(db.Integer(), primary_key=True)
+
+    #incoming|outgoing
+    email_type = db.Column(db.Integer(), default=INCOMING)
+    email_arguments = db.Column(db.String(255))
+    message_recipient = db.Column(db.String(100))
+
+    template_id = db.Column(db.Integer, db.ForeignKey('confignotificationtemplate.id'))
+    template = db.relationship('ConfigNotificationTemplate')
+
+    delivered = db.Column(db.Boolean, default=False)
+    date_created = db.Column(db.DateTime())
+    date_delivered = db.Column(db.DateTime())

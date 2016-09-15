@@ -15,7 +15,6 @@ def generate_token(user, expiration=TWO_WEEKS):
     })
     return token
 
-
 def verify_token(token):
     s = Serializer(app.config['SECRET_KEY'])
     try:
@@ -23,7 +22,6 @@ def verify_token(token):
     except (BadSignature, SignatureExpired):
         return None
     return data
-
 
 def requires_auth(f):
     @wraps(f)
@@ -38,5 +36,4 @@ def requires_auth(f):
                 return f(*args, **kwargs)
 
         return jsonify(message="Authentication is required to access this resource"), 401
-
     return decorated

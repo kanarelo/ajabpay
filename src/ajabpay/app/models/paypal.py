@@ -30,8 +30,8 @@ class PaypalProfile(db.Model):
     verified_account = db.Column(db.Boolean, default=False)
     account_type = db.Column(db.String(10))
 
-    date_created = db.Column(db.Date())
-    date_updated = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
+    date_updated = db.Column(db.DateTime())
 
 # class PaypalHistory(db.Model):
 #     __tablename__ = "paypalhistory"
@@ -52,7 +52,7 @@ class PaypalAddress(db.Model):
     postal_code = db.Column(db.String(15))
     country = db.Column(db.String(100))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
 class PaypalToken(db.Model):
     __tablename__ = "paypaltoken"
@@ -69,5 +69,5 @@ class PaypalToken(db.Model):
     token_type = db.Column(db.String(15))
     expires_in = db.Column(db.Integer())
 
-    exires_at = db.Column(db.Date())
-    date_created = db.Column(db.Date())
+    exires_at = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime())

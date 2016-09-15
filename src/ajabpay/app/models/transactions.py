@@ -29,8 +29,8 @@ class Transaction(db.Model):
     status = db.relationship('ConfigTransactionStatus')
     status_id = db.Column(db.Integer, db.ForeignKey('configtransactionstatus.id'))
 
-    status_date = db.Column(db.Date())
-    date_created = db.Column(db.Date())
+    status_date = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime())
 
 class PaypalTransaction(db.Model):
     __tablename__ = "paypaltransaction"
@@ -46,7 +46,7 @@ class PaypalTransaction(db.Model):
     intent = db.Column(db.String(20))
     payment_method = db.Column(db.String(20))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
 class MPesaTransaction(db.Model):
     __tablename__ = "mpesatransaction"
@@ -57,7 +57,7 @@ class MPesaTransaction(db.Model):
     transaction = db.relationship('Transaction', backref='mpesa_transactions')
     transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
 class TransactionStatus(db.Model):
     __tablename__ = "transactionstatus"
@@ -73,7 +73,7 @@ class TransactionStatus(db.Model):
     transaction_status_date = db.Column(db.Date())
     details = db.Column(db.String(400))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
 class TransactionEntry(db.Model):
     __tablename__ = "transactionentry"
@@ -95,4 +95,4 @@ class TransactionEntry(db.Model):
     item_type = db.Column(db.Integer())
     balance_increment = db.Column(db.Numeric(6,2), default=D('0.0'))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
