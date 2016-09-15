@@ -38,7 +38,7 @@ def paypal_withdraw_amount():
         )
 
         if payment:
-            link = [l for l in payment.links if l['ref'] == 'approval_url']
+            link = [l for l in payment.links if l['rel'] == 'approval_url']
             return redirect(link[0]['href'])
         else:
             return jsonify(success=False)
