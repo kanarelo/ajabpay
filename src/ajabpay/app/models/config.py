@@ -1,17 +1,51 @@
 from ajabpay.index import db
 from decimal import Decimal as D
 
+from sqlalchemy_utils import ChoiceType
+
 class ConfigPaypalAPIAccount(db.Model):
     __tablename__ = "configpaypalapiaccount"
     
     id = db.Column(db.Integer(), primary_key=True)
 
-    access_id = db.Column(db.String(100))
-    private_key = db.Column(db.String(100))
+    account_email = db.Column(db.String(100))
+    client_id = db.Column(db.String(100))
+    client_secret = db.Column(db.String(100))
 
-    credit_card_enabled = db.Column(db.Boolean, default=False)
-
+    live = db.Column(db.Boolean, default=False)
     date_created = db.Column(db.Date())
+
+    def __unicode__(self):
+        return self.account_email
+
+class ConfigWebhookEventType(db.Model):
+    __tablename__ = "configwebhookeventtype"
+    
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(50))
+
+    is_active = db.Column(db.Boolean, default=False)
+
+    def __unicode__(self):
+        return self.name
+
+class ConfigPaypalAccountWebhook(db.Model):
+    __tablename__ = "configpaypalaccountwebhook"
+    
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(50))
+
+    paypal_api = db.relationship('ConfigPaypalAPIAccount')
+    paypal_api_id = db.Column(db.Integer, db.ForeignKey('configpaypalapiaccount.id'))
+
+    url_for = db.Column(db.String(20))
+
+    def __unicode__(self):
+        return self.name
 
 class ConfigExchangeRate(db.Model):
     __tablename__ = "configexchangerate"
@@ -28,6 +62,9 @@ class ConfigExchangeRate(db.Model):
     selling = db.Column(db.Numeric(6, 2))
 
     date_created = db.Column(db.Date())
+
+    def __unicode__(self):
+        return self.name
     
 class ConfigProductType(db.Model):
     __tablename__ = "configproducttype"
@@ -36,6 +73,9 @@ class ConfigProductType(db.Model):
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(20), unique=True)
+
+    def __unicode__(self):
+        return self.name
 
 class ConfigCurrency(db.Model):
     __tablename__ = "configcurrency"
@@ -47,6 +87,9 @@ class ConfigCurrency(db.Model):
 
     is_active = db.Column(db.Boolean, default=False)
 
+    def __unicode__(self):
+        return self.name
+
 class ConfigAccountStatus(db.Model):
     __tablename__ = "configaccountstatus"
     
@@ -54,6 +97,9 @@ class ConfigAccountStatus(db.Model):
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
+
+    def __unicode__(self):
+        return self.name
 
 class ConfigTransactionStatus(db.Model):
     __tablename__ = "configtransactionstatus"
@@ -63,6 +109,9 @@ class ConfigTransactionStatus(db.Model):
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
 
+    def __unicode__(self):
+        return self.name
+
 class ConfigLedgerAccountCategory(db.Model):
     __tablename__ = "configledgeraccountcategory"
     
@@ -70,6 +119,9 @@ class ConfigLedgerAccountCategory(db.Model):
 
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
+
+    def __unicode__(self):
+        return self.name
 
 class ConfigTransactionType(db.Model):
     __tablename__ = "configtransactiontype"
@@ -79,8 +131,16 @@ class ConfigTransactionType(db.Model):
     name = db.Column(db.String(100), unique=True)
     code = db.Column(db.String(100))
 
+    def __unicode__(self):
+        return self.name
+
 class ConfigLedgerAccount(db.Model):
     __tablename__ = "configledgeraccount"
+
+    BALANCE_DIRECTIONS = (
+        ('NORMAL', 'NORMAL'),
+        ('CONTRA', 'CONTRA')
+    )
     
     # __tablename__ = "configledgeraccount"
     id = db.Column(db.Integer(), primary_key=True)
@@ -92,9 +152,12 @@ class ConfigLedgerAccount(db.Model):
     account_category_id = db.Column(db.Integer, db.ForeignKey('configledgeraccountcategory.id'))
     
     #contra|normal
-    balance_direction = db.Column(db.Integer())
+    balance_direction = db.Column(ChoiceType(BALANCE_DIRECTIONS))
 
     date_created = db.Column(db.Date())
+
+    def __unicode__(self):
+        return self.name
 
 class ConfigLedgerAccountingRule(db.Model):
     __tablename__ = "configledgeraccountingrule"
@@ -112,6 +175,9 @@ class ConfigLedgerAccountingRule(db.Model):
 
     date_created = db.Column(db.Date())
 
+    def __unicode__(self):
+        return self.transaction_type.name
+
 class ConfigSMSGateway(db.Model):
     __tablename__ = "configsmsgateway"
     
@@ -120,7 +186,13 @@ class ConfigSMSGateway(db.Model):
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
 
-    endpoint = db.Column(db.String(255))
+    api_key = db.Column(db.String(100))
+    api_secret = db.Column(db.String(255))
+
+    endpoint = db.Column(db.String(255), nullable=True)
+
+    def __unicode__(self):
+        return self.name
 
 class ConfigSMSTemplate(db.Model):
     __tablename__ = "configsmstemplate"
@@ -131,6 +203,9 @@ class ConfigSMSTemplate(db.Model):
     code = db.Column(db.String(100), unique=True)
 
     template = db.Column(db.String(160))
+
+    def __unicode__(self):
+        return self.name
 
 class SMSMessage(db.Model):
     __tablename__ = "smsmessage"

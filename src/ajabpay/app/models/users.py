@@ -11,12 +11,15 @@ class User(db.Model):
     password = db.Column(db.String(255))
     phone = db.Column(db.String(25))
 
-    def __init__(self, full_name=None, email=None, password=None, phone=None):
-        self.full_name = full_name
+    def __init__(self, first_name=None, last_name=None, email=None, password=None, phone=None):
+        self.first_name = first_name
+        self.last_name = last_name
         self.email = email
         self.active = True
         self.phone = phone
-        self.password = User.hashed_password(password)
+
+        if password:
+            self.password = User.hashed_password(password)
 
     @staticmethod
     def hashed_password(password):
