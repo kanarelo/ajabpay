@@ -28,7 +28,7 @@ def paypal_withdraw_amount():
 
     if request.method == 'POST' and form.validate():
         email = form.email.data
-        amount = form.amout.data
+        amount = form.amount.data
 
         payment = create_paypal_payment_transaction(
             amount,

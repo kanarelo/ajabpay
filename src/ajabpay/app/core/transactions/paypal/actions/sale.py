@@ -1,3 +1,5 @@
+import paypalrestsdk
+
 from ...exceptions import (
     PaypalTransactionException
 )
@@ -14,6 +16,7 @@ from decimal import Decimal as D
 
 INITIAL = D('0.0')
 
+ENDPOINT = "http://localhost:5000"
 PENDING_POSTING = "pending_posting"
 POSTED = "posted"
 

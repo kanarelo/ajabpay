@@ -1,8 +1,6 @@
 import paypalrestsdk
 from decimal import Decimal as D
 
-ENDPOINT = "http://localhost:5000"
-
 PAYPAL_MODE = "sandbox"
 PAYPAL_CLIENT_ID = "ATo_Io1R9XCX9SmfHdGbeXYSKZnireDROhLUwcjO_VtLiUx7yB7CuMjTWJO0JgfGSXhxCLsLXna3KIn0"
 PAYPAL_CLIENT_SECRET = "EIbbidsOH9Y_2aXPiInRs7Wf-2Emn6fBzTfHXjxgZwC23Lu00zhvA2rImcz-7nkr1OfaDNuwq4yUWgYV"
