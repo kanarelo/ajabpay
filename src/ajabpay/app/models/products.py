@@ -35,6 +35,9 @@ class Product(db.Model):
     date_updated = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime())
 
+    def __unicode__(self):
+        return '%s' % (self.name)
+
 class Account(db.Model):
     __tablename__ = "account"
     
@@ -63,6 +66,9 @@ class Account(db.Model):
     date_created = db.Column(db.Date())
     date_updated = db.Column(db.Date())
 
+    def __unicode__(self):
+        return self.account_number
+
 class AccountStatus(db.Model):
     __tablename__ = "accountstatus"
     
@@ -80,3 +86,6 @@ class AccountStatus(db.Model):
     approved_by    = db.relationship('User', backref='account_approvals')
 
     date_created = db.Column(db.DateTime())
+
+    def __unicode__(self):
+        return '%s %s' % (self.account, self.status)

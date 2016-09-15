@@ -32,6 +32,9 @@ class Transaction(db.Model):
     status_date = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime())
 
+    def __unicode__(self):
+        return self.transaction_no
+
 class PaypalTransaction(db.Model):
     __tablename__ = "paypaltransaction"
     
@@ -48,6 +51,9 @@ class PaypalTransaction(db.Model):
 
     date_created = db.Column(db.DateTime())
 
+    def __unicode__(self):
+        return self.paypal_transaction_id
+
 class MPesaTransaction(db.Model):
     __tablename__ = "mpesatransaction"
     
@@ -58,6 +64,9 @@ class MPesaTransaction(db.Model):
     transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'))
 
     date_created = db.Column(db.DateTime())
+
+    def __unicode__(self):
+        return self.mpesa_transaction_no
 
 class TransactionStatus(db.Model):
     __tablename__ = "transactionstatus"
@@ -74,6 +83,9 @@ class TransactionStatus(db.Model):
     details = db.Column(db.String(400))
 
     date_created = db.Column(db.DateTime())
+
+    def __unicode__(self):
+        return '%s %s' % (self.transaction, self.status)
 
 class TransactionEntry(db.Model):
     __tablename__ = "transactionentry"
@@ -96,3 +108,6 @@ class TransactionEntry(db.Model):
     balance_increment = db.Column(db.Numeric(6,2), default=D('0.0'))
 
     date_created = db.Column(db.DateTime())
+
+    def __unicode__(self):
+        return '%s %s' % (self.transaction, self.item_type)

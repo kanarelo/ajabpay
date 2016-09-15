@@ -24,6 +24,9 @@ class User(db.Model):
         if password:
             self.password = User.hashed_password(password)
 
+    def __unicode__(self):
+        return '%s %s' % (self.first_name, self.last_name)
+
     @staticmethod
     def hashed_password(password):
         return bcrypt.generate_password_hash(password)

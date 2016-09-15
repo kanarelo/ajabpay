@@ -231,7 +231,6 @@ class SMSMessage(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
 
-    #incoming|outgoing
     message_type = db.Column(db.Integer(), default=INCOMING)
     message_arguments = db.Column(db.String(255))
     message_recipient = db.Column(db.String(15))
@@ -254,7 +253,6 @@ class EmailMessage(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
 
-    #incoming|outgoing
     email_type = db.Column(db.Integer(), default=INCOMING)
     email_arguments = db.Column(db.String(255))
     message_recipient = db.Column(db.String(100))
