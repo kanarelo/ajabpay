@@ -1,7 +1,7 @@
 import sys, os, inspect
 
-from flask.ext.script import Manager, Server
-from flask.ext.migrate import Migrate, MigrateCommand
+from flask_script import Manager, Server
+from flask_migrate import Migrate, MigrateCommand
 
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
