@@ -47,15 +47,13 @@ def paypal_withdraw_amount():
 
 @app.route('/transaction/sale/return')
 def paypal_return_url():
-    data = request.get_json()
-
-    print data
+    data = request.args()
 
     return jsonify(success=True)
 
 @app.route('/transaction/sale/cancel/')
 def paypal_cancel_url():
-    data = request.get_json()
+    data = request.args()
 
     print data
 

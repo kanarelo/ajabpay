@@ -1,4 +1,5 @@
 import paypalrestsdk
+import dateutil.parser
 
 from ...exceptions import (
     PaypalTransactionException
@@ -16,7 +17,7 @@ from decimal import Decimal as D
 
 INITIAL = D('0.0')
 
-ENDPOINT = "http://localhost:5000"
+ENDPOINT = "http://localhost:8000"
 PENDING_POSTING = "pending_posting"
 POSTED = "posted"
 
@@ -29,8 +30,7 @@ def create_paypal_payment_transaction(
     return_url=None,
     cancel_url=None,
     create=False
-): 
-
+):
     api = create_paypalrestsdk_api()
     formated_amount = format_amount(amount)
 
@@ -75,7 +75,7 @@ def create_sale_transaction(
 ):
     try:
         if transaction_type is None:
-            transaction_type = TransactionType.query.filter_by(code='PAYPAL-MPESA')
+            transaction_type = ConfigTransactionType.query.filter_by(code='PAYPAL-MPESA')
 
         payment = create_paypal_payment_transaction(
             amount, 
@@ -87,9 +87,7 @@ def create_sale_transaction(
         if payment is None:
             raise PaypalTransactionException("Error creating paypal payment transaction")
 
-        (debit_account, credit_account) = get_transaction_type_account_turple(
-            transaction_type
-        )
+        (debit_account, credit_account) = get_transaction_type_account_turple(transaction_type)
 
         transaction = transaction_commons.create_transaction(
             amount=amount, 
@@ -105,7 +103,7 @@ def create_sale_transaction(
         pp_transaction = PaypalTransaction(
             paypal_transaction_id=payment.id,
             transaction_id=transaction.id,
-            create_time=payment.create_time,
+            create_time=dateutil.parser.parse(payment.create_time),
             state=payment.state,
             intent=payment.intent,
             payment_method=payment.payer['payment_method'],
@@ -115,6 +113,8 @@ def create_sale_transaction(
         db.session.add(transaction)
         db.session.add(pp_transaction)
         db.session.commit()
+
+        return payment
     except IntegrityError, e:
         db.session.rollback()
         raise PaypalTransactionException(str(e))
