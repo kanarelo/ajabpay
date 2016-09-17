@@ -30,7 +30,9 @@ def paypal_withdraw_amount():
         email = form.email.data
         amount = form.amount.data
 
-        User.get_user_with_email_and_password(email, password)
+        account = db.session.query(Account).join(
+            User, User.id == Account.user_id
+        ).filter(User.email == email).first()
 
         payment = create_sale_transaction(
             account,
@@ -49,13 +51,15 @@ def paypal_withdraw_amount():
 
 @app.route('/transaction/sale/return')
 def paypal_return_url():
-    data = request.args()
+    data = request.args
+
+    print data
 
     return jsonify(success=True)
 
 @app.route('/transaction/sale/cancel/')
 def paypal_cancel_url():
-    data = request.args()
+    data = request.args
 
     print data
 

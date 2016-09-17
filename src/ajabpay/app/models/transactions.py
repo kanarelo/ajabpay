@@ -75,8 +75,7 @@ class TransactionStatus(db.Model):
     status = db.relationship('ConfigTransactionStatus', backref='transaction_statuses')
     status_id = db.Column(db.Integer, db.ForeignKey('configtransactionstatus.id'))
 
-    transaction_status_date = db.Column(db.Date())
-    details = db.Column(db.String(400))
+    details = db.Column(db.String(400), nullable=True)
 
     date_created = db.Column(db.DateTime())
 

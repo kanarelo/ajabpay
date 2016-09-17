@@ -42,11 +42,14 @@ def get_transaction_type_account_turple(transaction_type):
 
 def get_ledger_balance_increment(amount, account, item_type):
     #constants
-    ASSET = "A"
-    LIABILITY = "L"
-    EQUITY = "E"
-    INCOME = "I"
-    EXPENSE = "E"
+    ASSET = "ASSET"
+    LIABILITY = "LIABILITY"
+    EQUITY = "EQUITY"
+    INCOME = "INCOME"
+    EXPENSE = "EXPENSE"
+
+    NORMAL = "NORMAL"
+    CONTRA = "CONTRA"
 
     if (amount is None) or (not amount):
         raise Exception("Invalid amount")
@@ -68,22 +71,14 @@ def get_ledger_balance_increment(amount, account, item_type):
     else:
         raise Exception("Invalid account category")
 
-    #constants
-    NORMAL_ACCOUNT = "N"
-    CONTRA_ACCOUNT = "C"
-
-    account_type_code = account.balance_direction.code
-
-    #normal account
-    if account_type_code == NORMAL_ACCOUNT:
-        #for normal accounts, return amount as it is by this point
-        return +(amount)
-    elif account_type_code == CONTRA_ACCOUNT:
+    if account.balance_direction == CONTRA:
         #a contra account is a general ledger account which is intended 
         #to have its balance be the opposite of the normal balance for 
         #that account classification
         #In that case, lets negate the balance, so that we can get its opposite
         return -(amount)
+
+    return amount
 
 def create_transaction(
     transaction_type=None, 
@@ -95,6 +90,7 @@ def create_transaction(
     status=None, 
     user=None, 
     notes=None, 
+    commit=True,
     reversing_transaction=None, 
     transaction_no=None,
     transaction_date=None, 
@@ -136,17 +132,13 @@ def create_transaction(
 
             status = TransactionStatus(
                 transaction=transaction,
-                transaction_status=transaction_status,
-                transaction_status_date=transaction_date,
-                details="Transaction status by %s " % user,
-                created_by=user,
+                status=transaction_status,
                 date_created=transaction_date
             )
 
             try:
                 db.session.add(transaction)
                 db.session.add(status)
-                db.session.commit()
 
                 # l = dict(
                 #     transaction_type=transaction_type.code,
@@ -180,12 +172,11 @@ def create_transaction(
     def create_transaction_entry(transaction, ledger_account, item_type, increment):
         #Adds entry for transaction
         le = TransactionEntry(
-            ledger_balance_item_type=item_type,
-            ledger_balance_increment=increment,
-            ledger_transaction=transaction,
-            product_account=transaction.product_account,
-            ledger_account=ledger_account,
-            created_by=user,
+            item_type=item_type,
+            balance_increment=increment,
+            transaction=transaction,
+            account_id=transaction.account_id,
+            ledger_account_id=ledger_account.id
         )
 
         return le
@@ -206,31 +197,30 @@ def create_transaction(
                 amount, credit_account, TransactionEntry.CREDIT
             )
 
-            if (debit_ledger_balance_increment and credit_ledger_balance_increment):
-                #Adds credit entry for transaction
-                debit_entry  = create_transaction_entry(
-                    transaction, 
-                    debit_account,  
-                    TransactionEntry.DEBIT, 
-                    debit_ledger_balance_increment
-                )
-                credit_entry = create_transaction_entry(
-                    transaction,
-                    credit_account, 
-                    TransactionEntry.CREDIT, 
-                    credit_ledger_balance_increment
-                )
+            if not (debit_ledger_balance_increment and credit_ledger_balance_increment):
+                raise Exception("Increments not found")
 
-                db.session.add(debit_entry)
-                db.session.add(credit_entry)
+            #Adds credit entry for transaction
+            debit_entry  = create_transaction_entry(
+                transaction, 
+                debit_account,  
+                TransactionEntry.DEBIT, 
+                debit_ledger_balance_increment
+            )
+            credit_entry = create_transaction_entry(
+                transaction,
+                credit_account, 
+                TransactionEntry.CREDIT, 
+                credit_ledger_balance_increment
+            )
 
+            db.session.add(debit_entry)
+            db.session.add(credit_entry)
+
+            if commit:
                 db.session.commit()
 
-                return (debit_entry, credit_entry)
-            else:
-                raise Exception("Increments not found")
-        else:
-            return transaction
+        return (debit_entry, credit_entry)
 
     except IntegrityError as e:
         db.session.rollback()
@@ -296,7 +286,6 @@ def reverse_transaction(transaction, user, notes, transaction_date=None):
 def update_transaction_status(
     transaction, 
     status_code, 
-    user, 
     details, 
     status_date=None
 ):
@@ -326,8 +315,7 @@ def update_transaction_status(
             transaction=transaction,
             transaction_status=config_transaction_status,
             transaction_status_date=status_date,
-            notes=notes,
-            created_by=user,
+            notes=notes
         )
         #update the transaction with the new status and date
         transaction.last_status = config_transaction_status

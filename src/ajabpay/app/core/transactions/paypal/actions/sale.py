@@ -81,7 +81,7 @@ def create_sale_transaction(
 ):
     try:
         if transaction_type is None:
-            transaction_type = ConfigTransactionType.query.filter_by(code='PP-MPESA-FX').first()
+            transaction_type = ConfigTransactionType.query.filter_by(code='WITHDRAWAL').first()
 
         payment = create_paypal_payment_transaction(
             amount, 
@@ -103,7 +103,7 @@ def create_sale_transaction(
 
         transaction_no = payment.id
 
-        transaction = transaction_commons.create_transaction(
+        (debit_entry, credit_entry) = transaction_commons.create_transaction(
             amount=amount, 
             transaction_type=transaction_type, 
             product_account=account, 
@@ -111,8 +111,10 @@ def create_sale_transaction(
             user=user, 
             credit_account=credit_account, 
             debit_account=debit_account, 
-            transaction_no=transaction_no
+            transaction_no=transaction_no,
+            commit=False
         )
+        transaction = credit_entry.transaction
 
         pp_transaction = PaypalTransaction(
             paypal_transaction_id=payment.id,
@@ -121,11 +123,12 @@ def create_sale_transaction(
             state=payment.state,
             intent=payment.intent,
             payment_method=payment.payer['payment_method'],
-            date_created=datetime.now(),
+            date_created=db.func.now()
         )
 
         db.session.add(transaction)
         db.session.add(pp_transaction)
+
         db.session.commit()
 
         return payment

@@ -137,10 +137,8 @@ class ConfigTransactionType(db.Model):
 class ConfigLedgerAccount(db.Model):
     __tablename__ = "configledgeraccount"
 
-    BALANCE_DIRECTIONS = (
-        ('NORMAL', 'NORMAL'),
-        ('CONTRA', 'CONTRA')
-    )
+    NORMAL = 'NORMAL'
+    CONTRA = 'CONTRA'
     
     id = db.Column(db.Integer(), primary_key=True)
 
@@ -151,7 +149,7 @@ class ConfigLedgerAccount(db.Model):
     account_category_id = db.Column(db.Integer, db.ForeignKey('configledgeraccountcategory.id'))
     
     #contra|normal
-    balance_direction = db.Column(ChoiceType(BALANCE_DIRECTIONS))
+    balance_direction = db.Column(db.String(10), default=NORMAL)
 
     date_created = db.Column(db.DateTime())
 
