@@ -7,7 +7,7 @@ class Product(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
-    code = db.Column(db.String(10))
+    code = db.Column(db.String(50))
 
     is_active = db.Column(db.Boolean, default=True)
 
@@ -51,8 +51,10 @@ class Account(db.Model):
     product = db.relationship('Product', backref='accounts')
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
 
-    notes = db.Column(db.String(400))
-    account_status_date = db.Column(db.Date())
+    notes = db.Column(db.String(400), nullable=True)
+
+    amount_currency_id = db.Column(db.Integer, db.ForeignKey('configcurrency.id'))
+    amount_currency = db.relationship('ConfigCurrency')
 
     txn_withdraw_limit = db.Column(db.Numeric(6, 2), default=D('0.0'))
     txn_deposit_limit  = db.Column(db.Numeric(6,2), default=D('0.0'))
@@ -60,11 +62,8 @@ class Account(db.Model):
     total_withdraws = db.Column(db.Numeric(6, 2), default=D('0.0'))
     total_deposits  = db.Column(db.Numeric(6,2), default=D('0.0'))
     
-    last_deposit_date  = db.Column(db.Date())
-    last_withdraw_date = db.Column(db.Date())
-
-    date_created = db.Column(db.Date())
-    date_updated = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
+    date_updated = db.Column(db.DateTime())
 
     def __unicode__(self):
         return self.account_number

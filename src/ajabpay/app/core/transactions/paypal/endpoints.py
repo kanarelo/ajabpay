@@ -30,11 +30,13 @@ def paypal_withdraw_amount():
         email = form.email.data
         amount = form.amount.data
 
+        User.get_user_with_email_and_password(email, password)
+
         payment = create_sale_transaction(
-            amount,
+            account,
+            amount=amount,
             return_url=url_for('paypal_return_url'),
             cancel_url=url_for('paypal_cancel_url'),
-            create=True
         )
 
         if payment:

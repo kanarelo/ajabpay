@@ -1,1 +1,2 @@
-class PaypalTransactionException(Exception):pass
+class TransactionException(Exception): pass
+class PaypalTransactionException(TransactionException):pass

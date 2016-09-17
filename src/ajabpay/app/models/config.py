@@ -142,7 +142,6 @@ class ConfigLedgerAccount(db.Model):
         ('CONTRA', 'CONTRA')
     )
     
-    # __tablename__ = "configledgeraccount"
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100), unique=True)
@@ -163,6 +162,9 @@ class ConfigLedgerAccountingRule(db.Model):
     __tablename__ = "configledgeraccountingrule"
     
     id = db.Column(db.Integer(), primary_key=True)
+
+    product = db.relationship('Product')
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
     
     transaction_type = db.relationship('ConfigTransactionType', backref='accounting_rules')
     transaction_type_id = db.Column(db.Integer, db.ForeignKey('configtransactiontype.id'))

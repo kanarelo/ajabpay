@@ -16,20 +16,16 @@ class Transaction(db.Model):
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
     reversing_transaction = db.relationship('Transaction', remote_side=[id], backref='reversals')
-    reversing_transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'))
+    reversing_transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=True)
 
     currency_id = db.Column(db.Integer, db.ForeignKey('configcurrency.id'))
     currency = db.relationship('ConfigCurrency')
 
     amount = db.Column(db.Numeric(18,2), default=D('0.0'))
 
-    details = db.Column(db.String(255))
-    notified = db.Column(db.Boolean, default=True)
+    details = db.Column(db.String(255), nullable=True)
+    notified = db.Column(db.Boolean, default=False)
 
-    status = db.relationship('ConfigTransactionStatus')
-    status_id = db.Column(db.Integer, db.ForeignKey('configtransactionstatus.id'))
-
-    status_date = db.Column(db.DateTime())
     date_created = db.Column(db.DateTime())
 
     def __unicode__(self):

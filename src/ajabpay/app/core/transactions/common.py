@@ -1,6 +1,10 @@
 from .exceptions import (
-    PaypalTransactionException
+    PaypalTransactionException,
+    TransactionException
 )
+
+from ajabpay.app.models import *
+from sqlalchemy.exc import IntegrityError
 
 import logging
 import random
@@ -27,6 +31,9 @@ def get_transaction_type_account_turple(transaction_type):
     accounting_rule = ConfigLedgerAccountingRule.query.filter_by(
         transaction_type_id=transaction_type.id
     ).first()
+
+    if not accounting_rule:
+        raise TransactionException('Please setup the accounting rules')
 
     return (
         accounting_rule.debit_account, 
@@ -99,79 +106,76 @@ def create_transaction(
     if not transaction_no:
         transaction_no = get_reference_no()
 
+    if currency is not None:
+        currency = ConfigCurrency.query.filter_by(code=currency).first()
+
     if transaction_date is None:
         transaction_date = db.func.now()
 
     if status is None:
-        transaction_status = ConfigLedgerTransactionStatus.query.filter_by(
+        transaction_status = ConfigTransactionStatus.query.filter_by(
             code=PENDING_POSTING).first()
     else:
         transaction_status = status
 
-    def create_transaction_obj():
+    def create_transaction_obj(transaction_no=None):
         #check if the transaction number exists in the db
-        if not Transaction.query.filter_by(
+        if (transaction_no is not None) and not Transaction.query.filter_by(
             transaction_no=transaction_no
-        ).exists():
+        ).exists() is True:
             #create the transaction
             transaction = Transaction(
                 transaction_type=transaction_type,
-                last_status=transaction_status,
-                last_status_date=transaction_date,
                 transaction_no=transaction_no,
                 reversing_transaction=reversing_transaction,
-                currency=currency,
+                currency_id=currency.id,
+                account_id=product_account.id,
                 amount=amount,
-                notes=notes,
-                created_by=user
+                date_created=transaction_date
             )
-
-            #set the product account
-            if product_account is not None:
-                transaction.product_account = product_account.account_number
 
             status = TransactionStatus(
                 transaction=transaction,
                 transaction_status=transaction_status,
                 transaction_status_date=transaction_date,
-                notes="Transaction status by %s " % user,
-                created_by=user
+                details="Transaction status by %s " % user,
+                created_by=user,
+                date_created=transaction_date
             )
 
             try:
                 db.session.add(transaction)
                 db.session.add(status)
                 db.session.commit()
+
+                # l = dict(
+                #     transaction_type=transaction_type.code,
+                #     last_status=transaction_status,
+                #     last_status_date=transaction_date,
+                #     reversing_transaction=reversing_transaction,
+                #     transaction_no=transaction_no,
+                #     amount=amount,
+                #     currency=currency,
+                #     user=user,
+                #     **kwargs
+                # )
+
+                # if (credit_account and debit_account):
+                #     l.update(
+                #         credit_account=credit_account.ledger_code,
+                #         debit_account=debit_account.ledger_code,
+                #     )
+
+                # if (product_account is not None):
+                #     l.update(product_account=product_account.account_number)
+
+                # record_log(**l)
             except IntegrityError as e:
                 raise PaypalTransactionException(str(e))
 
-
-            l = dict(
-                transaction_type=transaction_type.code,
-                last_status=transaction_status,
-                last_status_date=transaction_date,
-                reversing_transaction=reversing_transaction,
-                transaction_no=transaction_no,
-                amount=amount,
-                currency=currency,
-                user=user,
-                **kwargs
-            )
-
-            if (credit_account and debit_account):
-                l.update(
-                    credit_account=credit_account.ledger_code,
-                    debit_account=debit_account.ledger_code,
-                )
-
-            if (product_account is not None):
-                l.update(product_account=product_account.account_number)
-
-            record_log(**l)
             return transaction
         else:
-            transaction_no = get_reference_no()
-            return create_transaction_obj()
+            return create_transaction_obj(transaction_no=get_reference_no())
 
     def create_transaction_entry(transaction, ledger_account, item_type, increment):
         #Adds entry for transaction
@@ -184,23 +188,13 @@ def create_transaction(
             created_by=user,
         )
 
-        try:
-            db.session.add(le)
-            db.session.commit()
-        except IntegrityError as e:
-            raise PaypalTransactionException(str(e))
-
         return le
 
-    with db_transaction.atomic():
-        if not (
-            (amount and currency) and 
-            (user) and
-            (transaction_type and notes)
-        ):
+    try:
+        if not ((amount and currency) and transaction_type):
             raise Exception("Please provide valid parameters for this transaction.")
 
-        transaction = create_transaction_obj()
+        transaction = create_transaction_obj(transaction_no=transaction_no)
         (debit_entry, credit_entry) = (None, None)
 
         if (debit_account and credit_account):
@@ -221,17 +215,29 @@ def create_transaction(
                     debit_ledger_balance_increment
                 )
                 credit_entry = create_transaction_entry(
-                    transaction, 
+                    transaction,
                     credit_account, 
                     TransactionEntry.CREDIT, 
                     credit_ledger_balance_increment
                 )
+
+                db.session.add(debit_entry)
+                db.session.add(credit_entry)
+
+                db.session.commit()
+
                 return (debit_entry, credit_entry)
             else:
                 raise Exception("Increments not found")
         else:
             return transaction
 
+    except IntegrityError as e:
+        db.session.rollback()
+        raise PaypalTransactionException(str(e))
+    except Exception as e:
+        db.session.rollback()
+        raise PaypalTransactionException(str(e))
 
 def reverse_transaction(transaction, user, notes, transaction_date=None):
     '''
@@ -306,9 +312,9 @@ def update_transaction_status(
     if details is None:
         raise Exception("Please provide a valid note")
 
-    with db_transaction.atomic():
+    try:
         #get the transaction status and time now
-        config_transaction_status = ConfigLedgerTransactionStatus.query.filter_by(
+        config_transaction_status = ConfigTransactionStatus.query.filter_by(
             code=status_code
         ).first()
 
@@ -327,10 +333,11 @@ def update_transaction_status(
         transaction.last_status = config_transaction_status
         transaction.last_status_date = status_date
         
-        try:
-            db.session.add(transaction_status)
-            db.session.commit()
-        except IntegrityError, e:
-            raise PaypalTransactionException(str(e))
+        db.session.add(transaction_status)
+        
+        db.session.commit()
+    except IntegrityError, e:
+        db.session.rollback()
+        raise PaypalTransactionException(str(e))
 
     return transaction_status

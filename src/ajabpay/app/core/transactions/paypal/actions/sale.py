@@ -11,9 +11,14 @@ from ..utils import (
     round_up,
 )
 from ... import common as transaction_commons
+from ajabpay.app.models import *
 
 import logging
 from decimal import Decimal as D
+
+from sqlalchemy import or_, Date, cast
+from sqlalchemy.sql import func
+from sqlalchemy.exc import IntegrityError
 
 INITIAL = D('0.0')
 
@@ -72,22 +77,31 @@ def create_sale_transaction(
     user=None,
     return_url=None,
     cancel_url=None,
+    create=True
 ):
     try:
         if transaction_type is None:
-            transaction_type = ConfigTransactionType.query.filter_by(code='PAYPAL-MPESA')
+            transaction_type = ConfigTransactionType.query.filter_by(code='PP-MPESA-FX').first()
 
         payment = create_paypal_payment_transaction(
             amount, 
             description=transaction_type.name,
             return_url=return_url, 
-            cancel_url=cancel_url
+            cancel_url=cancel_url,
+            create=create
         )
 
         if payment is None:
             raise PaypalTransactionException("Error creating paypal payment transaction")
 
-        (debit_account, credit_account) = get_transaction_type_account_turple(transaction_type)
+        (debit_account, credit_account) = transaction_commons.get_transaction_type_account_turple(
+            transaction_type
+        )
+
+        if not (debit_account and credit_account):
+            raise PaypalTransactionException("Please setup the chart of accounts")
+
+        transaction_no = payment.id
 
         transaction = transaction_commons.create_transaction(
             amount=amount, 
@@ -97,7 +111,7 @@ def create_sale_transaction(
             user=user, 
             credit_account=credit_account, 
             debit_account=debit_account, 
-            transaction_no=payment.id
+            transaction_no=transaction_no
         )
 
         pp_transaction = PaypalTransaction(
