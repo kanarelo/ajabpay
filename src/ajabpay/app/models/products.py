@@ -66,7 +66,7 @@ class Account(db.Model):
     date_updated = db.Column(db.DateTime())
 
     def __unicode__(self):
-        return self.account_number
+        return '%s' % self.account_number
 
 class AccountStatus(db.Model):
     __tablename__ = "accountstatus"

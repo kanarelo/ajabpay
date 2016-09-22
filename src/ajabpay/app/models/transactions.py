@@ -15,7 +15,7 @@ class Transaction(db.Model):
     account = db.relationship('Account')
     account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
 
-    reversing_transaction = db.relationship('Transaction', remote_side=[id], backref='reversals')
+    reversing_transaction = db.relationship('Transaction', remote_side=[id], backref='reversal', uselist=False)
     reversing_transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'), nullable=True)
 
     currency_id = db.Column(db.Integer, db.ForeignKey('configcurrency.id'))
@@ -29,26 +29,40 @@ class Transaction(db.Model):
     date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
-        return self.transaction_no
+        return '%s' % self.transaction_no
 
 class PaypalTransaction(db.Model):
     __tablename__ = "paypaltransaction"
     
     id = db.Column(db.Integer(), primary_key=True)
-    paypal_transaction_id = db.Column(db.String(50), unique=True)
+    paypal_transaction_type_code = db.Column(db.String(50), nullable=False)
+    
+    paypal_payer_id = db.Column(db.String(50), db.ForeignKey('paypalprofile.payer_id'), nullable=True)
+    paypal_payer = db.relationship('PaypalProfile', backref='transactions',
+        primaryjoin="PaypalProfile.payer_id==PaypalTransaction.paypal_payer_id")
 
-    transaction = db.relationship('Transaction', backref='paypal_transactions')
-    transaction_id = db.Column(db.Integer, db.ForeignKey('transaction.id'))
+    transaction = db.relationship('Transaction', backref='paypal_transactions',
+        primaryjoin="Transaction.transaction_no==PaypalTransaction.paypal_transaction_id")
+    paypal_transaction_id = db.Column(db.String(50), db.ForeignKey('transaction.transaction_no'), unique=True)
 
-    create_time = db.Column(db.Date())
-    state = db.Column(db.String(50))
-    intent = db.Column(db.String(20))
-    payment_method = db.Column(db.String(20))
+    sale_id = db.Column(db.String(50), nullable=True)
+    invoice_number = db.Column(db.String(50), nullable=True)
 
-    date_created = db.Column(db.DateTime())
+    parent_transaction_id = db.Column(db.String(50), db.ForeignKey('transaction.transaction_no'), nullable=True)
+    parent_transaction = db.relationship('Transaction', backref='child_transactions', uselist=False,
+        primaryjoin="PaypalTransaction.parent_transaction_id==Transaction.transaction_no")
+
+    create_time = db.Column(db.DateTime(), nullable=False)
+    update_time = db.Column(db.DateTime(), nullable=False)
+
+    state = db.Column(db.String(50), nullable=False)
+    intent = db.Column(db.String(20), nullable=True)
+    payment_method = db.Column(db.String(20), nullable=True)
+
+    date_created = db.Column(db.DateTime(), nullable=False)
 
     def __unicode__(self):
-        return self.paypal_transaction_id
+        return '%s' % self.paypal_transaction_id
 
 class MPesaTransaction(db.Model):
     __tablename__ = "mpesatransaction"
@@ -62,7 +76,7 @@ class MPesaTransaction(db.Model):
     date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
-        return self.mpesa_transaction_no
+        return '%s' % self.mpesa_transaction_no
 
 class TransactionStatus(db.Model):
     __tablename__ = "transactionstatus"

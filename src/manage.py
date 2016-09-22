@@ -30,9 +30,10 @@ admin.add_view(ModelView(app.ConfigTransactionType, db.session))
 
 ledger_account_admin = ModelView(app.ConfigLedgerAccount, db.session)
 ledger_account_admin.column_default_sort = 'code'
-
 admin.add_view(ledger_account_admin)
+
 admin.add_view(ModelView(app.ConfigLedgerAccountingRule, db.session))
+admin.add_view(ModelView(app.ConfigPaypalParameter, db.session))
 admin.add_view(ModelView(app.ConfigSMSGateway, db.session))
 admin.add_view(ModelView(app.ConfigNotificationType, db.session))
 admin.add_view(ModelView(app.ConfigNotificationTemplate, db.session))

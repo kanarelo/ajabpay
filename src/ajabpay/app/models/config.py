@@ -9,6 +9,7 @@ class ConfigPaypalAPIAccount(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     account_email = db.Column(db.String(100))
+
     client_id = db.Column(db.String(100))
     client_secret = db.Column(db.String(100))
 
@@ -24,7 +25,7 @@ class ConfigWebhookEventType(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
-    code = db.Column(db.String(50))
+    code = db.Column(db.String(50), unique=True)
 
     is_active = db.Column(db.Boolean, default=False)
 
@@ -37,7 +38,7 @@ class ConfigPaypalAccountWebhook(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
-    code = db.Column(db.String(50))
+    code = db.Column(db.String(50), unique=True)
 
     paypal_api = db.relationship('ConfigPaypalAPIAccount')
     paypal_api_id = db.Column(db.Integer, db.ForeignKey('configpaypalapiaccount.id'))
@@ -53,7 +54,7 @@ class ConfigExchangeRate(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
-    code = db.Column(db.String(50))
+    code = db.Column(db.String(50), unique=True)
 
     local_currency = db.Column(db.String(3))
     foreign_currency = db.Column(db.String(3))
@@ -133,6 +134,18 @@ class ConfigTransactionType(db.Model):
 
     def __unicode__(self):
         return self.name
+
+class ConfigPaypalTransactionType(db.Model):
+    __tablename__ = "configpaypaltransactiontype"
+    
+    id = db.Column(db.Integer(), primary_key=True)
+
+    name = db.Column(db.String(100))
+    code = db.Column(db.String(50), unique=True)
+
+    def __unicode__(self):
+        return self.name
+
 
 class ConfigLedgerAccount(db.Model):
     __tablename__ = "configledgeraccount"
@@ -232,18 +245,16 @@ class SMSMessage(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     message_type = db.Column(db.Integer(), default=INCOMING)
-    message_arguments = db.Column(db.String(255))
-    message_recipient = db.Column(db.String(15))
+    message_sender = db.Column(db.String(15), nullable=True)
+    message_recipient = db.Column(db.String(15), nullable=True)
 
-    sms_gateway_id = db.Column(db.Integer, db.ForeignKey('configsmsgateway.id'))
+    sms_gateway_id = db.Column(db.Integer, db.ForeignKey('configsmsgateway.id'), nullable=True)
     sms_gateway = db.relationship('ConfigSMSGateway')
 
-    template_id = db.Column(db.Integer, db.ForeignKey('confignotificationtemplate.id'))
-    template = db.relationship('ConfigNotificationTemplate')
-
     delivered = db.Column(db.Boolean, default=False)
-    date_created = db.Column(db.DateTime())
     date_delivered = db.Column(db.DateTime())
+    
+    date_created = db.Column(db.DateTime())
 
 class EmailMessage(db.Model):
     __tablename__ = "emailmessage"
@@ -254,12 +265,11 @@ class EmailMessage(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     email_type = db.Column(db.Integer(), default=INCOMING)
-    email_arguments = db.Column(db.String(255))
+    
     message_recipient = db.Column(db.String(100))
-
-    template_id = db.Column(db.Integer, db.ForeignKey('confignotificationtemplate.id'))
-    template = db.relationship('ConfigNotificationTemplate')
+    message_sender = db.Column(db.String(100))
 
     delivered = db.Column(db.Boolean, default=False)
-    date_created = db.Column(db.DateTime())
     date_delivered = db.Column(db.DateTime())
+
+    date_created = db.Column(db.DateTime())
