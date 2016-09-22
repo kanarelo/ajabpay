@@ -6,32 +6,33 @@ class PaypalProfile(db.Model):
     
     id = db.Column(db.Integer(), primary_key=True)
 
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    user    = db.relationship('User', backref='paypal_profile')
+    user = db.relationship('User', backref='paypal_profile', uselist=False,
+        primaryjoin='User.email==PaypalProfile.email')
+    email = db.Column(db.String(100), db.ForeignKey('user.email'), unique=True, nullable=False)
 
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id'))
-    account    = db.relationship('Account', backref='paypal_accounts')
+    account_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
+    account = db.relationship('Account', backref='paypal_accounts')
 
     address = db.relationship('PaypalAddress', backref='paypal_addresses')
 
-    payer_id = db.Column(db.String(20), unique=True)
-    paypal_user_id = name = db.Column(db.String(50), unique=True)
-    email = db.Column(db.String(100), unique=True)
+    payer_id = db.Column(db.String(20), unique=True, nullable=False)
+    paypal_user_id = name = db.Column(db.String(50), unique=True, nullable=False)
 
-    name = db.Column(db.String(100))
-    given_name = db.Column(db.String(100))
-    family_name = db.Column(db.String(100))
-    middle_name = db.Column(db.String(100))
-    gender = db.Column(db.String(1))
-    phone_number = db.Column(db.String(100))
-    age_range = db.Column(db.String(10))
+    name = db.Column(db.String(100), nullable=False)
+    given_name = db.Column(db.String(100), nullable=False)
+    family_name = db.Column(db.String(100), nullable=False)
+    gender = db.Column(db.String(10), nullable=True)
+    phone_number = db.Column(db.String(100), nullable=False)
+    date_of_birth = db.Column(db.Date(), nullable=False)
 
-    email_verified = db.Column(db.Boolean, default=True)
-    verified_account = db.Column(db.Boolean, default=False)
-    account_type = db.Column(db.String(10))
+    email_verified = db.Column(db.Boolean, default=False, nullable=True)
+    verified_account = db.Column(db.Boolean, default=False, nullable=False)
 
-    date_created = db.Column(db.DateTime())
-    date_updated = db.Column(db.DateTime())
+    account_type = db.Column(db.String(10), nullable=False)
+    account_creation_date = db.Column(db.DateTime(), nullable=False)
+
+    date_created = db.Column(db.DateTime(), nullable=False)
+    date_updated = db.Column(db.DateTime(), nullable=False)
 
     def __unicode__(self):
         return '[%s] %s' % (self.paypal_user_id, self.email)
@@ -42,15 +43,15 @@ class PaypalAddress(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     paypal_profile    = db.relationship('PaypalProfile', backref='addresses')
-    paypal_profile_id = db.Column(db.Integer, db.ForeignKey('paypalprofile.id'))
+    paypal_profile_id = db.Column(db.Integer, db.ForeignKey('paypalprofile.id'), nullable=False)
 
-    street_address = db.Column(db.String(100))
-    locality = db.Column(db.String(50))
-    region = db.Column(db.String(50))
-    postal_code = db.Column(db.String(15))
-    country = db.Column(db.String(100))
+    street_address = db.Column(db.String(100), nullable=False)
+    locality = db.Column(db.String(50), nullable=False)
+    region = db.Column(db.String(50), nullable=False)
+    postal_code = db.Column(db.String(15), nullable=True)
+    country = db.Column(db.String(3), nullable=False)
 
-    date_created = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime(), nullable=False)
 
 class PaypalToken(db.Model):
     __tablename__ = "paypaltoken"

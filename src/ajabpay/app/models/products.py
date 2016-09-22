@@ -7,7 +7,7 @@ class Product(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
-    code = db.Column(db.String(50))
+    code = db.Column(db.String(100))
 
     is_active = db.Column(db.Boolean, default=True)
 
@@ -43,27 +43,39 @@ class Account(db.Model):
     
     id = db.Column(db.Integer(), primary_key=True)
 
-    account_number = db.Column(db.String(20), unique=True)
+    account_number = db.Column(db.String(50), unique=True, nullable=False)
 
     user    = db.relationship('User', backref='product_accounts')
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     product = db.relationship('Product', backref='accounts')
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'))
+    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
 
     notes = db.Column(db.String(400), nullable=True)
 
-    amount_currency_id = db.Column(db.Integer, db.ForeignKey('configcurrency.id'))
+    amount_currency_id = db.Column(db.Integer, db.ForeignKey('configcurrency.id'), nullable=False)
     amount_currency = db.relationship('ConfigCurrency')
 
-    txn_withdraw_limit = db.Column(db.Numeric(6, 2), default=D('0.0'))
-    txn_deposit_limit  = db.Column(db.Numeric(6,2), default=D('0.0'))
+    total_withdraws = db.Column(db.Numeric(18, 2), default=D('0.0'))
+    total_deposits  = db.Column(db.Numeric(18,2), default=D('0.0'))
 
-    total_withdraws = db.Column(db.Numeric(6, 2), default=D('0.0'))
-    total_deposits  = db.Column(db.Numeric(6,2), default=D('0.0'))
+    txn_withdrawal_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+    txn_deposit_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+
+    daily_withdraw_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+    daily_deposit_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+
+    weekly_withdraw_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+    weekly_deposit_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+
+    monthly_withdraw_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+    monthly_deposit_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+
+    yearly_withdraw_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
+    yearly_deposit_limit = db.Column(db.Numeric(18,2), default=D('0.0'))
     
-    date_created = db.Column(db.DateTime())
-    date_updated = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime(), nullable=False)
+    date_updated = db.Column(db.DateTime(), nullable=False)
 
     def __unicode__(self):
         return '%s' % self.account_number

@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from config import BaseConfig
+from .config import BaseConfig
 from flask_bcrypt import Bcrypt
 
 from werkzeug.routing import BaseConverter
