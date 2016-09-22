@@ -10,11 +10,11 @@ from sqlalchemy.exc import IntegrityError
 
 from datetime import date
 
-from .actions.sale import *
+from .actions.payment import *
 
 from wtforms import (Form, DecimalField, BooleanField, StringField, PasswordField, validators)
 
-class PaypalWithdrawForm(Form):
+class PaypalPaymentForm(Form):
     email = StringField('Email Address', validators=[
         validators.required(), validators.Length(min=6, max=72)
     ])
@@ -24,36 +24,54 @@ class PaypalWithdrawForm(Form):
 @requires_auth
 @app.route('/transaction/withdraw/', methods=['POST'])
 def paypal_withdraw_amount():
-    form = PaypalWithdrawForm(request.form)
+    form = PaypalPaymentForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        email = form.email.data
+        email = form.email.data  
         amount = form.amount.data
 
-        account = db.session.query(Account).join(
-            User, User.id == Account.user_id
-        ).filter(User.email == email).first()
+        paypal_profile = db.session.query(PaypalProfile)\
+            .join(User, User.email==PaypalProfile.email)\
+            .filter(User.email==email)\
+            .first()
 
-        payment = create_sale_transaction(
-            account,
-            amount=amount,
-            return_url=url_for('paypal_return_url'),
-            cancel_url=url_for('paypal_cancel_url'),
-        )
+        if paypal_profile is None:
+            return jsonify(success=False, status_code=404, error_code="ERR_P01",
+                message="ERR_P01: Invalid paypal user; user not found.")
+        
+        # try:
+        payment = create_payment_transaction(paypal_profile, amount=amount,
+            return_url=url_for('paypal_return_url'), cancel_url=url_for('paypal_cancel_url'))
+        # except PaypalTransactionException as e:
+        #     print e
+        #     return jsonify(success=False, status_code=500, error_code="ERR_P02",
+        #         message="ERR_P02: Error making payment.")
+        # except Exception as e:
+        #     print e
+        #     return jsonify(success=False, status_code=500, error_code="ERR_P03",
+        #         message="ERR_P03: Could not establish connection with Paypal, try again later.")
 
-        if payment:
+        if payment is not None:
             link = [l for l in payment.links if l['rel'] == 'approval_url']
-            return redirect(link[0]['href'])
-        else:
-            return jsonify(success=False)
 
-    return render_template('register.html', form=form)
+            if len(link) == 1:
+                print link
+                return redirect(link[0]['href'])
+        else:
+            return jsonify(success=False, status_code=500, error_code="ERR_P04",
+                message="ERR_P04: Could not establish connection with Paypal, try again later.")
+
+    return render_template('index.html', form=form)
 
 @app.route('/transaction/sale/return')
 def paypal_return_url():
     data = request.args
 
-    print data
+    payment_id = data.get('paymentId')
+    payer_id = data.get('PayerID')
+    token = data.get('token')
+
+    acknowledge_payment(payment_id, payer_id, token)
 
     return jsonify(success=True)
 
@@ -61,6 +79,15 @@ def paypal_return_url():
 def paypal_cancel_url():
     data = request.args
 
-    print data
-
     return jsonify(success=True)
+
+@app.errorhandler(404)
+def not_found(error=None):
+    message = {
+            'status': 404,
+            'message': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
+
+    return resp
