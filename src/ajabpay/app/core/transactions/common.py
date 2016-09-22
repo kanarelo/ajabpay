@@ -35,10 +35,7 @@ def get_transaction_type_account_turple(transaction_type):
     if not accounting_rule:
         raise TransactionException('Please setup the accounting rules')
 
-    return (
-        accounting_rule.debit_account, 
-        accounting_rule.credit_account
-    )
+    return (accounting_rule.debit_account, accounting_rule.credit_account)
 
 def get_ledger_balance_increment(amount, account, item_type):
     #constants
@@ -123,12 +120,14 @@ def create_transaction(
             transaction = Transaction(
                 transaction_type=transaction_type,
                 transaction_no=transaction_no,
-                reversing_transaction=reversing_transaction,
                 currency_id=currency.id,
                 account_id=product_account.id,
                 amount=amount,
                 date_created=transaction_date
             )
+
+            if reversing_transaction is not None:
+                transaction.reversing_transaction_id = reversing_transaction.id
 
             status = TransactionStatus(
                 transaction=transaction,
@@ -223,13 +222,15 @@ def create_transaction(
         return (debit_entry, credit_entry)
 
     except IntegrityError as e:
-        db.session.rollback()
+        if commit:
+            db.session.rollback()
         raise PaypalTransactionException(str(e))
     except Exception as e:
-        db.session.rollback()
+        if commit:
+            db.session.rollback()
         raise PaypalTransactionException(str(e))
 
-def reverse_transaction(transaction, user, notes, transaction_date=None):
+def reverse_transaction(transaction, user=None, transaction_date=None):
     '''
     We will create a duplicate transaction, but switch the 
     debit and credit accounts.
@@ -239,54 +240,48 @@ def reverse_transaction(transaction, user, notes, transaction_date=None):
     if transaction is None:
         raise Exception("Please provide a valid transaction")
 
-    if user is None or not user.pk:
-        raise Exception("Please provide a valid user")
-
-    if notes is None:
-        raise Exception("Please provide a valid note")
-
     transaction_type = transaction.transaction_type
+
+    last_transaction_status = TransactionStatus.query.filter_by(
+        transaction_id=transaction.id).order_by('date_created desc').limit(1)
     
-    if transaction.last_status.code == POSTED:
-        with db_transaction.atomic():
-            #get all the transaction entries
-            entries = transaction.entries.all()
+    if last_transaction_status.status.code == POSTED:
+        #get all the transaction entries
+        entries = transaction.entries.all()
 
-            assert entries.count() == 2
+        assert entries.count() == 2
 
-            #get the entries
-            debit_entry  = entries.get(item_type=TransactionEntry.DEBIT)
-            credit_entry = entries.get(item_type=TransactionEntry.CREDIT)
+        #get the entries
+        debit_entry  = entries.get(item_type=TransactionEntry.DEBIT)
+        credit_entry = entries.get(item_type=TransactionEntry.CREDIT)
 
-            #get the accounts from the entries
-            credit_account = credit_entry.ledger_account
-            debit_account = debit_entry.ledger_account
+        #get the accounts from the entries, and swap them
+        debit_account = credit_entry.ledger_account
+        credit_account = debit_entry.ledger_account
 
-            #get the other particulars
-            product_account = transaction.account
-            amount = transaction.amount
-            currency = transaction.currency
-                
-            #status is set to none, as it will be received as pending
-            status = None
+        #get the other particulars
+        account = transaction.account
+        amount = transaction.amount
+        currency = transaction.currency
+            
+        #status is set to none, as it will be received as pending
+        status = None
 
-            return create_transaction(
-                transaction_type=transaction_type,  
-                credit_account=debit_account,
-                debit_account=credit_account,
-                product_account=product_account,
-                reversing_transaction=transaction,
-                transaction_date=transaction_date,
-                amount=amount,
-                status=status,
-                user=user, 
-                notes=notes,
-            )
+        return create_transaction(
+            transaction_type=transaction_type,  
+            credit_account=credit_account,
+            debit_account=debit_account,
+            product_account=account,
+            reversing_transaction=transaction,
+            transaction_date=transaction_date,
+            amount=amount,
+            status=status,
+            user=user, 
+        )
 
 def update_transaction_status(
     transaction, 
-    status_code, 
-    details, 
+    status_code,  
     status_date=None
 ):
     if transaction is None:
@@ -298,33 +293,24 @@ def update_transaction_status(
     if user is None or not user.pk:
         raise Exception("Please provide a valid user")
 
-    if details is None:
-        raise Exception("Please provide a valid note")
+    if not status_date:
+        status_date = db.func.now()
 
     try:
         #get the transaction status and time now
-        config_transaction_status = ConfigTransactionStatus.query.filter_by(
-            code=status_code
-        ).first()
-
-        if not status_date:
-            status_date = db.func.now()
+        config_transaction_status = ConfigTransactionStatus.query\
+            .filter_by(code=status_code).first()
 
         #create the transaction status
         transaction_status = TransactionStatus(
-            transaction=transaction,
-            transaction_status=config_transaction_status,
-            transaction_status_date=status_date,
-            notes=notes
+            transaction_id=transaction.id,
+            status_id=config_transaction_status.id,
+            status_date=status_date
         )
-        #update the transaction with the new status and date
-        transaction.last_status = config_transaction_status
-        transaction.last_status_date = status_date
         
         db.session.add(transaction_status)
-        
         db.session.commit()
-    except IntegrityError, e:
+    except IntegrityError as e:
         db.session.rollback()
         raise PaypalTransactionException(str(e))
 
