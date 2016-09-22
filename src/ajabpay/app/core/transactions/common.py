@@ -7,25 +7,14 @@ from ajabpay.app.models import *
 from sqlalchemy.exc import IntegrityError
 
 import logging
-import random
 
 from decimal import Decimal as D
+from ajabpay.app.core.utils import get_reference_no
 
 INITIAL = D('0.0')
 
 PENDING_POSTING = "pending_posting"
 POSTED = "posted"
-
-def get_reference_no(limit=10):
-    possible_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
-    chosen_chars = ""
-    z = 0
-
-    while (z <= limit):
-        chosen_chars = (chosen_chars + random.choice(possible_chars))
-        z += 1
-
-    return chosen_chars
 
 def get_transaction_type_account_turple(transaction_type):
     accounting_rule = ConfigLedgerAccountingRule.query.filter_by(
