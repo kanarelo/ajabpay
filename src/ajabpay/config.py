@@ -13,7 +13,7 @@ class DevelopmentConfig(BaseConfig):
     PAYPAL_MODE = "sandbox"
     PAYPAL_CLIENT_ID = "ATo_Io1R9XCX9SmfHdGbeXYSKZnireDROhLUwcjO_VtLiUx7yB7CuMjTWJO0JgfGSXhxCLsLXna3KIn0"
     PAYPAL_CLIENT_SECRET = "EIbbidsOH9Y_2aXPiInRs7Wf-2Emn6fBzTfHXjxgZwC23Lu00zhvA2rImcz-7nkr1OfaDNuwq4yUWgYV"
-    PAYPAL_OAUTH_REDIRECT_URL='http://localhost:8000/auth/oauth/create_session'
+    PAYPAL_OAUTH_REDIRECT_URI='http://localhost:8000/auth/oauth/create_session'
 
 class StagingConfig(DevelopmentConfig):
     PAYPAL_MODE = "live"
@@ -30,24 +30,22 @@ class ProductionConfig(StagingConfig):
     PAYPAL_CLIENT_SECRET = "EGpfDwk6j7Gk78AGv-B_57f5H372_cziqaEkT2yXjVMzGEvlY3bfswGfJ7_KaditWleKy9zMC61Cs10K"
     PAYPAL_OAUTH_REDIRECT_URI='http://localhost:8000/auth/oauth/create_session'
 
-class TestingConfig(object):
+class TestingConfig(DevelopmentConfig):
     """Development configuration."""
     TESTING = True
-    DEBUG = True
     WTF_CSRF_ENABLED = False
     SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
     DEBUG_TB_ENABLED = True
     PRESERVE_CONTEXT_ON_EXCEPTION = False
-    SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 def get_default_config():
-    stage = os.environ.get('AJABPAY_STAGE', 'dev')
+    stage = os.environ.get('AJABPAY_STAGE', 'develop')
 
     if stage == 'develop':
-        return BaseConfig()
+        return DevelopmentConfig
     elif stage == 'staging':
-        return StagingConfig()
+        return StagingConfig
     elif stage == 'production':
-        return ProductionConfig()
+        return ProductionConfig
     else:
         raise Exception('Kindly set a valid stage for AjabPay')
