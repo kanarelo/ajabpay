@@ -5,7 +5,23 @@ from itsdangerous import SignatureExpired, BadSignature
 
 from ajabpay.index import app
 
+import os
+import re
+import string
+import random
+
 TWO_WEEKS = 1209600
+
+def extract_string(regex, test_string):
+    try:
+        return re.search(regex, test_string).groups()[0]
+    except IndexError:
+        return test_string
+
+def generate_random_password(length=15):
+    chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+    random.seed = (os.urandom(1024))
+    return ''.join(random.choice(chars) for i in range(length))
 
 def generate_token(user, expiration=TWO_WEEKS):
     s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)

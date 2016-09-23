@@ -62,7 +62,7 @@ class ConfigExchangeRate(db.Model):
     buying  = db.Column(db.Numeric(6, 2))
     selling = db.Column(db.Numeric(6, 2))
 
-    date_created = db.Column(db.Date())
+    date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
         return self.name
