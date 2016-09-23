@@ -37,9 +37,9 @@ class PaypalTransaction(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     paypal_transaction_type_code = db.Column(db.String(50), nullable=False)
     
-    paypal_payer_id = db.Column(db.String(50), db.ForeignKey('paypalprofile.payer_id'), nullable=True)
-    paypal_payer = db.relationship('PaypalProfile', backref='transactions',
-        primaryjoin="PaypalProfile.payer_id==PaypalTransaction.paypal_payer_id")
+    paypal_payer_id = db.Column(db.String(50), nullable=False)
+    payer_id = db.Column(db.Integer(), db.ForeignKey('paypalprofile.id'), nullable=True)
+    payer = db.relationship('PaypalProfile', backref='transactions')
 
     transaction = db.relationship('Transaction', backref='paypal_transactions', uselist=False,
         primaryjoin="Transaction.transaction_no==PaypalTransaction.paypal_transaction_id")
@@ -74,19 +74,16 @@ class MPesaTransaction(db.Model):
     mpesa_transaction_no = db.Column(db.String(50), 
         db.ForeignKey('transaction.transaction_no'), unique=True)
 
-    # recipient = db.relationship('MPesaProfile', backref='transactions',
-    #     primaryjoin="MPesaProfile.mobile_phone_no==MPesaTransaction.recipient_phone_no")
-    # recipient_phone_no = db.Column(db.String(50), 
-    #     db.ForeignKey('mpesaprofile.mobile_phone_no'), nullable=False)
+    recipient = db.relationship('User', backref='transactions',
+        primaryjoin="User.phone==MPesaTransaction.recipient_phone_no")
+    recipient_phone_no = db.Column(db.String(50), 
+        db.ForeignKey('user.phone'), nullable=False)
 
     total_amount = db.Column(db.String(50), nullable=False)
     total_amount_currency = db.Column(db.String(4), nullable=False, default='KES')
     
     reference_id = db.Column(db.String(50), nullable=True)
     merchant_transaction_id = db.Column(db.String(50), nullable=True)
-
-    #on response:
-
 
     date_created = db.Column(db.DateTime())
 

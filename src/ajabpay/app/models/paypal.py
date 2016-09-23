@@ -14,16 +14,17 @@ class PaypalProfile(db.Model):
     account = db.relationship('Account', backref='paypal_accounts')
 
     address = db.relationship('PaypalAddress', backref='paypal_addresses')
-
-    payer_id = db.Column(db.String(20), unique=True, nullable=False)
     paypal_user_id = name = db.Column(db.String(50), unique=True, nullable=False)
 
     name = db.Column(db.String(100), nullable=False)
     given_name = db.Column(db.String(100), nullable=False)
     family_name = db.Column(db.String(100), nullable=False)
+    middle_name = db.Column(db.String(100), nullable=True)
+    
     gender = db.Column(db.String(10), nullable=True)
+
     phone_number = db.Column(db.String(100), nullable=False)
-    date_of_birth = db.Column(db.Date(), nullable=False)
+    birthday = db.Column(db.Date(), nullable=False)
 
     email_verified = db.Column(db.Boolean, default=False, nullable=True)
     verified_account = db.Column(db.Boolean, default=False, nullable=False)
@@ -53,29 +54,6 @@ class PaypalAddress(db.Model):
 
     date_created = db.Column(db.DateTime(), nullable=False)
 
-class PaypalToken(db.Model):
-    __tablename__ = "paypaltoken"
-    
-    id = db.Column(db.Integer(), primary_key=True)
-
-    payer = db.relationship('PaypalProfile', backref='paypal_tokens',
-        primaryjoin='PaypalProfile.payer_id==PaypalToken.payer_id',
-        secondary=PaypalProfile.__table__,
-        secondaryjoin='PaypalProfile.paypal_user_id==PaypalToken.paypal_user_id')
-    payer_id = db.Column(db.String(50), db.ForeignKey('paypalprofile.payer_id'), nullable=True)
-    paypal_user_id = db.Column(db.String(50), db.ForeignKey('paypalprofile.paypal_user_id'), nullable=True)
-
-    scope = db.Column(db.String(100))
-
-    access_token = db.Column(db.String(255), nullable=False)
-    refresh_token = db.Column(db.String(255), nullable=True)
-    token_type = db.Column(db.String(15), nullable=False)
-    expires_in = db.Column(db.Integer(), nullable=False)
-
-    exires_at = db.Column(db.DateTime(), nullable=False)
-    date_created = db.Column(db.DateTime(), nullable=False)
-
-
 round_up = lambda (amount): ((amount * D('100')).to_integral_value()) / D('100')
 round_down = lambda (amount) : ((amount * D('100')).to_integral_value()) / D('100')
 
@@ -95,7 +73,7 @@ class ConfigPaypalParameter(db.Model):
     service_charge_max = db.Column(db.Numeric(10,2), default=D('0.0')) #250
     mobile_money_charge = db.Column(db.Numeric(10,2), default=D('0.0')) #33
 
-    date_created = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime(), nullable=False)
 
     def _get_percentage_service_charge(self, amount): 
         return (amount * (self.service_charge_percentage / D('100')))
