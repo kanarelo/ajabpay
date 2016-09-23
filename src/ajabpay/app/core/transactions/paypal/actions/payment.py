@@ -215,6 +215,9 @@ def create_payment_transaction(
                 commit=False)
         transaction = credit_entry.transaction
 
+        if payment.payer_id and paypal_profile.payer_id is None:
+            paypal_profile.payer_id = payment.payer_id 
+
         pp_transaction = PaypalTransaction(
             paypal_transaction_type_code='PAYMENT',
             create_time=dateutil.parser.parse(payment.create_time),

@@ -7,6 +7,16 @@ class BaseConfig(object):
     SQLALCHEMY_DATABASE_URI = 'mysql://ajabpay:ajabpay@localhost:3306/ajabpay'
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    
+    # PAYPAL_MODE = "sandbox"
+    # PAYPAL_CLIENT_ID = "ATo_Io1R9XCX9SmfHdGbeXYSKZnireDROhLUwcjO_VtLiUx7yB7CuMjTWJO0JgfGSXhxCLsLXna3KIn0"
+    # PAYPAL_CLIENT_SECRET = "EIbbidsOH9Y_2aXPiInRs7Wf-2Emn6fBzTfHXjxgZwC23Lu00zhvA2rImcz-7nkr1OfaDNuwq4yUWgYV"
+    # PAYPAL_OAUTH_REDIRECT_URL='http://localhost:8000/auth/oauth/create_session'
+
+    PAYPAL_MODE = "live"
+    PAYPAL_CLIENT_ID = "AbkGI35O5ZanygiMziTYOI5UTDcu-DxyWxRg_3RnVjxDlcDsECuyt1JhY1e8T3gIe5Iasgn3h7V2J2ff"
+    PAYPAL_CLIENT_SECRET = "EGpfDwk6j7Gk78AGv-B_57f5H372_cziqaEkT2yXjVMzGEvlY3bfswGfJ7_KaditWleKy9zMC61Cs10K"
+    PAYPAL_OAUTH_REDIRECT_URI='http://localhost:8000/auth/oauth/create_session'
 
 class TestingConfig(object):
     """Development configuration."""

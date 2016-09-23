@@ -19,15 +19,11 @@ class User(db.Model):
     date_updated = db.Column(db.DateTime(), nullable=False)
     date_created = db.Column(db.DateTime(), nullable=False)
 
-    def __init__(self, first_name=None, last_name=None, email=None, password=None, phone=None, active=False):
-        self.first_name = first_name
-        self.last_name = last_name
-        self.email = email
-        self.phone = phone
-        self.active = active
-
+    def __init__(self, password=None, *args, **kwargs):
         if password:
             self.password = User.hashed_password(password)
+
+        super(User, self).__init__(*args, **kwargs)
 
     def __unicode__(self):
         return self.get_full_name()
