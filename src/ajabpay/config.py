@@ -18,7 +18,7 @@ class DevelopmentConfig(BaseConfig):
     PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
 
 #------------------
-class StagingBaseConfig(DevelopmentConfig):
+class StagingBaseConfig(BaseConfig):
     PAYPAL_MODE = "live"
 
     PAYPAL_CLIENT_ID = "AbkGI35O5ZanygiMziTYOI5UTDcu-DxyWxRg_3RnVjxDlcDsECuyt1JhY1e8T3gIe5Iasgn3h7V2J2ff"
@@ -32,7 +32,7 @@ class StagingAdminConfig(StagingBaseConfig):
     SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_STAGING_ADMIN_DB_URL'))
 
 #------------------
-class ProductionBaseConfig(StagingConfig):
+class ProductionBaseConfig(BaseConfig):
     PAYPAL_MODE = "live"
 
     DEBUG = False
