@@ -39,6 +39,8 @@ class ProductionBaseConfig(BaseConfig):
     PAYPAL_CLIENT_SECRET = "EGpfDwk6j7Gk78AGv-B_57f5H372_cziqaEkT2yXjVMzGEvlY3bfswGfJ7_KaditWleKy9zMC61Cs10K"
     PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
 
+#rpOAW6UhbG@b!tDVF#migJ$PQPxYK@4lChRZKrHt - ajabpay-app
+#u#5YV7s@nn^FJpah43-If5^7o6-5ghas?sa#h$h(.OP099 - ajabpay-admn
 class ProductionAdminConfig(ProductionBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_PRODUCTION_ADMIN_DB_URL', '')
 
