@@ -9,7 +9,6 @@ from .transactions.paypal.endpoints import *
 from .transactions.mpesa.endpoints import *
 
 from .users import *
-from .auth import *
 
 @app.route('/<path:path>', methods=['GET'])
 def any_root_path(path):

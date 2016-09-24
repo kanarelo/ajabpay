@@ -50,7 +50,6 @@ class ProductionAppConfig(ProductionBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_PRODUCTION_APP_DB_URL', '')
 
 #------------------
-
 class TestingConfig(DevelopmentConfig):
     """Development configuration."""
     TESTING = True
@@ -60,9 +59,8 @@ class TestingConfig(DevelopmentConfig):
     PRESERVE_CONTEXT_ON_EXCEPTION = False
 
 #------------------
-
-def get_default_config():
-    stage = os.environ.get('AJABPAY_STAGE', ('develop-app'))
+def get_default_config(mode='app'):
+    stage = os.environ.get('AJABPAY_STAGE', ('develop-%s' % mode))
 
     if stage in ('develop-admin', 'develop-app'):
         return DevelopmentConfig
