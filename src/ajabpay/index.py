@@ -1,9 +1,14 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
-from .config import BaseConfig
 from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
 
 from werkzeug.routing import BaseConverter
+
+from .config import get_default_config
+
+#-----------
+
+Config = get_default_config()
 
 class RegexConverter(BaseConverter):
     def __init__(self, url_map, *items):
@@ -12,7 +17,7 @@ class RegexConverter(BaseConverter):
 
 app = Flask(__name__, static_folder="../static", template_folder="./templates")
 app.url_map.converters['regex'] = RegexConverter
-app.config.from_object(BaseConfig)
+app.config.from_object(Config)
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)

@@ -102,9 +102,8 @@ def create_transaction(
 
     def create_transaction_obj(transaction_no=None):
         #check if the transaction number exists in the db
-        if (transaction_no is not None) and not Transaction.query.filter_by(
-            transaction_no=transaction_no
-        ).exists() is True:
+        if (transaction_no is not None) and (Transaction.query.filter_by(
+            transaction_no=transaction_no).first() is not None):
             #create the transaction
             transaction = Transaction(
                 transaction_type=transaction_type,
@@ -112,8 +111,7 @@ def create_transaction(
                 currency_id=currency.id,
                 account_id=product_account.id,
                 amount=amount,
-                date_created=transaction_date
-            )
+                date_created=transaction_date)
 
             if reversing_transaction is not None:
                 transaction.reversing_transaction_id = reversing_transaction.id
@@ -121,35 +119,10 @@ def create_transaction(
             status = TransactionStatus(
                 transaction=transaction,
                 status=transaction_status,
-                date_created=transaction_date
-            )
+                date_created=transaction_date)
 
             try:
-                db.session.add(transaction)
-                db.session.add(status)
-
-                # l = dict(
-                #     transaction_type=transaction_type.code,
-                #     last_status=transaction_status,
-                #     last_status_date=transaction_date,
-                #     reversing_transaction=reversing_transaction,
-                #     transaction_no=transaction_no,
-                #     amount=amount,
-                #     currency=currency,
-                #     user=user,
-                #     **kwargs
-                # )
-
-                # if (credit_account and debit_account):
-                #     l.update(
-                #         credit_account=credit_account.ledger_code,
-                #         debit_account=debit_account.ledger_code,
-                #     )
-
-                # if (product_account is not None):
-                #     l.update(product_account=product_account.account_number)
-
-                # record_log(**l)
+                db.session.add_all(transaction, status)
             except IntegrityError as e:
                 raise PaypalTransactionException(str(e))
 
