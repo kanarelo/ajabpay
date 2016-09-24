@@ -26,10 +26,10 @@ class StagingBaseConfig(BaseConfig):
     PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
 
 class StagingAppConfig(StagingBaseConfig):
-    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_STAGING_APP_DB_URL'))
+    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_STAGING_APP_DB_URL', ''))
 
 class StagingAdminConfig(StagingBaseConfig):
-    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_STAGING_ADMIN_DB_URL'))
+    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_STAGING_ADMIN_DB_URL', ''))
 
 #------------------
 class ProductionBaseConfig(BaseConfig):
@@ -41,10 +41,10 @@ class ProductionBaseConfig(BaseConfig):
     PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
 
 class ProductionAdminConfig(ProductionBaseConfig):
-    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_PRODUCTION_ADMIN_DB_URL'))
+    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_PRODUCTION_ADMIN_DB_URL', ''))
 
 class ProductionAppConfig(ProductionBaseConfig):
-    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_PRODUCTION_APP_DB_URL'))
+    SQLALCHEMY_DATABASE_URI = urllib.unquote(os.environ.get('AJABPAY_PRODUCTION_APP_DB_URL', ''))
 
 #------------------
 
