@@ -14,7 +14,7 @@ from paypalrestsdk.openid_connect import Tokeninfo
 
 from ajabpay.config import get_default_config
 
-from .paypal_oauth import create_user_from_userinfo
+from .paypal_oauth import (create_user_from_userinfo, configure_paypal_sdk)
 
 #------------
 Config = get_default_config()

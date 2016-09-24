@@ -58,16 +58,15 @@ def create_paypal_profile(account, user_id=None, address=None, **kwargs):
 
     with db.session.begin_nested():
         paypal_profile = PaypalProfile(
-            email=user.email,
-            account_id=account.id,
-            name=user.get_full_name(),
-            given_name=user.last_name,
             family_name=user.first_name,
+            given_name=user.last_name,
             date_created=date_created,
             date_updated=date_created,
+            name=user.get_full_name(),
             paypal_user_id=user_id,
-            **kwargs
-        )
+            account_id=account.id,
+            email=user.email,
+            **kwargs)
         db.session.add(paypal_profile)
 
         if address is not None:

@@ -16,26 +16,9 @@
                 </ul>
             {% endif %}
         {% endwith %}
-        {% block body %}
-            <form method="POST" action="{{ url_for('paypal_withdraw_amount') }}">
-                <div class="col-md-6 col-md-offset-3">
-                    <div class="form-group">
-                        <label>Email</label>
-                        <input class="form-control" name="email" />
-                    </div>
-                    <div class="form-group">
-                        <label>KES</label>
-                    </div>
-                    <div class="form-group">
-                        <label>Amount</label>
-                        <input class="form-control" name="amount" />
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-default" type="submit">Submit</button>
-                    </div>
-                </div>
-            </form>
-        {% endblock %}
+        <div class="well">
+            <a class="btn btn-info" href="{{ url_for('login_via_paypal') }}">Login Via PayPal</a>
+        </div>
     </div>
   </body>
 </html>
