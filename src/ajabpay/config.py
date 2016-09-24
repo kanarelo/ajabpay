@@ -14,15 +14,16 @@ class DevelopmentConfig(BaseConfig):
     PAYPAL_MODE = "sandbox"
     PAYPAL_CLIENT_ID = "ATo_Io1R9XCX9SmfHdGbeXYSKZnireDROhLUwcjO_VtLiUx7yB7CuMjTWJO0JgfGSXhxCLsLXna3KIn0"
     PAYPAL_CLIENT_SECRET = "EIbbidsOH9Y_2aXPiInRs7Wf-2Emn6fBzTfHXjxgZwC23Lu00zhvA2rImcz-7nkr1OfaDNuwq4yUWgYV"
-    PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
+    PAYPAL_OAUTH_REDIRECT_URI='https://localhost:8000/auth/oauth/paypal/create_session'
 
 #------------------
 class StagingBaseConfig(BaseConfig):
-    PAYPAL_MODE = "live"
+    PAYPAL_MODE = os.environ.get('AJABPAY_PAYPAL_MODE', 'live')
+    
+    PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
+    PAYPAL_CLIENT_SECRET = os.environ.get('AJABPAY_PAYPAL_CLIENT_SECRET', '')
 
-    PAYPAL_CLIENT_ID = "AbkGI35O5ZanygiMziTYOI5UTDcu-DxyWxRg_3RnVjxDlcDsECuyt1JhY1e8T3gIe5Iasgn3h7V2J2ff"
-    PAYPAL_CLIENT_SECRET = "EGpfDwk6j7Gk78AGv-B_57f5H372_cziqaEkT2yXjVMzGEvlY3bfswGfJ7_KaditWleKy9zMC61Cs10K"
-    PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
+    PAYPAL_OAUTH_REDIRECT_URI='https://staging.ajabcapital.com/auth/oauth/paypal/create_session'
 
 class StagingAppConfig(StagingBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_STAGING_APP_DB_URL', '')
@@ -35,9 +36,10 @@ class ProductionBaseConfig(BaseConfig):
     PAYPAL_MODE = "live"
 
     DEBUG = False
-    PAYPAL_CLIENT_ID = "AbkGI35O5ZanygiMziTYOI5UTDcu-DxyWxRg_3RnVjxDlcDsECuyt1JhY1e8T3gIe5Iasgn3h7V2J2ff"
-    PAYPAL_CLIENT_SECRET = "EGpfDwk6j7Gk78AGv-B_57f5H372_cziqaEkT2yXjVMzGEvlY3bfswGfJ7_KaditWleKy9zMC61Cs10K"
-    PAYPAL_OAUTH_REDIRECT_URI='https://requestb.in/1mgb0721'
+    PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
+    PAYPAL_CLIENT_SECRET = os.environ.get('AJABPAY_PAYPAL_CLIENT_SECRET', '')
+
+    PAYPAL_OAUTH_REDIRECT_URI='https://www.ajabcapital.com/auth/oauth/paypal/create_session'
 
 #rpOAW6UhbG@b!tDVF#migJ$PQPxYK@4lChRZKrHt - ajabpay-app
 #u#5YV7s@nn^FJpah43-If5^7o6-5ghas?sa#h$h(.OP099 - ajabpay-admn
