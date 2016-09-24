@@ -23,8 +23,11 @@ def configure_paypal_sdk(scope=None):
     ))
 
     if scope is None:
-        scope = ('openid profile email address phone '
-            'https://uri.paypal.com/services/paypalattributes')
+        scope = (
+            'openid profile email address phone '
+            'https://uri.paypal.com/services/paypalattributes '
+            'https://uri.paypal.com/services/expresscheckout '
+            'https://uri.paypal.com/services/invoicing')
 
     options = {'scope': scope}
 
