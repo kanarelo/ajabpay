@@ -41,15 +41,16 @@ def create_mpesa_profile(account):
         db.session.add(mpesa_profile)
         return mpesa_profile
 
-def create_paypal_profile(account, user_id=None, address=None **kwargs):
+def create_paypal_profile(account, user_id=None, address=None, **kwargs):
     user = account.user
     date_created = db.func.now()
 
-    def create_paypal_address(paypal_profile, **_kwargs)):
+    def create_paypal_address(paypal_profile, **address_kwargs):
         with db.session.begin_nested():
             paypal_address = PaypalAddress(
                 paypal_profile_id=paypal_profile.id,
-                date_created=date_created, **_kwargs)
+                date_created=date_created, 
+                **address_kwargs)
 
             db.session.add(paypal_address)
 
@@ -70,13 +71,7 @@ def create_paypal_profile(account, user_id=None, address=None **kwargs):
         db.session.add(paypal_profile)
 
         if address is not None:
-            create_paypal_address(paypal_profile
-                street_address=address.get('street_address'),
-                postal_code=address.get('postal_code'),
-                locality=address.get('locality'),
-                country=address.get('country'),
-                region=address.get('region')
-            )
+            create_paypal_address(paypal_profile, **address)
 
 def create_account_object(user, product, account_number=None):
     with db.session.begin_nested(): 

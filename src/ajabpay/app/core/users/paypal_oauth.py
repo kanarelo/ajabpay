@@ -33,6 +33,8 @@ def configure_paypal_sdk(scope=None):
 
     return options
 
+USER_ID_ENDPOINT_REGEX = r'^https://www.paypal.com/webapps/auth/identity/user/(?P<user_id>[-\w]+)$'
+extract_paypal_user_id = lambda user_id_url: extract_string(USER_ID_ENDPOINT_REGEX, user_id_url)
 
 def create_user_from_userinfo(userinfo=None):
     '''{
@@ -58,8 +60,6 @@ def create_user_from_userinfo(userinfo=None):
         'email': u'info@ajabworld.net'
     }
     '''
-    extract_paypal_user_id = lambda user_id: extract_string(
-        r'^https://www.paypal.com/webapps/auth/identity/user/(?P<slug>[-\w]+)$', user_id)
          
     try:
         user = create_user_object(
@@ -85,9 +85,9 @@ def create_user_from_userinfo(userinfo=None):
                     middle_name=userinfo.get('middle_name'),
                     phone_number=get_phone_number(userinfo.get('phone_number')),
                     email_verified=userinfo.get('email_verified') == 'true',
-                    verified_account=userinfo.get('verified_account') == 'true,
+                    verified_account=userinfo.get('verified_account') == 'true',
                     account_creation_date=dateutil.parser.parse(userinfo.get('account_creation_date')),
-                    account_type=userinfo.get('account_type')
+                    account_type=userinfo.get('account_type'),
                     address=userinfo.get('address')
                 )
 

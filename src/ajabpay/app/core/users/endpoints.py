@@ -65,6 +65,6 @@ def create_session():
     tokeninfo = Tokeninfo.create(options=options)
     userinfo = tokeninfo.userinfo(options=options)
 
-    create_user_from_userinfo(userinfo)
+    user = create_user_from_userinfo(userinfo)
 
     return jsonify(dict(**data))
