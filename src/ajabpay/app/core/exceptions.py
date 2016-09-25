@@ -1,0 +1,1 @@
+class AjabPayException(Exception): pass

@@ -3,7 +3,8 @@ import dateutil.parser
 
 from ...exceptions import (
     PaypalTransactionException,
-    NotificationException
+    NotificationException,
+    ObjectNotFoundException
 )
 from ..utils import (
     create_paypalrestsdk_api,
@@ -161,7 +162,7 @@ def make_paypal_payment_request(
     return payment
 
 def create_payment_transaction(
-    paypal_profile,
+    email,
     amount=D('100.00'), 
     transaction_type=None,
     currency='USD',
@@ -170,16 +171,32 @@ def create_payment_transaction(
     cancel_url=None,
     create=True
 ):
+    PRODUCT_CODE = 'PP2MP'
     db.session.begin_nested()
 
     try:
+        paypal_profile = db.session.query(PaypalProfile)\
+            .join(User, User.email==PaypalProfile.email)\
+            .filter(User.email==email)\
+            .first()
+            
+        if paypal_profile is None:
+            raise ObjectNotFoundException('User %s not found' % email)
+        
         if transaction_type is None:
             transaction_type = ConfigTransactionType.query.filter_by(code='WITHDRAWAL').first()
 
-        product_account = paypal_profile.account
+        user = paypal_profile.user
+        account = user.accounts\
+            .join(Product, Product.id==Account.product_id)\
+            .filter(Product.code==PRODUCT_CODE)\
+            .first()
 
-        validate_product_policy = lambda product_account, transaction: True #TODO, implement validate_product_policy
-        is_valid = validate_product_policy(product_account, transaction)
+        if account is None:
+            raise ObjectNotFoundException('Account %s not found' % email)
+
+        validate_product_policy = lambda account, transaction: True #TODO, implement validate_product_policy
+        is_valid = validate_product_policy(account, transaction)
 
         if not is_valid:
             raise PaypalTransactionException('Invalid transaction')
@@ -206,7 +223,7 @@ def create_payment_transaction(
             .create_transaction(
                 amount=amount, 
                 transaction_type=transaction_type, 
-                product_account=product_account,
+                product_account=account,
                 currency=currency, 
                 user=user, 
                 credit_account=credit_account, 

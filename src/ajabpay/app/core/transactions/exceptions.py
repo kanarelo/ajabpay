@@ -1,3 +1,7 @@
-class TransactionException(Exception): pass
+from ..exceptions import AjabPayException
+
+class TransactionException(AjabPayException): pass
+class NotificationException(AjabPayException): pass
+
 class PaypalTransactionException(TransactionException): pass
-class NotificationException(Exception): pass
+class ObjectNotFoundException(AjabPayException): pass

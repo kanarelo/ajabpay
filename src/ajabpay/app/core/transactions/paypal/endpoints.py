@@ -30,17 +30,7 @@ def paypal_withdraw_amount():
         email = form.email.data  
         amount = form.amount.data
 
-        paypal_profile = db.session.query(PaypalProfile)\
-            .join(User, User.email==PaypalProfile.email)\
-            .filter(User.email==email)\
-            .first()
-
-        if paypal_profile is None:
-            return jsonify(success=False, status_code=404, error_code="ERR_P01",
-                message="ERR_P01: Invalid paypal user; user not found.")
-        
-        # try:
-        payment = create_payment_transaction(paypal_profile, amount=amount,
+        payment = create_payment_transaction(email, amount=amount,
             return_url=url_for('paypal_return_url'), cancel_url=url_for('paypal_cancel_url'))
         # except PaypalTransactionException as e:
         #     print e
