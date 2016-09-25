@@ -1,7 +1,7 @@
 import dateutil.parser
 
 from ajabpay.index import db
-from ajabpay.app.core.utils import (
+from ajabpay.app.core.utils import (get_account_no,
     get_reference_no, generate_random_password)
 from ajabpay.app.models import *
 
@@ -25,13 +25,11 @@ def create_user_object(phone=None, **kwargs):
 
         return user
 
-def create_mpesa_profile(account):
+def create_mpesa_profile(user):
     with db.session.begin_nested():
-        user = account.user
         date_created = db.func.now()
         
         mpesa_profile = MPesaProfile(
-            account_id=account.id,
             user_id=user.id,
             mobile_phone_no=user.phone,
             date_created=date_created,
@@ -41,8 +39,7 @@ def create_mpesa_profile(account):
         db.session.add(mpesa_profile)
         return mpesa_profile
 
-def create_paypal_profile(account, user_id=None, address=None, **kwargs):
-    user = account.user
+def create_paypal_profile(user, address=None, **kwargs):
     date_created = db.func.now()
 
     def create_paypal_address(paypal_profile, **address_kwargs):
@@ -63,8 +60,6 @@ def create_paypal_profile(account, user_id=None, address=None, **kwargs):
             date_created=date_created,
             date_updated=date_created,
             name=user.get_full_name(),
-            paypal_user_id=user_id,
-            account_id=account.id,
             email=user.email,
             **kwargs)
         db.session.add(paypal_profile)
@@ -78,8 +73,7 @@ def create_account_object(user, product, account_number=None):
 
         account_number = None
         while account_number is None:
-            account_number = '{0}.{1}.{2}'.format(
-                product.code, user_id, get_reference_no(limit=6))
+            account_number = get_account_no(limit=8)
 
             a = Account.query\
                 .filter_by(account_number=account_number)\
