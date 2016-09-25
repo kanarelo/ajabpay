@@ -37,7 +37,7 @@ class PaypalTransaction(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     paypal_transaction_type_code = db.Column(db.String(50), nullable=False)
     
-    paypal_payer_id = db.Column(db.String(50), nullable=False)
+    paypal_payer_id = db.Column(db.String(50), nullable=True)
     payer_id = db.Column(db.Integer(), db.ForeignKey('paypalprofile.id'), nullable=True)
     payer = db.relationship('PaypalProfile', backref='transactions')
 
@@ -105,9 +105,6 @@ class TransactionStatus(db.Model):
 
     date_created = db.Column(db.DateTime())
 
-    def __unicode__(self):
-        return '%s %s' % (self.transaction, self.status)
-
 class TransactionEntry(db.Model):
     __tablename__ = "transactionentry"
     
@@ -129,6 +126,3 @@ class TransactionEntry(db.Model):
     balance_increment = db.Column(db.Numeric(6,2), default=D('0.0'))
 
     date_created = db.Column(db.DateTime())
-
-    def __unicode__(self):
-        return '%s %s' % (self.transaction, self.item_type)

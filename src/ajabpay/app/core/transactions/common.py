@@ -103,30 +103,29 @@ def create_transaction(
     def create_transaction_obj(transaction_no=None):
         #check if the transaction number exists in the db
         if (transaction_no is not None) and (Transaction.query.filter_by(
-            transaction_no=transaction_no).first() is not None):
-            #create the transaction
-            transaction = Transaction(
-                transaction_type=transaction_type,
-                transaction_no=transaction_no,
-                currency_id=currency.id,
-                account_id=product_account.id,
-                amount=amount,
-                date_created=transaction_date)
+            transaction_no=transaction_no).first() is None):
 
-            if reversing_transaction is not None:
-                transaction.reversing_transaction_id = reversing_transaction.id
+            with db.session.begin_nested() as db_transaction:
+                #create the transaction
+                transaction = Transaction(
+                    transaction_type=transaction_type,
+                    transaction_no=transaction_no,
+                    currency_id=currency.id,
+                    account_id=product_account.id,
+                    amount=amount,
+                    date_created=transaction_date)
 
-            status = TransactionStatus(
-                transaction=transaction,
-                status=transaction_status,
-                date_created=transaction_date)
+                if reversing_transaction is not None:
+                    transaction.reversing_transaction_id = reversing_transaction.id
 
-            try:
-                db.session.add_all(transaction, status)
-            except IntegrityError as e:
-                raise PaypalTransactionException(str(e))
+                status = TransactionStatus(
+                    transaction=transaction,
+                    status=transaction_status,
+                    date_created=transaction_date)
 
-            return transaction
+                db.session.add_all((transaction, status))
+
+                return transaction
         else:
             return create_transaction_obj(transaction_no=get_reference_no())
 
@@ -142,7 +141,7 @@ def create_transaction(
 
         return le
 
-    try:
+    with db.session.begin_nested() as db_transaction:
         if not ((amount and currency) and transaction_type):
             raise Exception("Please provide valid parameters for this transaction.")
 
@@ -174,23 +173,9 @@ def create_transaction(
                 TransactionEntry.CREDIT, 
                 credit_ledger_balance_increment
             )
-
-            db.session.add(debit_entry)
-            db.session.add(credit_entry)
-
-            if commit:
-                db.session.commit()
+            db.session.add_all((debit_entry, credit_entry))
 
         return (debit_entry, credit_entry)
-
-    except IntegrityError as e:
-        if commit:
-            db.session.rollback()
-        raise PaypalTransactionException(str(e))
-    except Exception as e:
-        if commit:
-            db.session.rollback()
-        raise PaypalTransactionException(str(e))
 
 def reverse_transaction(transaction, user=None, transaction_date=None):
     '''
@@ -206,8 +191,11 @@ def reverse_transaction(transaction, user=None, transaction_date=None):
 
     last_transaction_status = TransactionStatus.query.filter_by(
         transaction_id=transaction.id).order_by('date_created desc').limit(1)
+        
+    if not last_transaction_status.status.code == POSTED:
+        return
     
-    if last_transaction_status.status.code == POSTED:
+    with db.session.begin_nested() as db_transaction:
         #get all the transaction entries
         entries = transaction.entries.all()
 
@@ -227,7 +215,8 @@ def reverse_transaction(transaction, user=None, transaction_date=None):
         currency = transaction.currency
             
         #status is set to none, as it will be received as pending
-        status = None
+        config_transaction_status = ConfigTransactionStatus.query\
+            .filter_by(code=POSTED).first()
 
         return create_transaction(
             transaction_type=transaction_type,  
@@ -236,8 +225,8 @@ def reverse_transaction(transaction, user=None, transaction_date=None):
             product_account=account,
             reversing_transaction=transaction,
             transaction_date=transaction_date,
+            status=config_transaction_status,
             amount=amount,
-            status=status,
             user=user, 
         )
 

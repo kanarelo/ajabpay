@@ -96,5 +96,3 @@ class AccountStatus(db.Model):
 
     date_created = db.Column(db.DateTime())
 
-    def __unicode__(self):
-        return '%s %s' % (self.account, self.status)

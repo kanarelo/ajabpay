@@ -196,10 +196,10 @@ def create_payment_transaction(
             raise ObjectNotFoundException('Account %s not found' % email)
 
         validate_product_policy = lambda account, transaction: True #TODO, implement validate_product_policy
-        is_valid = validate_product_policy(account, transaction)
+        # is_valid = validate_product_policy(account, transaction)
 
-        if not is_valid:
-            raise PaypalTransactionException('Invalid transaction')
+        # if not is_valid:
+        #     raise PaypalTransactionException('Invalid transaction')
 
         payment = make_paypal_payment_request(
             amount, 
@@ -236,18 +236,22 @@ def create_payment_transaction(
             paypal_profile.payer_id = payment.payer_id 
 
         pp_transaction = PaypalTransaction(
+            payment_method=payment.payer['payment_method'],
             paypal_transaction_type_code='PAYMENT',
-            create_time=dateutil.parser.parse(payment.create_time),
-            update_time=dateutil.parser.parse(payment.update_time),
-            paypal_payer_id=payment.payer_id,
+            payer_id=paypal_profile.id,
             paypal_transaction_id=transaction_no,
             intent=payment.intent,
-            payment_method=payment.payer['payment_method'],
             state=payment.state,
+            create_time=dateutil.parser.parse(payment.create_time),
             date_created=db.func.now())
 
-        db.session.add(transaction)
-        db.session.add(pp_transaction)
+        if payment.payer_id:
+            pp_transaction.paypal_payer_id = payment.payer_id
+
+        if payment.update_time:
+            pp_transaction.update_time = dateutil.parser.parse(payment.update_time)
+
+        db.session.add_all((transaction, pp_transaction))
         db.session.commit()
 
         return payment

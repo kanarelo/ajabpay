@@ -22,7 +22,7 @@ class PaypalPaymentForm(Form):
         validators.required(), validators.NumberRange(0, 250)], places=2, rounding=None)
 
 @requires_auth
-@app.route('/transaction/withdraw/', methods=['POST'])
+@app.route('/transaction/withdraw', methods=['GET', 'POST'])
 def paypal_withdraw_amount():
     form = PaypalPaymentForm(request.form)
 
@@ -51,7 +51,7 @@ def paypal_withdraw_amount():
             return jsonify(success=False, status_code=500, error_code="ERR_P04",
                 message="ERR_P04: Could not establish connection with Paypal, try again later.")
 
-    return render_template('index.html', form=form)
+    return render_template('p2m.html', form=form)
 
 @app.route('/transaction/sale/return')
 def paypal_return_url():
