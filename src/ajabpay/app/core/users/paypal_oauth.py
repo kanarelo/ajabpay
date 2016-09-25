@@ -2,13 +2,14 @@ import dateutil.parser
 
 from ajabpay.index import app, db
 from ajabpay.app.core.utils import extract_string
-from ajabpay.app.models import *
+from ajabpay.app.models import Product
 
 import paypalrestsdk
-from paypalrestsdk.openid_connect import Tokeninfo
+
+from sqlalchemy.exc import IntegrityError, OperationalError
 
 from ajabpay.config import get_default_config
-from .helpers import *
+from ajabpay.app.core.users.helpers import *
 
 def configure_paypal_sdk(scope=None):
     Config = get_default_config()
@@ -62,40 +63,70 @@ def create_user_from_userinfo(userinfo=None):
     '''
          
     try:
+        #1. Create user
         user = create_user_object(
             first_name=userinfo.get('given_name'),
             last_name=userinfo.get('family_name'),
             email=userinfo.get('email'),
             phone=userinfo.get('phone_number'))
+        
+        #2. Create their paypal profile
+        paypal_profile = create_paypal_profile(user,
+            gender=userinfo.get('gender'),
+            paypal_user_id=extract_paypal_user_id(userinfo.get('user_id')),
+            birthday=dateutil.parser.parse(userinfo.get('birthday')),
+            middle_name=userinfo.get('middle_name'),
+            phone_number=get_phone_number(userinfo.get('phone_number')),
+            email_verified=userinfo.get('email_verified') == 'true',
+            verified_account=userinfo.get('verified_account') == 'true',
+            account_creation_date=dateutil.parser.parse(userinfo.get('account_creation_date')),
+            account_type=userinfo.get('account_type'),
+            address=userinfo.get('address')
+        )
 
+        #3. create their m-pesa profile
+        mpesa_profile = create_mpesa_profile(user)
+
+        #4. Subscribe to all active products
         products = Product.query\
             .filter_by(is_active=True)\
             .all()
-
         for product in products:
             product_code = product.code
-            
+
+            #5. subscribe
             account = create_account_object(user, product)
-            
-            if ('PP' in product_code) or ('PAYPAL' in product_code):
-                paypal_profile = create_paypal_profile(account,
-                    gender=userinfo.get('gender'),
-                    user_id=extract_paypal_user_id(userinfo.get('user_id')),
-                    birthday=dateutil.parser.parse(userinfo.get('birthday')),
-                    middle_name=userinfo.get('middle_name'),
-                    phone_number=get_phone_number(userinfo.get('phone_number')),
-                    email_verified=userinfo.get('email_verified') == 'true',
-                    verified_account=userinfo.get('verified_account') == 'true',
-                    account_creation_date=dateutil.parser.parse(userinfo.get('account_creation_date')),
-                    account_type=userinfo.get('account_type'),
-                    address=userinfo.get('address')
-                )
-
-            if ('MPESA' in product_code) or ('M-PESA' in product_code):
-                mpesa_profile = create_mpesa_profile(userinfo, account)
-
+        
         db.session.commit()
-    except Exception:
+        
+        return user
+    except (IntegrityError, OperationalError) as e:
+        print e
+        db.session.rollback()
+    except Exception as e:
+        print e
         db.session.rollback()
 
-    return user
+if __name__ == '__main__':
+    user = create_user_from_userinfo({
+        'verified_account': u'false', 
+        'family_name': u'Mukewa', 
+        'age_range': u'26-30', 
+        'user_id': u'https://www.paypal.com/webapps/auth/identity/user/vrn1jrqzaL-aToE5BG5Ts7GogjnL4myHYMIM2DtzWvw', 
+        'name': u'Onesmus Mukewa', 
+        'language': u'en_US', 
+        'account_creation_date': u'2016-08-17', 
+        'locale': u'en_US', 
+        'zoneinfo': u'America/Los_Angeles', 
+        'birthday': u'1990-03-19', 
+        'given_name': u'Onesmus', 
+        'address': {
+            'country': u'KE', 
+            'region': u'Nairobi', 
+            'street_address': u'61, Mai Mahiu Road, Nairobi West', 
+            'locality': u'Nairobi'
+        }, 
+        'account_type': u'BUSINESS', 
+        'phone_number': u'708866966', 
+        'email': u'musa@ajabworld.com'
+    })

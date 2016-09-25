@@ -1,18 +1,22 @@
-from flask import request, render_template, jsonify, url_for, redirect, g
+from flask import (
+    request, render_template, 
+    jsonify, url_for, 
+    redirect, g
+)
 
-from ajabpay.app.models import *
 from ajabpay.index import app, db
-
-from sqlalchemy import or_, Date, cast
-from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 
 from ajabpay.app.utils import generate_token, requires_auth, verify_token
 
 import paypalrestsdk
 from paypalrestsdk.openid_connect import Tokeninfo
+from paypalrestsdk.exceptions import (
+    ConnectionError, MissingParam, MissingConfig)
 
 from ajabpay.config import get_default_config
+from ajabpay.app.core.endpoint_helpers import (page_not_found,
+    access_forbidden, internal_server_error)
 
 from .paypal_oauth import (create_user_from_userinfo, configure_paypal_sdk)
 
@@ -46,9 +50,16 @@ def get_user():
 
 @app.route("/auth/oauth/paypal/signin", methods=["GET"])
 def login_via_paypal():
-    options = configure_paypal_sdk()
-
-    login_url = Tokeninfo.authorize_url(options=options)
+    try:
+        options = configure_paypal_sdk()
+        login_url = Tokeninfo.authorize_url(options=options)
+    except (ConnectionError, MissingParam, MissingConfig) as e:
+        print e
+        return internal_server_error()
+    except Exception as e:
+        print e
+        return internal_server_error()
+    
 
     #redirect to login page for approval
     return redirect(login_url)

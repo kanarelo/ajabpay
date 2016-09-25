@@ -17,7 +17,7 @@
 
 LOCK TABLES `alembic_version` WRITE;
 /*!40000 ALTER TABLE `alembic_version` DISABLE KEYS */;
-INSERT INTO `alembic_version` VALUES ('ed728aa00a42');
+INSERT INTO `alembic_version` VALUES ('bac65eb16d07');
 /*!40000 ALTER TABLE `alembic_version` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -511,7 +511,7 @@ DROP TABLE IF EXISTS `product`;
 CREATE TABLE `product` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) DEFAULT NULL,
-  `code` varchar(10) DEFAULT NULL,
+  `code` varchar(50) DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT NULL,
   `product_type_id` int(11) DEFAULT NULL,
   `txn_withdrawal_limit` decimal(6,2) DEFAULT NULL,
@@ -524,8 +524,8 @@ CREATE TABLE `product` (
   `monthly_deposit_limit` decimal(6,2) DEFAULT NULL,
   `yearly_withdraw_limit` decimal(6,2) DEFAULT NULL,
   `yearly_deposit_limit` decimal(6,2) DEFAULT NULL,
-  `date_updated` date DEFAULT NULL,
-  `date_created` date DEFAULT NULL,
+  `date_updated` datetime DEFAULT NULL,
+  `date_created` datetime DEFAULT NULL,
   `amount_currency_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `product_type_id` (`product_type_id`),
@@ -542,8 +542,8 @@ CREATE TABLE `product` (
 LOCK TABLES `product` WRITE;
 /*!40000 ALTER TABLE `product` DISABLE KEYS */;
 INSERT INTO `product` VALUES 
-(1,'Paypal to M-Pesa Exchange','PP-MPESA-FX',1,4,250.00,500.00,250.00,250.00,500.00,500.00,1000.00,1000.00,6000.00,6000.00,'2016-09-17','2016-09-17',1),
-(2,'M-Pesa to Paypal Exchange','MPESA-PP-FX',1,4,250.00,500.00,250.00,250.00,500.00,500.00,1000.00,1000.00,6000.00,6000.00,'2016-09-17','2016-09-17',1);
+(1,'Paypal to M-Pesa Exchange','PP2MP',1,4,250.00,500.00,250.00,250.00,500.00,500.00,1000.00,1000.00,6000.00,6000.00,'2016-09-17','2016-09-17',1),
+(2,'M-Pesa to Paypal Exchange','MP2PP',1,4,250.00,500.00,250.00,250.00,500.00,500.00,1000.00,1000.00,6000.00,6000.00,'2016-09-17','2016-09-17',1);
 /*!40000 ALTER TABLE `product` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
