@@ -52,8 +52,8 @@ class PaypalTransaction(db.Model):
     parent_transaction = db.relationship('Transaction', backref='child_transactions', uselist=False,
         primaryjoin="PaypalTransaction.parent_transaction_id==Transaction.transaction_no")
 
-    create_time = db.Column(db.DateTime(), nullable=False)
-    update_time = db.Column(db.DateTime(), nullable=True)
+    create_time = db.Column(db.DateTime(timezone=True), nullable=False)
+    update_time = db.Column(db.DateTime(timezone=True), nullable=True)
 
     state = db.Column(db.String(50), nullable=False)
     intent = db.Column(db.String(20), nullable=True)
