@@ -10,9 +10,6 @@ class PaypalProfile(db.Model):
         primaryjoin='User.email==PaypalProfile.email')
     email = db.Column(db.String(100), db.ForeignKey('user.email'), unique=True, nullable=False)
 
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
-    account = db.relationship('Account', backref='paypal_accounts')
-
     address = db.relationship('PaypalAddress', backref='paypal_addresses')
     paypal_user_id = name = db.Column(db.String(100), unique=True, nullable=False)
 

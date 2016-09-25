@@ -7,7 +7,7 @@ class Product(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     name = db.Column(db.String(100))
-    code = db.Column(db.String(100))
+    code = db.Column(db.String(50))
 
     is_active = db.Column(db.Boolean, default=True)
 
@@ -44,8 +44,6 @@ class Account(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
 
     account_number = db.Column(db.String(50), unique=True, nullable=False)
-
-    user    = db.relationship('User', backref='product_accounts')
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
     product = db.relationship('Product', backref='accounts')

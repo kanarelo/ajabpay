@@ -19,6 +19,8 @@ class User(db.Model):
     date_updated = db.Column(db.DateTime(), nullable=False)
     date_created = db.Column(db.DateTime(), nullable=False)
 
+    accounts = db.relationship('Account', lazy='dynamic')
+
     def __init__(self, password=None, *args, **kwargs):
         if password:
             self.password = User.hashed_password(password)

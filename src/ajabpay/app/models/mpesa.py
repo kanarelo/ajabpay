@@ -10,10 +10,8 @@ class MPesaProfile(db.Model):
     user = db.relationship('User', backref='mpesa_profile', uselist=False)# primaryjoin='User.phone==MPesaProfile.mobile_phone_no')
 
     mobile_phone_no = db.Column(db.String(25), unique=True, nullable=False)
+    registered_name = db.Column(db.String(100), nullable=True)
 
-    account_id = db.Column(db.Integer, db.ForeignKey('account.id'), nullable=False)
-    account = db.relationship('Account', backref='mpesa_accounts')
-    
     date_created = db.Column(db.DateTime(), nullable=False)
     date_updated = db.Column(db.DateTime(), nullable=False)
 
