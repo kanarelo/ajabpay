@@ -53,7 +53,7 @@ def paypal_withdraw_amount():
 
     return render_template('p2m.html', form=form)
 
-@app.route('/transaction/sale/return')
+@app.route('/transaction/withdraw/return')
 def paypal_return_url():
     data = request.args
 
@@ -65,7 +65,7 @@ def paypal_return_url():
 
     return jsonify(success=True)
 
-@app.route('/transaction/sale/cancel/')
+@app.route('/transaction/withdraw/cancel')
 def paypal_cancel_url():
     data = request.args
 
