@@ -1,25 +1,26 @@
 import paypalrestsdk
 import dateutil.parser
 
-from ...exceptions import (
+from ajabpay.app.core.transactions.exceptions import (
     PaypalTransactionException,
     NotificationException,
     ObjectNotFoundException
 )
-from ..utils import (
+from ajabpay.app.core.transactions.paypal.utils import (
     create_paypalrestsdk_api,
     format_amount,
     round_down,
     round_up,
 )
-from ... import common as transaction_commons
+from ajabpay.app.core.transactions.mpesa import actions as mpesa_transactions
+from ajabpay.app.core.transactions import common as transaction_commons
 
 from ajabpay.app.models import *
 
 import logging
 from decimal import Decimal as D
 
-from sqlalchemy import or_, Date, cast
+from sqlalchemy import or_, DateTime, cast, text
 from sqlalchemy.sql import func
 from sqlalchemy.exc import IntegrityError
 
@@ -172,7 +173,6 @@ def create_payment_transaction(
     create=True
 ):
     PRODUCT_CODE = 'PP2MP'
-    db.session.begin_nested()
 
     try:
         paypal_profile = db.session.query(PaypalProfile)\
@@ -242,9 +242,9 @@ def create_payment_transaction(
             paypal_transaction_id=transaction_no,
             intent=payment.intent,
             state=payment.state,
-            create_time=dateutil.parser.parse(payment.create_time),
+            create_time=payment.create_time,
             date_created=db.func.now())
-
+        
         if payment.payer_id:
             pp_transaction.paypal_payer_id = payment.payer_id
 
@@ -261,7 +261,7 @@ def create_payment_transaction(
 
 def get_exchange_amount(foreign_amount, currency='USD'):
     paypal_parameter = ConfigPaypalParameter.query\
-        .order_by('date_created desc')\
+        .order_by(text('date_created desc'))\
         .limit(1)\
         .first()
 
@@ -271,40 +271,40 @@ def get_exchange_amount(foreign_amount, currency='USD'):
 def acknowledge_payment(payment_id, payer_id, token):
     db.session.begin_nested()
 
-    try:
-        paypal_transaction = PaypalTransaction.query\
-            .filter_by(transaction_id=payment_id, paypal_payer_id=payer_id)\
-            .first()
-        
-        if paypal_transaction is None:
-            raise ObjectNotFoundException('Transaction.transaction_id == %s' % payment_id)
+    # try:
+    paypal_transaction = PaypalTransaction.query\
+        .filter_by(paypal_transaction_id=payment_id)\
+        .first()
+    
+    if paypal_transaction is None:
+        raise ObjectNotFoundException('Transaction.paypal_transaction_id == %s' % payment_id)
 
-        transaction = paypal_transaction.transaction
-        transaction_no = transaction.transaction_no
-        paypal_payer = paypal_transaction.paypal_payer
-        mobile_phone_number = paypal_payer.user.phone
+    transaction = paypal_transaction.transaction
+    transaction_no = transaction.transaction_no
+    paypal_payer = paypal_transaction.payer
+    mobile_phone_number = paypal_payer.user.phone
 
-        exchange_amount = get_exchange_amount(transaction.amount, transaction.currency_code)
-        mpesa_transaction_no = mpesa_transactions\
-            .send_money(mobile_phone_number, exchange_amount, parent_transaction=transaction_no)
+    exchange_amount = get_exchange_amount(transaction.amount, transaction.currency.code)
+    mpesa_transaction_no = mpesa_transactions\
+        .send_money(mobile_phone_number, exchange_amount, parent_transaction=transaction)
 
-        if mpesa_transaction_no is not None:
-            status_code = 'POSTED'
-            #update status to posted
-            transaction_commons.update_transaction_status(transaction, status_code)
-            transaction_commons.notify_transaction_parties(paypal_transaction.transaction, [
-                {'type': 'SMS', 'message': create_sms_message(transaction, 
-                    notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
-                {'type': 'EMAIL', 'message': create_email_message(transaction, 
-                    notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
-                {'type': 'PUSH', 'message': create_push_message(transaction, 
-                    notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)}
-            ])
+    if mpesa_transaction_no is not None:
+        status_code = 'POSTED'
+        #update status to posted
+        transaction_commons.update_transaction_status(transaction, status_code)
+        transaction_commons.notify_transaction_parties(paypal_transaction.transaction, [
+            {'type': 'SMS', 'message': create_sms_message(transaction, 
+                notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
+            {'type': 'EMAIL', 'message': create_email_message(transaction, 
+                notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
+            {'type': 'PUSH', 'message': create_push_message(transaction, 
+                notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)}
+        ])
 
-        db.session.commit()
-    except Exception as e:
-        db.session.rollback()
-        raise PaypalTransactionException(str(e))
+    db.session.commit()
+    # except Exception as e:
+    #     db.session.rollback()
+    #     raise PaypalTransactionException(str(e))
 
 
 def refund_payment(paypal_transaction):
@@ -340,11 +340,11 @@ def refund_payment(paypal_transaction):
             db.session.rollback()
 
 if __name__ == "__main__":
-    # payment = create_payment_transaction(
-    #     D('100.00'), 
-    #     description=TransactionType("PayPal to M-Pesa").name,
-    #     return_url="/transaction/3234/paypal/return/",
-    #     cancel_url="/transaction/3234/paypal/cancel/"
-    # )
+    payment = create_payment_transaction(
+        "musa@ajabworld.com",
+        amount=D('100.00'), 
+        return_url="/transaction/3234/paypal/return/",
+        cancel_url="/transaction/3234/paypal/cancel/"
+    )
 
     print get_exchange_amount(D('100.0'))
