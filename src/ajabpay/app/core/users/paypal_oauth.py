@@ -5,6 +5,7 @@ from ajabpay.app.core.utils import extract_string
 from ajabpay.app.models import Product
 
 import paypalrestsdk
+from paypalrestsdk.exceptions import UnauthorizedAccess
 
 from sqlalchemy.exc import IntegrityError, OperationalError
 
@@ -75,7 +76,6 @@ def create_user_from_userinfo(userinfo=None):
             gender=userinfo.get('gender'),
             paypal_user_id=extract_paypal_user_id(userinfo.get('user_id')),
             birthday=dateutil.parser.parse(userinfo.get('birthday')),
-            middle_name=userinfo.get('middle_name'),
             phone_number=get_phone_number(userinfo.get('phone_number')),
             email_verified=userinfo.get('email_verified') == 'true',
             verified_account=userinfo.get('verified_account') == 'true',
@@ -100,6 +100,9 @@ def create_user_from_userinfo(userinfo=None):
         
         return user
     except (IntegrityError, OperationalError) as e:
+        app.logger.exception(e)
+        db.session.rollback()
+    except (UnauthorizedAccess) as e:
         app.logger.exception(e)
         db.session.rollback()
     except Exception as e:
