@@ -7,7 +7,15 @@ class BaseConfig(object):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-    LOGGING_LOCATION = os.environ.get('AJABPAY_LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')    
+    LOGGING_LOCATION = os.environ.get('AJABPAY_LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')
+
+    API_URL = "http://tumasms.co.ke/ts/api/"
+    
+    API_SEND_PATH = "send_sms"
+    API_GET_PATH = "get_balance"
+    SMS_XML_TEMPLATE = "<sms><recipient>%s</recipient><message>%s</message><sender>%s</sender><scheduled_date>%s</scheduled_date></sms>"
+    MESSAGES_TEMPLATE = "<request>%s</request>"
+    
 
 #------------------
 class DevelopmentConfig(BaseConfig):

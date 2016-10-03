@@ -247,6 +247,7 @@ class SMSMessage(db.Model):
     message_type = db.Column(db.Integer(), default=INCOMING)
     message_sender = db.Column(db.String(15), nullable=True)
     message_recipient = db.Column(db.String(15), nullable=True)
+    message = db.Column(db.String(320))
 
     sms_gateway_id = db.Column(db.Integer, db.ForeignKey('configsmsgateway.id'), nullable=True)
     sms_gateway = db.relationship('ConfigSMSGateway')
