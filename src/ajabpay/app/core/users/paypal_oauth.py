@@ -100,10 +100,10 @@ def create_user_from_userinfo(userinfo=None):
         
         return user
     except (IntegrityError, OperationalError) as e:
-        app.logger(e)
+        app.logger.exception(e)
         db.session.rollback()
     except Exception as e:
-        app.logger(e)
+        app.logger.exception(e)
         db.session.rollback()
 
 if __name__ == '__main__':
