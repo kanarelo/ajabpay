@@ -44,7 +44,7 @@ class StagingAdminConfig(StagingBaseConfig):
 class ProductionBaseConfig(BaseConfig):
     PAYPAL_MODE = "live"
 
-    DEBUG = False
+    DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     
     PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
