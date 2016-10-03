@@ -65,16 +65,16 @@ def get_default_config(mode='app'):
     stage = os.environ.get('AJABPAY_STAGE', ('develop-%s' % mode))
 
     if stage in ('develop-admin', 'develop-app'):
-        return DevelopmentConfig
+        return DevelopmentConfig()
     elif stage in ('staging-admin', 'staging-app'):
         if stage == 'staging-admin':
-            return StagingAdminConfig
+            return StagingAdminConfig()
         elif stage == 'staging-app':
-            return StagingAppConfig
+            return StagingAppConfig()
     elif stage in ('production-admin', 'production-app'):
         if stage == 'staging-admin':
-            return ProductionAdminConfig
+            return ProductionAdminConfig()
         elif stage == 'staging-app':
-            return ProductionAppConfig
+            return ProductionAppConfig()
     else:
         raise Exception('Kindly set a valid stage for AjabPay')

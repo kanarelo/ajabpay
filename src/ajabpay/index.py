@@ -3,6 +3,7 @@ from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
 import logging
+from logging.handlers import RotatingFileHandler
 from pythonjsonlogger import jsonlogger
 
 from werkzeug.routing import BaseConverter
@@ -23,7 +24,7 @@ app.config.from_object(Config)
 
 #---setup logging
 formatter = jsonlogger.JsonFormatter()
-log_handler = logging.StreamHandler()
+log_handler = RotatingFileHandler()
 log_handler.setFormatter(formatter)
 logger = logging.getLogger()
 #---end logging
