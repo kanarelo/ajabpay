@@ -18,7 +18,8 @@ from ajabpay.config import get_default_config
 from ajabpay.app.core.endpoint_helpers import (page_not_found,
     access_forbidden, internal_server_error)
 
-from .paypal_oauth import (create_user_from_userinfo, configure_paypal_sdk)
+from .paypal_oauth import (
+    create_user_from_userinfo, configure_paypal_sdk)
 
 #------------
 Config = get_default_config()
@@ -79,8 +80,10 @@ def create_session():
             userinfo = tokeninfo.userinfo(options=options)
 
             user = create_user_from_userinfo(userinfo)
-
-            return redirect('calculator', user_id=user.id)
+            if user is not None:
+                return redirect('calculator', user_id=user.id)
+            else:
+                return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:
             app.logger.exception(e)
             return internal_server_error(e)
