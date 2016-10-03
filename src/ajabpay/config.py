@@ -53,10 +53,10 @@ class ProductionBaseConfig(BaseConfig):
     PAYPAL_OAUTH_REDIRECT_URI='https://ajabpay.ajabworld.net/auth/oauth/paypal/create_session'
 
 class ProductionAdminConfig(ProductionBaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_PRODUCTION_ADMIN_DB_URL', '')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_ADMIN_DB_URL', '')
 
 class ProductionAppConfig(ProductionBaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_PRODUCTION_APP_DB_URL', '')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_APP_DB_URL', '')
 
 #------------------
 class TestingConfig(DevelopmentConfig):
