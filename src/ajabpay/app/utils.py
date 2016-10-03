@@ -124,24 +124,26 @@ def send_sms_via_tumasms(smses):
     # Request	
     tumasms = Tumasms(API_KEY, API_SIGNATURE) # Instantiate API library
 
-    if type(smses) not in (list, tuple):
+    if smses is not None and type(smses) not in (list, tuple):
         smses = [smses]
+    else:
+        return
     
     for sms in smses:
         tumasms.queue_sms(sms.message_recipient, sms.message)
-        app.logger.info('SMS_QUEUED', extra={
+        app.logger.info('SMS_QUEUED', extra=dict(
             recipient=sms.message_recipient,
             message=sms.message
-        })
+        ))
     
     tumasms.send_sms()
 
     if tumasms.status in ('SUCCESS' or 'FAIL'):
         if tumasms.status == 'SUCCESS':
-            app.logger.info('SMS_SENT', extra={
+            app.logger.info('SMS_SENT', extra=dict(
                 recipient=sms.message_recipient,
                 message=sms.message,
                 return_message=tumasms.message,
                 return_description=tumasms.description,
                 return_dict=response_dict
-            })
+            ))
