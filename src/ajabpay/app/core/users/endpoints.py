@@ -75,8 +75,6 @@ def create_session():
             options = configure_paypal_sdk()
             options['code'] = code
 
-            app.logger.info({'create_session':'paypal-user', 'code': code})
-
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
 
@@ -85,7 +83,6 @@ def create_session():
             return redirect('calculator', user_id=user.id)
         except Exception as e:
             app.logger.exception(e)
-            raise e
             return internal_server_error(e)
     elif 'error_uri' in data:
         error_uri = data.get('error_uri')
