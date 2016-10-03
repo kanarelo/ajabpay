@@ -74,7 +74,7 @@ def get_default_config(mode='app'):
     elif stage in ('production-admin', 'production-app'):
         if '-admin' in stage:
             return ProductionAdminConfig()
-        else
+        else:
             return ProductionAppConfig()
     else:
         raise Exception('Kindly set a valid stage for AjabPay')
