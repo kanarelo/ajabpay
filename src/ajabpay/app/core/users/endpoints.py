@@ -66,7 +66,7 @@ def login_via_paypal():
 
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
 def create_session():
-    data = dict(request.args)
+    data = request.args
     
     if 'code' in data:
         code = data.get('code')
@@ -74,6 +74,8 @@ def create_session():
         try:
             options = configure_paypal_sdk()
             options['code'] = code
+
+            app.logger.debug({'create_session':'paypal-user', 'code': code})
 
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)

@@ -15,7 +15,6 @@ class BaseConfig(object):
     API_GET_PATH = "get_balance"
     SMS_XML_TEMPLATE = "<sms><recipient>%s</recipient><message>%s</message><sender>%s</sender><scheduled_date>%s</scheduled_date></sms>"
     MESSAGES_TEMPLATE = "<request>%s</request>"
-    
 
 #------------------
 class DevelopmentConfig(BaseConfig):
