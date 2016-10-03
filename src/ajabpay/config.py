@@ -45,8 +45,6 @@ class ProductionBaseConfig(BaseConfig):
 
     PAYPAL_OAUTH_REDIRECT_URI='https://ajabpay.ajabworld.net/auth/oauth/paypal/create_session'
 
-#rpOAW6UhbG@b!tDVF#migJ$PQPxYK@4lChRZKrHt - ajabpay-app
-#u#5YV7s@nn^FJpah43-If5^7o6-5ghas?sa#h$h(.OP099 - ajabpay-admn
 class ProductionAdminConfig(ProductionBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_PRODUCTION_ADMIN_DB_URL', '')
 
@@ -69,14 +67,14 @@ def get_default_config(mode='app'):
     if stage in ('develop-admin', 'develop-app'):
         return DevelopmentConfig()
     elif stage in ('staging-admin', 'staging-app'):
-        if stage == 'staging-admin':
+        if '-admin' in stage:
             return StagingAdminConfig()
-        elif stage == 'staging-app':
+        else:
             return StagingAppConfig()
     elif stage in ('production-admin', 'production-app'):
-        if stage == 'staging-admin':
+        if '-admin' in stage:
             return ProductionAdminConfig()
-        elif stage == 'staging-app':
+        else
             return ProductionAppConfig()
     else:
         raise Exception('Kindly set a valid stage for AjabPay')
