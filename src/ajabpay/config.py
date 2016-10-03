@@ -23,7 +23,7 @@ class StagingBaseConfig(BaseConfig):
     PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
     PAYPAL_CLIENT_SECRET = os.environ.get('AJABPAY_PAYPAL_CLIENT_SECRET', '')
 
-    PAYPAL_OAUTH_REDIRECT_URI='https://staging.ajabcapital.com/auth/oauth/paypal/create_session'
+    PAYPAL_OAUTH_REDIRECT_URI='https://staging.ajabworld.net/auth/oauth/paypal/create_session'
 
 class StagingAppConfig(StagingBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_STAGING_APP_DB_URL', '')
@@ -36,10 +36,12 @@ class ProductionBaseConfig(BaseConfig):
     PAYPAL_MODE = "live"
 
     DEBUG = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    
     PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
     PAYPAL_CLIENT_SECRET = os.environ.get('AJABPAY_PAYPAL_CLIENT_SECRET', '')
 
-    PAYPAL_OAUTH_REDIRECT_URI='https://www.ajabcapital.com/auth/oauth/paypal/create_session'
+    PAYPAL_OAUTH_REDIRECT_URI='https://ajabpay.ajabworld.net/auth/oauth/paypal/create_session'
 
 #rpOAW6UhbG@b!tDVF#migJ$PQPxYK@4lChRZKrHt - ajabpay-app
 #u#5YV7s@nn^FJpah43-If5^7o6-5ghas?sa#h$h(.OP099 - ajabpay-admn

@@ -54,10 +54,10 @@ def login_via_paypal():
         options = configure_paypal_sdk()
         login_url = Tokeninfo.authorize_url(options=options)
     except (ConnectionError, MissingParam, MissingConfig) as e:
-        print e
+        app.logger.exception(e)
         return internal_server_error()
     except Exception as e:
-        print e
+        app.logger.exception(e)
         return internal_server_error()
     
 
@@ -66,16 +66,31 @@ def login_via_paypal():
 
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
 def create_session():
-    data = request.args
+    data = dict(request.args)
     
-    code = data.get('code')
+    if 'code' in data:
+        code = data.get('code')
+        
+        try:
+            options = configure_paypal_sdk()
+            options['code'] = code
 
-    options = configure_paypal_sdk()
-    options['code'] = code
+            tokeninfo = Tokeninfo.create(options=options)
+            userinfo = tokeninfo.userinfo(options=options)
 
-    tokeninfo = Tokeninfo.create(options=options)
-    userinfo = tokeninfo.userinfo(options=options)
+            user = create_user_from_userinfo(userinfo)
 
-    user = create_user_from_userinfo(userinfo)
+            return redirect('calculator', user_id=user.id)
+        except Exception as e:
+            app.logger.exception(e)
+            return internal_server_error()    
+    elif 'error_uri' in data:
+        error_uri = data.get('error_uri')
+        error_description = data.get('error_description')
+        error = data.get('error')
+
+        return internal_server_error()
+    else:
+        return page_not_found()
 
     return jsonify(dict(**data))

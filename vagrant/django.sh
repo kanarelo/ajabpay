@@ -7,4 +7,4 @@
 virtualenv --python=python2.7 ~/venv
 source ~/venv/bin/activate
 
-pip install -r /ajabpay/requirements.txt
+pip install -r /ajabpay/ajabpay/requirements.txt

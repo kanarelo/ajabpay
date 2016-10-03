@@ -93,7 +93,6 @@ def create_user_from_userinfo(userinfo=None):
             .all()
         for product in products:
             product_code = product.code
-
             #5. subscribe
             account = create_account_object(user, product)
         
@@ -101,10 +100,10 @@ def create_user_from_userinfo(userinfo=None):
         
         return user
     except (IntegrityError, OperationalError) as e:
-        print e
+        app.logger(e)
         db.session.rollback()
     except Exception as e:
-        print e
+        app.logger(e)
         db.session.rollback()
 
 if __name__ == '__main__':

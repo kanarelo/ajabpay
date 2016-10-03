@@ -12,14 +12,13 @@ from datetime import date
 
 from .actions.payment import *
 
-from wtforms import (Form, DecimalField, BooleanField, StringField, PasswordField, validators)
+import wtforms as forms 
 
-class PaypalPaymentForm(Form):
-    email = StringField('Email Address', validators=[
-        validators.required(), validators.Length(min=6, max=72)
-    ])
-    amount = DecimalField('Amount', validators=[
-        validators.required(), validators.NumberRange(0, 250)], places=2, rounding=None)
+class PaypalPaymentForm(forms.Form):
+    email = forms.StringField('Email Address', validators=[
+        forms.validators.required(), forms.validators.Length(min=6, max=72)])
+    amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
+        forms.validators.required(), forms.validators.NumberRange(0, 250)])
 
 @requires_auth
 @app.route('/transaction/withdraw', methods=['GET', 'POST'])
@@ -30,23 +29,23 @@ def paypal_withdraw_amount():
         email = form.email.data  
         amount = form.amount.data
 
-        payment = create_payment_transaction(email, amount=amount,
-            return_url=url_for('paypal_return_url'), cancel_url=url_for('paypal_cancel_url'))
-        # except PaypalTransactionException as e:
-        #     print e
-        #     return jsonify(success=False, status_code=500, error_code="ERR_P02",
-        #         message="ERR_P02: Error making payment.")
-        # except Exception as e:
-        #     print e
-        #     return jsonify(success=False, status_code=500, error_code="ERR_P03",
-        #         message="ERR_P03: Could not establish connection with Paypal, try again later.")
+        try:
+            payment = create_payment_transaction(email, amount=amount,
+                return_url=url_for('paypal_return_url'), cancel_url=url_for('paypal_cancel_url'))
+        except PaypalTransactionException as e:
+            print e
+            return jsonify(success=False, status_code=500, error_code="ERR_P02",
+                message="ERR_P02: Error making payment.")
+        except Exception as e:
+            print e
+            return jsonify(success=False, status_code=500, error_code="ERR_P03",
+                message="ERR_P03: Could not establish connection with Paypal, try again later.")
 
         if payment is not None:
             link = [l for l in payment.links if l['rel'] == 'approval_url']
 
             if len(link) == 1:
-                print link
-                return redirect(link[0]['href'])
+                return redirect(link.pop()['href'])
         else:
             return jsonify(success=False, status_code=500, error_code="ERR_P04",
                 message="ERR_P04: Could not establish connection with Paypal, try again later.")
@@ -74,8 +73,8 @@ def paypal_cancel_url():
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
-            'status': 404,
-            'message': 'Not Found: ' + request.url,
+        'status': 404,
+        'message': 'Not Found: ' + request.url,
     }
     resp = jsonify(message)
     resp.status_code = 404
