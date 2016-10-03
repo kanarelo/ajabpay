@@ -7,6 +7,8 @@ class BaseConfig(object):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
+    LOGGING_LOCATION = os.environ.get('AJABPAY_LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')    
+
 #------------------
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'mysql://ajabpay:ajabpay@localhost:3306/ajabpay'
