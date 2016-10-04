@@ -23,6 +23,7 @@ from .paypal_oauth import (
     configure_paypal_api)
 
 #------------
+configure_paypal_api()
 Config = get_default_config()
 
 @app.route("/auth/user/get_token", methods=["POST"])
@@ -53,10 +54,9 @@ def get_user():
 @app.route("/auth/oauth/paypal/signin", methods=["GET"])
 def login_via_paypal():
     try:
-        api = configure_paypal_api()
         options = configure_openid_request()
 
-        login_url = Tokeninfo(api=api).authorize_url(options=options)
+        login_url = Tokeninfo.authorize_url(options=options)
     except (ConnectionError, MissingParam, MissingConfig) as e:
         app.logger.exception(e)
         return internal_server_error()
@@ -76,10 +76,9 @@ def create_session():
         code = data.get('code')
         
         try:
-            api = configure_paypal_api()
             options = configure_openid_request(code=code)
             
-            tokeninfo = Tokeninfo(api=api).create(options=options)
+            tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
 
             user = create_user_from_userinfo(userinfo)
