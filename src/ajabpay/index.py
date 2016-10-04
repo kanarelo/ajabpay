@@ -2,8 +2,6 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
-import paypalrestsdk
-
 import logging
 from logging.handlers import RotatingFileHandler
 
@@ -33,11 +31,13 @@ else:
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
 
-paypalrestsdk.configure(
-    mode=Config.PAYPAL_MODE,
-    client_id=Config.PAYPAL_CLIENT_ID,
-    client_secret=Config.PAYPAL_CLIENT_SECRET,
-    openid_client_id=Config.PAYPAL_CLIENT_ID,
-    openid_client_secret=Config.PAYPAL_CLIENT_SECRET,
-    openid_redirect_uri=Config.PAYPAL_OAUTH_REDIRECT_URI,
-)
+def configure_paypal():
+    import paypalrestsdk
+    paypalrestsdk.configure(
+        mode=Config.PAYPAL_MODE,
+        client_id=Config.PAYPAL_CLIENT_ID,
+        client_secret=Config.PAYPAL_CLIENT_SECRET,
+        openid_client_id=Config.PAYPAL_CLIENT_ID,
+        openid_client_secret=Config.PAYPAL_CLIENT_SECRET,
+        openid_redirect_uri=Config.PAYPAL_OAUTH_REDIRECT_URI,
+    )

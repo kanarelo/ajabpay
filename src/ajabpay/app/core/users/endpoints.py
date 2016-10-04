@@ -5,11 +5,10 @@ from flask import (
 )
 
 import paypalrestsdk
-from paypalrestsdk.openid_connect import Tokeninfo
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
 
-from ajabpay.index import app, db
+from ajabpay.index import app, db, configure_paypal
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import generate_token, requires_auth, verify_token
 
@@ -51,6 +50,7 @@ def get_user():
 @app.route("/auth/oauth/paypal/signin", methods=["GET"])
 def login_via_paypal():
     try:
+        configure_paypal()
         options = configure_openid_request()
         login_url = Tokeninfo.authorize_url(options=options)
     except (ConnectionError, MissingParam, MissingConfig) as e:
@@ -72,8 +72,11 @@ def create_session():
         code = data.get('code')
         
         try:
+            configure_paypal()
             options = configure_openid_request()
             options['code'] = code
+            
+            from paypalrestsdk.openid_connect import Tokeninfo
 
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
