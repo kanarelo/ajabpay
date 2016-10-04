@@ -74,8 +74,7 @@ def create_session():
         
         try:
             configure_paypal()
-            options = configure_openid_request()
-            options['code'] = code
+            options = configure_openid_request(code=code)
             
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)

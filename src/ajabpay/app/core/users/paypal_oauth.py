@@ -12,7 +12,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from ajabpay.config import get_default_config
 from ajabpay.app.core.users.helpers import *
 
-def configure_openid_request(scope=None):
+def configure_openid_request(scope=None, code=None):
     if scope is None:
         scope = (
             'openid profile email address phone '
@@ -21,6 +21,9 @@ def configure_openid_request(scope=None):
             'https://uri.paypal.com/services/invoicing')
 
     options = {'scope': scope}
+
+    if code is not None:
+        options.update(code=code)
 
     return options
 
@@ -53,6 +56,8 @@ def create_user_from_userinfo(userinfo=None):
     '''
          
     try:
+        db.logger.debug(userinfo)
+
         #1. Create user
         user = create_user_object(
             email=userinfo.get('email'),
@@ -80,7 +85,6 @@ def create_user_from_userinfo(userinfo=None):
             .filter_by(is_active=True)\
             .all()
         for product in products:
-            product_code = product.code
             #5. subscribe
             account = create_account_object(user, product)
         

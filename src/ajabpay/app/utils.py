@@ -1,5 +1,4 @@
 from functools import wraps
-from flask import request, g, jsonify
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
 
