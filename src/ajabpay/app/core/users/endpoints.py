@@ -10,6 +10,7 @@ from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
 
 from ajabpay.index import app, db
+from ajabpay.app.models import User
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import generate_token, requires_auth, verify_token
 
