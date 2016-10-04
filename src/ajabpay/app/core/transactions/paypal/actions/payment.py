@@ -30,95 +30,6 @@ ENDPOINT = "http://localhost:8000"
 PENDING_POSTING = "pending_posting"
 POSTED = "posted"
 
-def create_sms_message(paypal_transaction, notification_type=None, **kwargs):
-    db.session.begin_nested()
-
-    if notification_type is None:
-        raise NotificationException()
-
-    notification_type = ConfigNotificationType.query\
-        .filter_by(code=notification_type).first()
-
-    transaction = paypal_transaction.transaction
-    paypal_payer = paypal_transaction.paypal_payer
-    mobile_phone_number = paypal_payer.user.phone
-
-    notification_template = transaction_commons.get_notification_template(
-        paypal_transaction,
-        notification_type)
-
-    message = notification_template.sms_template.format(
-        name=paypal_payer.name,
-        email=paypal_payer.email,
-        transaction_no=paypal_transaction.transaction_id,
-        transaction_date=paypal_transaction.create_time,
-        transaction_amount=transaction.amount,
-        mobile_phone_number=mobile_phone_number,
-        transaction_currency=transaction.currency_code,
-        order_detail='KES {exchange_amount}'.format(
-            exchange_amount=get_exchange_amount(transaction.amount, transaction.currency_code)
-        ),
-        **kwargs)
-
-    outgoing_sms_message = SMSMessage(
-        message_recipient=mobile_phone_number,
-        message_type=SMSMessage.OUTGOING,
-        message=message,
-        template=notification_template)
-
-    try:
-        db.session.add(outgoing_sms_message)
-        db.session.commit()
-    except IntegrityError as e:
-        db.session.rollback()
-
-    return outgoing_sms_message
-
-def create_email_message(paypal_transaction, notification_type=None, **kwargs):
-    db.session.begin_nested()
-      
-    if notification_type is None:
-        raise NotificationException() 
-
-    notification_type = ConfigNotificationType.query\
-        .filter_by(code=notification_type).first()
-
-    transaction = paypal_transaction.transaction
-    paypal_payer = paypal_transaction.paypal_payer
-    mobile_phone_number = paypal_payer.user.phone
-
-    message = notification_template.email_template.format(
-        name=paypal_payer.name,
-        email=paypal_payer.email,
-        transaction_no=paypal_transaction.transaction_id,
-        transaction_date=paypal_transaction.create_time,
-        transaction_amount=transaction.amount,
-        mobile_phone_number=mobile_phone_number,
-        transaction_currency=transaction.currency,
-        order_detail='KES {exchange_amount}'.format(exchange_amount=get_exchange_amount(
-           transaction.amount, transaction.currency
-        )),
-        **kwargs
-    )
-
-    outgoing_email_message = EmailMessage(
-        message_recipient=mobile_phone_number,
-        message_type=SMSMessage.OUTGOING,
-        message=message,
-        template=notification_template
-    )
-
-    try:
-        db.session.add(outgoing_email_message)
-        db.session.commit()
-    except IntegrityError as e:
-        db.session.rollback()
-
-    return outgoing_email_message
-
-def create_push_message(paypal_transaction, notification_type=None, **kwargs):  
-    pass
-
 def make_paypal_payment_request(
     amount,
     description=None,
@@ -269,43 +180,27 @@ def get_exchange_amount(foreign_amount, currency='USD'):
         foreign_amount, currency=currency)
 
 def acknowledge_payment(payment_id, payer_id, token):
-    db.session.begin_nested()
+    try:
+        paypal_transaction = PaypalTransaction.query\
+            .filter_by(paypal_transaction_id=payment_id)\
+            .first()
+        
+        if paypal_transaction is None:
+            raise ObjectNotFoundException('Transaction.paypal_transaction_id == %s' % payment_id)
 
-    # try:
-    paypal_transaction = PaypalTransaction.query\
-        .filter_by(paypal_transaction_id=payment_id)\
-        .first()
-    
-    if paypal_transaction is None:
-        raise ObjectNotFoundException('Transaction.paypal_transaction_id == %s' % payment_id)
+        transaction = paypal_transaction.transaction
+        transaction_no = transaction.transaction_no
+        paypal_payer = paypal_transaction.payer
+        mpesa_profile = paypal_payer.user.mpesa_profile
 
-    transaction = paypal_transaction.transaction
-    transaction_no = transaction.transaction_no
-    paypal_payer = paypal_transaction.payer
-    mobile_phone_number = paypal_payer.user.phone
+        exchange_amount = get_exchange_amount(transaction.amount, transaction.currency.code)
+        mpesa_transactions\
+            .send_money(mpesa_profile, exchange_amount, parent_transaction=transaction)
 
-    exchange_amount = get_exchange_amount(transaction.amount, transaction.currency.code)
-    mpesa_transaction_no = mpesa_transactions\
-        .send_money(mobile_phone_number, exchange_amount, parent_transaction=transaction)
-
-    if mpesa_transaction_no is not None:
-        status_code = 'POSTED'
-        #update status to posted
-        transaction_commons.update_transaction_status(transaction, status_code)
-        transaction_commons.notify_transaction_parties(paypal_transaction.transaction, [
-            {'type': 'SMS', 'message': create_sms_message(transaction, 
-                notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
-            {'type': 'EMAIL', 'message': create_email_message(transaction, 
-                notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
-            {'type': 'PUSH', 'message': create_push_message(transaction, 
-                notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)}
-        ])
-
-    db.session.commit()
-    # except Exception as e:
-    #     db.session.rollback()
-    #     raise PaypalTransactionException(str(e))
-
+        db.session.commit()
+    except Exception as e:
+        app.logger.exception(e)
+        db.session.rollback()
 
 def refund_payment(paypal_transaction):
     db.session.begin_nested()
@@ -314,15 +209,16 @@ def refund_payment(paypal_transaction):
     sale = paypalrestsdk.Sale(api=api)\
         .find(paypal_transaction.paypal_transaction_id)
 
-    refund = sale.refund()
+    try:
+        refund = sale.refund()
 
-    if refund.success():
-        try:
+        if refund.success():
             transaction = paypal_transaction.transaction
             reverse_transaction = transaction_commons.reverse_transaction(transaction)
 
             parent_transaction = PaypalTransaction.query\
-                .filter_by(transaction_no=refund.parent_payment)
+                .filter_by(transaction_no=refund.parent_payment)\
+                .first()
 
             paypal_transaction = PaypalTransaction(
                 paypal_transaction_type_code='REFUND',
@@ -332,12 +228,15 @@ def refund_payment(paypal_transaction):
                 state=refund.state,
                 date_created=db.func.now())
 
+            if parent_transaction is not None:
+                paypal_transaction.parent_transaction_id = parent_transaction.paypal_transaction_id 
+
             db.session.add(paypal_transaction)
             db.session.commit()
-        except IntegrityError as e:
-            db.session.rollback()
-        except PaypalTransactionException as e:
-            db.session.rollback()
+    except IntegrityError as e:
+        db.session.rollback()
+    except PaypalTransactionException as e:
+        db.session.rollback()
 
 if __name__ == "__main__":
     payment = create_payment_transaction(

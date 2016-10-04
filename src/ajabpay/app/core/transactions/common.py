@@ -6,6 +6,9 @@ from .exceptions import (
 from ajabpay.app.models import *
 from sqlalchemy.exc import IntegrityError
 
+from ajabpay.app.utils import (
+    send_sms_via_tumasms, send_html_email, send_push_notification)
+
 import logging
 
 from decimal import Decimal as D
@@ -250,7 +253,8 @@ def update_transaction_status(
     try:
         #get the transaction status and time now
         config_transaction_status = ConfigTransactionStatus.query\
-            .filter_by(code=status_code).first()
+            .filter_by(code=status_code)\
+            .first()
 
         #create the transaction status
         transaction_status = TransactionStatus(
@@ -266,3 +270,105 @@ def update_transaction_status(
         raise PaypalTransactionException(str(e))
 
     return transaction_status
+
+def notify_transaction_parties(transaction, message_list=[]):
+    if transaction is None:
+        raise PaypalTransactionException('Invalid Transaction')
+
+    responses = []
+
+    for message_object in message_list:
+        message = message_object.get('message')
+
+        if message_object.get('type') == 'SMS':
+            responses.append(send_sms_via_tumasms(message))
+        elif message_object.get('type') == 'EMAIL':
+            response.append(send_html_email(message))
+        else message_object.get('type') == 'PUSH':
+            response.append(send_push_notification(message))
+
+    return responses
+
+        
+def create_sms_message(transaction, recipient_user, notification_type=None, transaction_date=None, **kwargs):
+    db.session.begin_nested()
+
+    if notification_type is None:
+        raise NotificationException()
+
+    notification_type = ConfigNotificationType.query\
+        .filter_by(code=notification_type).first()
+
+    notification_template = transaction_commons.get_notification_template(
+        transaction,
+        notification_type)
+
+    message = notification_template.sms_template.format(
+        name=recipient_user.get_full_name(),
+        email=recipient_user.email,
+        transaction_no=transaction.transaction_no,
+        transaction_date=transaction_date or transaction.date_created,
+        transaction_amount=transaction.amount,
+        mobile_phone_number=recipient_user.phone,
+        transaction_currency=transaction.currency_code,
+        order_detail='KES {exchange_amount}'.format(
+            exchange_amount=get_exchange_amount(transaction.amount, transaction.currency_code)
+        ),
+        **kwargs)
+
+    outgoing_sms_message = SMSMessage(
+        message_recipient=recipient_user.phone,
+        message_type=SMSMessage.OUTGOING,
+        message=message,
+        template=notification_template)
+
+    try:
+        db.session.add(outgoing_sms_message)
+        db.session.commit()
+    except IntegrityError as e:
+        db.session.rollback()
+
+    return outgoing_sms_message
+
+def create_email_message(transaction, notification_type=None, **kwargs):
+    db.session.begin_nested()
+      
+    if notification_type is None:
+        raise NotificationException() 
+
+    notification_type = ConfigNotificationType.query\
+        .filter_by(code=notification_type).first()
+    notification_template = transaction_commons.get_notification_template(
+        paypal_transaction, notification_type)
+
+    message = notification_template.email_template.format(
+        name=recipient_user.get_full_name(),
+        email=recipient_user.email,
+        transaction_no=transaction.transaction_no,
+        transaction_date=transaction_date or transaction.date_created,
+        transaction_amount=transaction.amount,
+        mobile_phone_number=recipient_user.phone,
+        transaction_currency=transaction.currency_code,
+        order_detail='KES {exchange_amount}'.format(
+            exchange_amount=get_exchange_amount(transaction.amount, transaction.currency_code)
+        ),
+        **kwargs
+    )
+
+    outgoing_email_message = EmailMessage(
+        message_recipient=recipient_user.phone,
+        message_type=EmailMessage.OUTGOING,
+        message=message,
+        template=notification_template
+    )
+
+    try:
+        db.session.add(outgoing_email_message)
+        db.session.commit()
+    except IntegrityError as e:
+        db.session.rollback()
+
+    return outgoing_email_message
+
+def create_push_message(paypal_transaction, notification_type=None, **kwargs):  
+    pass
