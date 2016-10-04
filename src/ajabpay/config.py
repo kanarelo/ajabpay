@@ -20,6 +20,8 @@ class BaseConfig(object):
     TUMA_SMS_XML_TEMPLATE = "<sms><recipient>%s</recipient><message>%s</message><sender>%s</sender><scheduled_date>%s</scheduled_date></sms>"
     TUMA_SMS_MESSAGES_TEMPLATE = "<request>%s</request>"
 
+    RAVEN_DSN = os.environ.get('RAVEN_DSN')
+
 #------------------
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'mysql://ajabpay:ajabpay@localhost:3306/ajabpay'
