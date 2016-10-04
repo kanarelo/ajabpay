@@ -5,12 +5,27 @@ from ajabpay.app.core.utils import extract_string
 from ajabpay.app.models import Product
 
 import paypalrestsdk
+from paypalrestsdk import Api
 from paypalrestsdk.exceptions import UnauthorizedAccess
 
 from sqlalchemy.exc import IntegrityError, OperationalError
 
 from ajabpay.config import get_default_config
 from ajabpay.app.core.users.helpers import *
+
+Config = get_default_config()
+
+def configure_paypal_api():
+    api = Api(
+        mode=Config.PAYPAL_MODE,
+        client_id=Config.PAYPAL_CLIENT_ID,
+        client_secret=Config.PAYPAL_CLIENT_SECRET,
+        openid_client_id=Config.PAYPAL_CLIENT_ID,
+        openid_client_secret=Config.PAYPAL_CLIENT_SECRET,
+        openid_redirect_uri=Config.PAYPAL_OAUTH_REDIRECT_URI
+    )
+
+    return api
 
 def configure_openid_request(scope=None, code=None):
     if scope is None:

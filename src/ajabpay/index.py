@@ -9,8 +9,6 @@ from logging.handlers import RotatingFileHandler
 
 from .config import get_default_config
 
-import paypalrestsdk
-
 #-----------
 Config = get_default_config()
 
@@ -35,13 +33,3 @@ app.logger.addHandler(log_handler)
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
-
-def configure_paypal():
-    paypalrestsdk.configure(
-        mode=Config.PAYPAL_MODE,
-        client_id=Config.PAYPAL_CLIENT_ID,
-        client_secret=Config.PAYPAL_CLIENT_SECRET,
-        openid_client_id=Config.PAYPAL_CLIENT_ID,
-        openid_client_secret=Config.PAYPAL_CLIENT_SECRET,
-        openid_redirect_uri=Config.PAYPAL_OAUTH_REDIRECT_URI,
-    )

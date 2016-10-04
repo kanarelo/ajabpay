@@ -9,7 +9,7 @@ from paypalrestsdk.openid_connect import Tokeninfo
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
 
-from ajabpay.index import app, db, configure_paypal
+from ajabpay.index import app, db
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import generate_token, requires_auth, verify_token
 
@@ -18,7 +18,9 @@ from ajabpay.app.core.endpoint_helpers import (page_not_found,
     access_forbidden, internal_server_error)
 
 from .paypal_oauth import (
-    create_user_from_userinfo, configure_openid_request)
+    create_user_from_userinfo, 
+    configure_openid_request, 
+    configure_paypal_api)
 
 #------------
 Config = get_default_config()
@@ -51,9 +53,10 @@ def get_user():
 @app.route("/auth/oauth/paypal/signin", methods=["GET"])
 def login_via_paypal():
     try:
-        configure_paypal()
+        api = configure_paypal_api()
         options = configure_openid_request()
-        login_url = Tokeninfo.authorize_url(options=options)
+
+        login_url = Tokeninfo(api=api).authorize_url(options=options)
     except (ConnectionError, MissingParam, MissingConfig) as e:
         app.logger.exception(e)
         return internal_server_error()
@@ -73,10 +76,10 @@ def create_session():
         code = data.get('code')
         
         try:
-            configure_paypal()
+            api = configure_paypal_api()
             options = configure_openid_request(code=code)
             
-            tokeninfo = Tokeninfo.create(options=options)
+            tokeninfo = Tokeninfo(api=api).create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
 
             user = create_user_from_userinfo(userinfo)
