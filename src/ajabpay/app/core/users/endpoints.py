@@ -81,7 +81,7 @@ def create_session():
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
 
-            user = create_user_from_userinfo(userinfo)
+            user = create_user_from_userinfo(userinfo.to_dict())
             if user is not None:
                 return redirect('calculator', user_id=user.id)
             else:
