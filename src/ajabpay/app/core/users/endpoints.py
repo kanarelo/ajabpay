@@ -5,6 +5,7 @@ from flask import (
 )
 
 import paypalrestsdk
+from paypalrestsdk.openid_connect import Tokeninfo
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
 
@@ -76,8 +77,6 @@ def create_session():
             options = configure_openid_request()
             options['code'] = code
             
-            from paypalrestsdk.openid_connect import Tokeninfo
-
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
 

@@ -284,8 +284,10 @@ def notify_transaction_parties(transaction, message_list=[]):
             responses.append(send_sms_via_tumasms(message))
         elif message_object.get('type') == 'EMAIL':
             response.append(send_html_email(message))
-        else message_object.get('type') == 'PUSH':
+        elif message_object.get('type') == 'PUSH':
             response.append(send_push_notification(message))
+        else:
+            continue
 
     return responses
 

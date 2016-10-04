@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 import urllib
 import urllib2
 import json
+import requests
 
 from ajabpay.config import get_default_config
 Config = get_default_config()
@@ -60,11 +61,11 @@ def to_dict(et):
     return result
 
 #------------
-API_URL = Config.API_URL 
-API_SEND_PATH = Config.API_SEND_PATH 
-API_GET_PATH = Config.API_GET_PATH 
-SMS_XML_TEMPLATE = Config.SMS_XML_TEMPLATE 
-MESSAGES_TEMPLATE = Config.MESSAGES_TEMPLATE 
+API_URL = Config.TUMA_SMS_API_URL 
+API_SEND_PATH = Config.TUMA_SMS_API_SEND_PATH 
+API_GET_PATH = Config.TUMA_SMS_API_GET_PATH 
+SMS_XML_TEMPLATE = Config.TUMA_SMS_XML_TEMPLATE 
+MESSAGES_TEMPLATE = Config.TUMA_SMS_MESSAGES_TEMPLATE 
 
 class Tumasms(object):
     def __init__(self, api_key, api_signature, api_parameters={}, sms_messages=[]):
@@ -120,8 +121,14 @@ class Tumasms(object):
         self.response_json = json.dumps(self.response_dict)
 
 def send_sms_via_tumasms(smses):
-    # API Call to Send Message(s)
-    # Request	
+    '''
+    API Call to Send Message(s) Request
+
+    Check: ajabpay.app.models.SMSMessage
+
+    Usage:
+        >>> send_sms_via_tumasms(<smsobject>)
+    '''
     tumasms = Tumasms(API_KEY, API_SIGNATURE) # Instantiate API library
 
     if smses is not None and type(smses) not in (list, tuple):
@@ -131,19 +138,73 @@ def send_sms_via_tumasms(smses):
     
     for sms in smses:
         tumasms.queue_sms(sms.message_recipient, sms.message)
-        app.logger.info('SMS_QUEUED', extra=dict(
+        app.logger.debug('SMS_QUEUED', extra=dict(
             recipient=sms.message_recipient,
             message=sms.message
         ))
     
-    tumasms.send_sms()
+    try:
+        tumasms.send_sms()
 
-    if tumasms.status in ('SUCCESS' or 'FAIL'):
-        if tumasms.status == 'SUCCESS':
-            app.logger.info('SMS_SENT', extra=dict(
-                recipient=sms.message_recipient,
-                message=sms.message,
-                return_message=tumasms.message,
-                return_description=tumasms.description,
-                return_dict=response_dict
-            ))
+        if tumasms.status in ('SUCCESS', 'FAIL'):
+            if tumasms.status == 'SUCCESS':
+                for sms in smses:
+                    app.logger.info('SMS_SENT', extra=dict(
+                        recipient=sms.message_recipient,
+                        message=sms.message,
+                        return_message=tumasms.message,
+                        return_description=tumasms.description,
+                        return_dict=tumasms.response_dict))
+            else:
+                app.logger.info('SMS_SEND_FAILED', extra=dict(
+                    return_message=tumasms.message,
+                    return_description=tumasms.description,
+                    return_dict=tumasms.response_dict))
+    except Exception as e:
+        app.logger.exception(e)
+
+    return tumasms.response_dict
+
+def send_html_email(emails):
+    '''
+    API Call to Send HTML Email(s)
+
+    Check: ajabpay.app.models.EmailMessage
+
+    Usage:
+        >>> send_html_email(<emailobject>)
+    '''
+    pass
+
+def send_push_notification(notifications):
+    '''
+    API Call to Send Push notification(s)
+
+    Check: ajabpay.app.models.PushMessage
+
+    Usage:
+        >>> send_push_notification(<pushobject>)
+    '''
+    pass
+
+def create_mpesa_payment_request(**kwargs):
+    response = requests.post(
+        '%s/payment/request' % Config.MPESA_PROJECT_MULLA_URL, 
+        json=dict(**kwargs), 
+        auth=(Config.MPESA_HTACCESS_USER, Config.MPESA_HTACCESS_PASSWORD)
+    )
+    app.logger.info('create_mpesa_payment_request', extra=kwargs)
+
+    return response
+
+def confirm_mpesa_payment_request(mpesa_txn_id):
+    response = requests.get(
+        '%s/payment/confirm/%s' % (Config.MPESA_PROJECT_MULLA_URL, mpesa_txn_id),
+        auth=(Config.MPESA_HTACCESS_USER, Config.MPESA_HTACCESS_PASSWORD)
+    )
+
+    app.logger.info('confirm_mpesa_payment_request', extra={
+        'mpesa_transaction_id': mpesa_txn_id})
+
+    return response
+    

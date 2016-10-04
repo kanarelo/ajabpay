@@ -1,5 +1,5 @@
 from ajabpay.app.models import MPesaTransaction
-from ajabpay.app import db, app
+from ajabpay.index import db, app
 
 from ajabpay.app.core.transactions import common as transaction_commons
 from ajabpay.app.utils import (
@@ -15,7 +15,7 @@ def send_money(mpesa_profile, total_amount, parent_transaction):
         )
         
         response = create_mpesa_payment_request(
-            phoneNumber=mpesa_profile.mobile_phone_no
+            phoneNumber=mpesa_profile.mobile_phone_no,
             totalAmount=total_amount,
             clientName=mpesa_profile.registered_name,
             clientLocation=mpesa_profile.location

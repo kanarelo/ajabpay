@@ -2,7 +2,7 @@ from flask import request, render_template, jsonify, url_for, redirect, g
 
 from ajabpay.app.models import *
 from ajabpay.app.utils import requires_auth
-from ajabpay.app import app, db
+from ajabpay.index import app, db
 
 from datetime import date
 from .actions import send_money_success

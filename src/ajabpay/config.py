@@ -8,14 +8,17 @@ class BaseConfig(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     STAGE = os.environ.get('STAGE', 'develop')
 
-    LOGGING_LOCATION = os.environ.get('AJABPAY_LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')
+    LOGGING_LOCATION = os.environ.get('LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')
 
-    API_URL = "http://tumasms.co.ke/ts/api/"
-    
-    API_SEND_PATH = "send_sms"
-    API_GET_PATH = "get_balance"
-    SMS_XML_TEMPLATE = "<sms><recipient>%s</recipient><message>%s</message><sender>%s</sender><scheduled_date>%s</scheduled_date></sms>"
-    MESSAGES_TEMPLATE = "<request>%s</request>"
+    MPESA_PROJECT_MULLA_URL = os.environ.get('MPESA_ENDPOINT_URL')
+    MPESA_HTACCESS_USER = os.environ.get('MPESA_HTACCESS_USER')
+    MPESA_HTACCESS_PASSWORD = os.environ.get('MPESA_HTACCESS_PASSWORD')
+
+    TUMA_SMS_API_URL = "http://tumasms.co.ke/ts/api/"
+    TUMA_SMS_API_SEND_PATH = "send_sms"
+    TUMA_SMS_API_GET_PATH = "get_balance"
+    TUMA_SMS_XML_TEMPLATE = "<sms><recipient>%s</recipient><message>%s</message><sender>%s</sender><scheduled_date>%s</scheduled_date></sms>"
+    TUMA_SMS_MESSAGES_TEMPLATE = "<request>%s</request>"
 
 #------------------
 class DevelopmentConfig(BaseConfig):
@@ -24,7 +27,7 @@ class DevelopmentConfig(BaseConfig):
     PAYPAL_MODE = "sandbox"
     PAYPAL_CLIENT_ID = "ATo_Io1R9XCX9SmfHdGbeXYSKZnireDROhLUwcjO_VtLiUx7yB7CuMjTWJO0JgfGSXhxCLsLXna3KIn0"
     PAYPAL_CLIENT_SECRET = "EE-kTL5Jy9hnFpFW_MFPJTmanXog_SSqcEOeVc7HQPEH7a5bc7G2ERGaW-09MDaa85g3dEmeH8OzSsvr"
-    PAYPAL_OAUTH_REDIRECT_URI='https://localhost:8000/auth/oauth/paypal/create_session'
+    PAYPAL_OAUTH_REDIRECT_URI='http://localhost:8000/auth/oauth/paypal/create_session'
 
 #------------------
 class StagingBaseConfig(BaseConfig):
