@@ -71,7 +71,8 @@ def login_via_paypal():
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
 def create_session():
     data = request.args
-    
+    user = None
+
     if 'code' in data:
         code = data.get('code')
         
@@ -81,9 +82,18 @@ def create_session():
             tokeninfo = Tokeninfo.create(options=options)
             userinfo = tokeninfo.userinfo(options=options)
 
-            user = create_user_from_userinfo(userinfo.to_dict())
+            userinfo_dict = userinfo.to_dict()
+
+            if 'email' in userinfo_dict:
+                user = User.query\
+                    .filter_by(email=userinfo_dict.get('email'))\
+                    .first()
+
+                if user is None:
+                    user = create_user_from_userinfo(userinfo_dict)
+            
             if user is not None:
-                return redirect('calculator', user_id=user.id)
+                return jsonify(token=generate_token(user))
             else:
                 return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:
