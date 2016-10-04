@@ -68,7 +68,7 @@ def create_user_from_userinfo(userinfo=None):
     '''
          
     try:
-        db.logger.debug(userinfo)
+        app.logger.debug(userinfo)
 
         #1. Create user
         user = create_user_object(
