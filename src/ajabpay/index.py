@@ -2,9 +2,10 @@ from flask import Flask
 from flask_bcrypt import Bcrypt
 from flask_sqlalchemy import SQLAlchemy
 
+import paypalrestsdk
+
 import logging
 from logging.handlers import RotatingFileHandler
-from pythonjsonlogger import jsonlogger
 
 from .config import get_default_config
 
@@ -16,13 +17,27 @@ app = Flask(__name__, static_folder="../static", template_folder="./templates")
 app.config.from_object(Config)
 
 #---setup logging
-formatter = jsonlogger.JsonFormatter()
-log_handler = RotatingFileHandler(Config.LOGGING_LOCATION, maxBytes=10000, backupCount=10)#10mbs create til .10
-log_handler.setFormatter(formatter)
-logger = logging.getLogger()
-#---end logging
+if (Config.DEBUG is False) or (Config.STAGE == 'production'):
+    from pythonjsonlogger import jsonlogger
+    formatter = jsonlogger.JsonFormatter()
+    log_handler = RotatingFileHandler(
+        Config.LOGGING_LOCATION, maxBytes=10000, backupCount=10)#10mbs create til .10
+    log_handler.setFormatter(formatter)
 
-app.logger.addHandler(log_handler)
+    app.logger.addHandler(log_handler)
+else:
+    pass
+
+#---end logging
 
 db = SQLAlchemy(app)
 bcrypt = Bcrypt(app)
+
+paypalrestsdk.configure(
+    mode=Config.PAYPAL_MODE,
+    client_id=Config.PAYPAL_CLIENT_ID,
+    client_secret=Config.PAYPAL_CLIENT_SECRET,
+    openid_client_id=Config.PAYPAL_CLIENT_ID,
+    openid_client_secret=Config.PAYPAL_CLIENT_SECRET,
+    openid_redirect_uri=Config.PAYPAL_OAUTH_REDIRECT_URI,
+)

@@ -12,18 +12,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from ajabpay.config import get_default_config
 from ajabpay.app.core.users.helpers import *
 
-def configure_paypal_sdk(scope=None):
-    Config = get_default_config()
-
-    paypalrestsdk.configure(dict(
-        mode=Config.PAYPAL_MODE,
-        client_id=Config.PAYPAL_CLIENT_ID,
-        client_secret=Config.PAYPAL_CLIENT_SECRET,
-        openid_client_id=Config.PAYPAL_CLIENT_ID,
-        openid_client_secret=Config.PAYPAL_CLIENT_SECRET,
-        openid_redirect_uri=Config.PAYPAL_OAUTH_REDIRECT_URI,
-    ))
-
+def configure_openid_request(scope=None):
     if scope is None:
         scope = (
             'openid profile email address phone '
@@ -66,9 +55,9 @@ def create_user_from_userinfo(userinfo=None):
     try:
         #1. Create user
         user = create_user_object(
-            first_name=userinfo.get('given_name'),
-            last_name=userinfo.get('family_name'),
             email=userinfo.get('email'),
+            last_name=userinfo.get('family_name'),
+            first_name=userinfo.get('given_name'),
             phone=userinfo.get('phone_number'))
         
         #2. Create their paypal profile
@@ -81,8 +70,7 @@ def create_user_from_userinfo(userinfo=None):
             verified_account=userinfo.get('verified_account') == 'true',
             account_creation_date=dateutil.parser.parse(userinfo.get('account_creation_date')),
             account_type=userinfo.get('account_type'),
-            address=userinfo.get('address')
-        )
+            address=userinfo.get('address'))
 
         #3. create their m-pesa profile
         mpesa_profile = create_mpesa_profile(user)

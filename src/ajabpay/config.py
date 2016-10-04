@@ -6,6 +6,7 @@ class BaseConfig(object):
     SECRET_KEY = "=6hkjs..-.||05b32j782ajg08guoy24t129thjvd?/@>@%6jhwmna966241?kGSHHY2932hnaj8892n?==\\\\"
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    STAGE = os.environ.get('STAGE', 'develop')
 
     LOGGING_LOCATION = os.environ.get('AJABPAY_LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')
 
@@ -27,18 +28,18 @@ class DevelopmentConfig(BaseConfig):
 
 #------------------
 class StagingBaseConfig(BaseConfig):
-    PAYPAL_MODE = os.environ.get('AJABPAY_PAYPAL_MODE', 'live')
+    PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'live')
     
-    PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
-    PAYPAL_CLIENT_SECRET = os.environ.get('AJABPAY_PAYPAL_CLIENT_SECRET', '')
+    PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
+    PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
 
     PAYPAL_OAUTH_REDIRECT_URI='https://staging.ajabworld.net/auth/oauth/paypal/create_session'
 
 class StagingAppConfig(StagingBaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_STAGING_APP_DB_URL', '')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('STAGING_APP_DB_URL', '')
 
 class StagingAdminConfig(StagingBaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_STAGING_ADMIN_DB_URL', '')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('STAGING_ADMIN_DB_URL', '')
 
 #------------------
 class ProductionBaseConfig(BaseConfig):
@@ -47,16 +48,16 @@ class ProductionBaseConfig(BaseConfig):
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     
-    PAYPAL_CLIENT_ID = os.environ.get('AJABPAY_PAYPAL_CLIENT_ID', '')
-    PAYPAL_CLIENT_SECRET = os.environ.get('AJABPAY_PAYPAL_CLIENT_SECRET', '')
+    PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
+    PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
 
     PAYPAL_OAUTH_REDIRECT_URI='https://ajabpay.ajabworld.net/auth/oauth/paypal/create_session'
 
 class ProductionAdminConfig(ProductionBaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_ADMIN_DB_URL', '')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('ADMIN_DB_URL', '')
 
 class ProductionAppConfig(ProductionBaseConfig):
-    SQLALCHEMY_DATABASE_URI = os.environ.get('AJABPAY_APP_DB_URL', '')
+    SQLALCHEMY_DATABASE_URI = os.environ.get('APP_DB_URL', '')
 
 #------------------
 class TestingConfig(DevelopmentConfig):
@@ -69,7 +70,7 @@ class TestingConfig(DevelopmentConfig):
 
 #------------------
 def get_default_config(mode='app'):
-    stage = os.environ.get('AJABPAY_STAGE', ('develop-%s' % mode))
+    stage = os.environ.get('STAGE', ('develop-%s' % mode))
 
     if stage in ('develop-admin', 'develop-app'):
         return DevelopmentConfig()
