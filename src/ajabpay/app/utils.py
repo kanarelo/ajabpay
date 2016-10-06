@@ -4,6 +4,11 @@ from itsdangerous import SignatureExpired, BadSignature
 
 from ajabpay.index import app
 
+from flask import (
+    request, render_template, jsonify, url_for, redirect, g, session)
+from flask_login import (login_user as flask_login_user, 
+    logout_user, current_user, login_required)
+
 from copy import copy
 import xml.etree.ElementTree as ET
 import urllib
@@ -11,10 +16,11 @@ import urllib2
 import json
 import requests
 
-from ajabpay.config import get_default_config
-Config = get_default_config()
-
 TWO_WEEKS = 1209600
+
+def login_user(user, *args, **kwargs):
+    flask_login_user(user, *args, **kwargs)
+    session['token'] = generate_token(user)
 
 def generate_token(user, expiration=TWO_WEEKS):
     s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)
@@ -25,14 +31,13 @@ def generate_token(user, expiration=TWO_WEEKS):
     return token
 
 def verify_token(token):
-    s = Serializer(app.config['SECRET_KEY'])
     try:
-        data = s.loads(token)
+        s = Serializer(app.config['SECRET_KEY'])
+        return s.loads(token)
     except (BadSignature, SignatureExpired):
-        return None
-    return data
+        pass
 
-def requires_auth(f):
+def api_login_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         token = request.headers.get('Authorization', None)
@@ -40,9 +45,10 @@ def requires_auth(f):
         if token:
             string_token = token.encode('ascii', 'ignore')
             user = verify_token(string_token)
+
             if user:
                 g.current_user = user
-                return f(*args, **kwargs)
+                return login_required(f)(*args, **kwargs)
 
         return jsonify(message="Authentication is required to access this resource"), 401
     return decorated
@@ -60,11 +66,11 @@ def to_dict(et):
     return result
 
 #------------
-API_URL = Config.TUMA_SMS_API_URL 
-API_SEND_PATH = Config.TUMA_SMS_API_SEND_PATH 
-API_GET_PATH = Config.TUMA_SMS_API_GET_PATH 
-SMS_XML_TEMPLATE = Config.TUMA_SMS_XML_TEMPLATE 
-MESSAGES_TEMPLATE = Config.TUMA_SMS_MESSAGES_TEMPLATE 
+API_URL = app.config['TUMA_SMS_API_URL'] 
+API_SEND_PATH = app.config['TUMA_SMS_API_SEND_PATH'] 
+API_GET_PATH = app.config['TUMA_SMS_API_GET_PATH'] 
+SMS_XML_TEMPLATE = app.config['TUMA_SMS_XML_TEMPLATE'] 
+MESSAGES_TEMPLATE = app.config['TUMA_SMS_MESSAGES_TEMPLATE'] 
 
 class Tumasms(object):
     def __init__(self, api_key, api_signature, api_parameters={}, sms_messages=[]):
@@ -188,9 +194,9 @@ def send_push_notification(notifications):
 
 def create_mpesa_payment_request(**kwargs):
     response = requests.post(
-        '%s/payment/request' % Config.MPESA_PROJECT_MULLA_URL, 
+        '%s/payment/request' % app.config['MPESA_PROJECT_MULLA_URL'], 
         json=dict(**kwargs), 
-        auth=(Config.MPESA_HTACCESS_USER, Config.MPESA_HTACCESS_PASSWORD)
+        auth=(app.config['MPESA_HTACCESS_USER'], app.config['MPESA_HTACCESS_PASSWORD'])
     )
     app.logger.info('create_mpesa_payment_request', extra=kwargs)
 
@@ -198,8 +204,8 @@ def create_mpesa_payment_request(**kwargs):
 
 def confirm_mpesa_payment_request(mpesa_txn_id):
     response = requests.get(
-        '%s/payment/confirm/%s' % (Config.MPESA_PROJECT_MULLA_URL, mpesa_txn_id),
-        auth=(Config.MPESA_HTACCESS_USER, Config.MPESA_HTACCESS_PASSWORD)
+        '%s/payment/confirm/%s' % (app.config['MPESA_PROJECT_MULLA_URL'], mpesa_txn_id),
+        auth=(app.config['MPESA_HTACCESS_USER'], app.config['MPESA_HTACCESS_PASSWORD'])
     )
 
     app.logger.info('confirm_mpesa_payment_request', extra={

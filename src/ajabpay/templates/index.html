@@ -3,7 +3,31 @@
     <meta charset="utf-8">
     <title>AjabPay</title>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        function popupWindow(url, title, w, h) {
+            //http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+            var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+            var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+            var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+            var top = ((height / 2) - (h / 2)) + dualScreenTop;
+            var mainProperties = "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width="+ w +",height=" + h;
+            var newWindow = window.open(url, title, mainProperties + ', top=' + top + ', left=' + left);
+
+            // Puts focus on the newWindow
+            if (window.focus) newWindow.focus();
+        }
+        $(function(){
+            $("#login-via-paypal").click(function(){
+                popupWindow("{{ url_for('login_via_paypal') }}", 'targetWindow', 470, 450);
+            })
+        });
+    </script>
   </head>
   <body>
     <div id="app">
@@ -17,7 +41,7 @@
             {% endif %}
         {% endwith %}
         <div class="well">
-            <a class="btn btn-info" href="{{ url_for('login_via_paypal') }}">Login Via PayPal</a>
+            <a class="btn btn-info" id="login-via-paypal">Login Via Paypal</a>
         </div>
     </div>
   </body>

@@ -1,22 +1,19 @@
-from flask import (
-    request, render_template, 
-    jsonify, url_for, 
-    redirect, g
-)
+from flask import (request, render_template, jsonify, url_for, redirect, g, session)
 
 import paypalrestsdk
 from paypalrestsdk.openid_connect import Tokeninfo
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
 
-from ajabpay.index import app, db
+from ajabpay.index import app, db, cross_origin
 from ajabpay.app.models import User
 from sqlalchemy.exc import IntegrityError
-from ajabpay.app.utils import generate_token, requires_auth, verify_token
+from ajabpay.app.utils import (
+    generate_token, verify_token, 
+    login_user, login_required, api_login_required)
 
-from ajabpay.config import get_default_config
-from ajabpay.app.core.endpoint_helpers import (page_not_found,
-    access_forbidden, internal_server_error)
+from ajabpay.app.core.endpoint_helpers import (
+    page_not_found, access_forbidden, internal_server_error)
 
 from .paypal_oauth import (
     create_user_from_userinfo, 
@@ -25,7 +22,6 @@ from .paypal_oauth import (
 
 #------------
 configure_paypal_api()
-Config = get_default_config()
 
 @app.route("/auth/user/get_token", methods=["POST"])
 def get_token():
@@ -48,7 +44,7 @@ def is_token_valid():
         return jsonify(token_is_valid=False), 403
 
 @app.route("/auth/user", methods=["GET"])
-@requires_auth
+@api_login_required
 def get_user():
     return jsonify(user=g.current_user)
 
@@ -64,11 +60,11 @@ def login_via_paypal():
     except Exception as e:
         app.logger.exception(e)
         return internal_server_error()
-    
 
     #redirect to login page for approval
     return redirect(login_url)
 
+@cross_origin()
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
 def create_session():
     data = request.args
@@ -92,9 +88,12 @@ def create_session():
 
                 if user is None:
                     user = create_user_from_userinfo(userinfo_dict)
+
+                login_user(user, remember=False)
             
             if user is not None:
-                return jsonify(token=generate_token(user))
+                return render_template("authenticated_popup.html",
+                    token=session['token'], user=user)
             else:
                 return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:

@@ -1,13 +1,13 @@
 from flask import request, render_template, jsonify, url_for, redirect, g
 
 from ajabpay.app.models import *
-from ajabpay.app.utils import requires_auth
-from ajabpay.index import app, db
+from ajabpay.index import app, db, cross_origin
 
 from datetime import date
 from .actions import send_money_success
 
 @app.route('/mpesa/payments', methods=['POST'])
+@cross_origin()
 def mpesa_payments_endpoint():
     args = request.args
     data = request.json

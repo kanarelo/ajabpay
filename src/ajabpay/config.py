@@ -3,7 +3,8 @@ import os
 from setup import basedir
 
 class BaseConfig(object):
-    SECRET_KEY = "=6hkjs..-.||05b32j782ajg08guoy24t129thjvd?/@>@%6jhwmna966241?kGSHHY2932hnaj8892n?==\\\\"
+    SECRET_KEY = os.environ.get('SESSION_SECRET_KEY',
+        "=6hkjs.872293yn.,;xlnmpq.,L?A2hjsAS.-.||05b32j782ajg08guoy24t129thjvd?/@>@%6jhwmna966241?kGSHHY2932hnaj8892n?==\0\+\_\OPaa")
     DEBUG = True
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     STAGE = os.environ.get('STAGE', 'develop')
@@ -21,6 +22,7 @@ class BaseConfig(object):
     TUMA_SMS_MESSAGES_TEMPLATE = "<request>%s</request>"
 
     RAVEN_DSN = os.environ.get('RAVEN_DSN')
+    SITE_URL = 'http://localhost:8000'
 
 #------------------
 class DevelopmentConfig(BaseConfig):
@@ -38,7 +40,8 @@ class StagingBaseConfig(BaseConfig):
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
 
-    PAYPAL_OAUTH_REDIRECT_URI='https://staging.ajabworld.net/auth/oauth/paypal/create_session'
+    SITE_URL = 'https://staging.ajabworld.net'
+    PAYPAL_OAUTH_REDIRECT_URI='%s/auth/oauth/paypal/create_session' % SITE_URL
 
 class StagingAppConfig(StagingBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('STAGING_APP_DB_URL', '')
@@ -56,7 +59,8 @@ class ProductionBaseConfig(BaseConfig):
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
     PAYPAL_CLIENT_SECRET = os.environ.get('PAYPAL_CLIENT_SECRET', '')
 
-    PAYPAL_OAUTH_REDIRECT_URI='https://ajabpay.ajabworld.net/auth/oauth/paypal/create_session'
+    SITE_URL = 'https://ajabpay.ajabworld.net'
+    PAYPAL_OAUTH_REDIRECT_URI='%s/auth/oauth/paypal/create_session' % SITE_URL
 
 class ProductionAdminConfig(ProductionBaseConfig):
     SQLALCHEMY_DATABASE_URI = os.environ.get('ADMIN_DB_URL', '')

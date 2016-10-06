@@ -2,20 +2,14 @@ import paypalrestsdk
 import dateutil.parser
 
 from ajabpay.app.core.transactions.exceptions import (
-    PaypalTransactionException,
-    NotificationException,
-    ObjectNotFoundException
-)
+    PaypalTransactionException, NotificationException, ObjectNotFoundException)
 from ajabpay.app.core.transactions.paypal.utils import (
-    create_paypalrestsdk_api,
-    format_amount,
-    round_down,
-    round_up,
-)
+    format_amount, round_down, round_up)
 from ajabpay.app.core.transactions.mpesa import actions as mpesa_transactions
 from ajabpay.app.core.transactions import common as transaction_commons
 
 from ajabpay.app.models import *
+from ajabpay.index import app
 
 import logging
 from decimal import Decimal as D
@@ -26,7 +20,6 @@ from sqlalchemy.exc import IntegrityError
 
 INITIAL = D('0.0')
 
-ENDPOINT = "http://localhost:8000"
 PENDING_POSTING = "pending_posting"
 POSTED = "posted"
 
@@ -46,8 +39,8 @@ def make_paypal_payment_request(
     request = dict(
         intent=intent,
         redirect_urls=dict(
-            return_url=(ENDPOINT + return_url),
-            cancel_url=(ENDPOINT + cancel_url)
+            return_url=(app.config['SITE_URL'] + return_url),
+            cancel_url=(app.config['SITE_URL'] + cancel_url)
         ),
         payer=dict(payment_method=payment_method),
         transactions=[
@@ -65,7 +58,7 @@ def make_paypal_payment_request(
         ]
     )
 
-    payment = paypalrestsdk.Payment(request, api=api)
+    payment = paypalrestsdk.Payment(request)
 
     if create:
         if not payment.create():
@@ -205,8 +198,7 @@ def acknowledge_payment(payment_id, payer_id, token):
 def refund_payment(paypal_transaction):
     db.session.begin_nested()
 
-    api = create_paypalrestsdk_api()
-    sale = paypalrestsdk.Sale(api=api)\
+    sale = paypalrestsdk.Sale()\
         .find(paypal_transaction.paypal_transaction_id)
 
     try:

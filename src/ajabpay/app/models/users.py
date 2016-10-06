@@ -1,4 +1,4 @@
-from ajabpay.index import db, bcrypt
+from ajabpay.index import db, bcrypt, login_manager
 from decimal import Decimal as D
 
 class User(db.Model):
@@ -33,6 +33,21 @@ class User(db.Model):
     def get_full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
 
+    def is_authenticated(self):
+        return True
+ 
+    def is_active(self):
+        return True
+ 
+    def is_anonymous(self):
+        return False
+ 
+    def get_id(self):
+        return unicode(self.phone)
+ 
+    def __repr__(self):
+        return '<User %r>' % (self.username)
+
     @staticmethod
     def hashed_password(password):
         return bcrypt.generate_password_hash(password)
@@ -45,3 +60,7 @@ class User(db.Model):
             return user
         else:
             return None
+
+@login_manager.user_loader
+def load_user(id):
+    return User.query.get(int(id))

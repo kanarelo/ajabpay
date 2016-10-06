@@ -1,8 +1,7 @@
 from flask import request, render_template, jsonify, url_for, redirect, g
 
-from ajabpay.index import app, db
+from ajabpay.index import app, db, cross_origin
 from ajabpay.app.models import *
-from ajabpay.app.utils import requires_auth
 
 def parse_resource(resource):
     if resource is None:
@@ -70,6 +69,7 @@ def parse_resource(resource):
             summary=resource['summary'])
 
 @app.route('/services/pp/webhooks', methods=['GET', 'POST'])
+@cross_origin()
 def webhook():
     '''
     https://gist.github.com/kanarelo/2400ed991718d23180ec424721c55ce0
