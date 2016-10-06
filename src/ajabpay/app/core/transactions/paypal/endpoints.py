@@ -29,7 +29,7 @@ def paypal2mpesa():
 
         try:
             payment = create_payment_transaction(email, amount=amount,
-                return_url=url_for('paypal_return_url'), cancel_url=url_for('paypal_cancel_url'))
+                return_url=url_for('paypal2mpesa_return'), cancel_url=url_for('paypal2mpesa_cancel'))
         except PaypalTransactionException as e:
             app.logger.exception(e)
             return jsonify(success=False, status_code=500, error_code="ERR_P02",
@@ -55,11 +55,13 @@ def paypal2mpesa():
 def paypal2mpesa_return():
     data = request.args
 
-    payment_id = data.get('paymentId')
-    payer_id = data.get('PayerID')
-    token = data.get('token')
+    if data:
+        payment_id = data.get('paymentId')
+        payer_id = data.get('PayerID')
+        token = data.get('token')
 
-    acknowledge_payment(payment_id, payer_id, token)
+        if payment_id and payer_id and token:
+            acknowledge_payment(payment_id, payer_id, token)
 
     return jsonify(success=True)
 
