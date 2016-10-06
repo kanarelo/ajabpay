@@ -32,6 +32,7 @@ def configure_openid_request(scope=None, code=None):
 
     if code is not None:
         options.update(code=code)
+        app.logger.debug(code)
 
     return options
 

@@ -1,7 +1,5 @@
 from flask import (request, render_template, jsonify, url_for, redirect, g, session)
 
-import paypalrestsdk
-from paypalrestsdk.openid_connect import Tokeninfo
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
 
@@ -21,7 +19,7 @@ from .paypal_oauth import (
     configure_paypal_api)
 
 #------------
-configure_paypal_api()
+paypalrestsdk = configure_paypal_api()
 
 @app.route("/auth/user/get_token", methods=["POST"])
 def get_token():
@@ -52,6 +50,8 @@ def get_user():
 def login_via_paypal():
     try:
         options = configure_openid_request()
+        
+        from paypalrestsdk.openid_connect import Tokeninfo
 
         login_url = Tokeninfo.authorize_url(options=options)
     except (ConnectionError, MissingParam, MissingConfig) as e:
@@ -73,6 +73,8 @@ def create_session():
     if 'code' in data:
         code = data.get('code')
         options = configure_openid_request(code=code)
+
+        from paypalrestsdk.openid_connect import Tokeninfo
         
         tokeninfo = Tokeninfo.create(options=options)
         userinfo = tokeninfo.userinfo(options=options)
