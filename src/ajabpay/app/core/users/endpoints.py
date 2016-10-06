@@ -72,33 +72,28 @@ def create_session():
 
     if 'code' in data:
         code = data.get('code')
+        options = configure_openid_request(code=code)
         
-        try:
-            options = configure_openid_request(code=code)
-            
-            tokeninfo = Tokeninfo.create(options=options)
-            userinfo = tokeninfo.userinfo(options=options)
+        tokeninfo = Tokeninfo.create(options=options)
+        userinfo = tokeninfo.userinfo(options=options)
 
-            userinfo_dict = userinfo.to_dict()
+        userinfo_dict = userinfo.to_dict()
 
-            if 'email' in userinfo_dict:
-                user = User.query\
-                    .filter_by(email=userinfo_dict.get('email'))\
-                    .first()
+        if 'email' in userinfo_dict:
+            user = User.query\
+                .filter_by(email=userinfo_dict.get('email'))\
+                .first()
 
-                if user is None:
-                    user = create_user_from_userinfo(userinfo_dict)
+            if user is None:
+                user = create_user_from_userinfo(userinfo_dict)
 
-                login_user(user, remember=False)
-            
-            if user is not None:
-                return render_template("authenticated_popup.html",
-                    token=session['token'], user=user)
-            else:
-                return jsonify(success=False, message="could not authenticate via paypal"), 403
-        except Exception as e:
-            app.logger.exception(e)
-            return internal_server_error(e)
+            login_user(user, remember=False)
+        
+        if user is not None:
+            return render_template("authenticated_popup.html",
+                token=session['token'], user=user)
+        else:
+            return jsonify(success=False, message="could not authenticate via paypal"), 403
     elif 'error_uri' in data:
         error_uri = data.get('error_uri')
         error_description = data.get('error_description')
