@@ -5,7 +5,7 @@ from setup import basedir
 class BaseConfig(object):
     SECRET_KEY = os.environ.get('SESSION_SECRET_KEY',
         "=6hkjs.872293yn.,;xlnmpq.,L?A2hjsAS.-.||05b32j782ajg08guoy24t129thjvd?/@>@%6jhwmna966241?kGSHHY2932hnaj8892n?==\0\+\_\OPaa")
-    DEBUG = True
+    
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     STAGE = os.environ.get('STAGE', 'develop')
 
@@ -27,6 +27,8 @@ class BaseConfig(object):
 #------------------
 class DevelopmentConfig(BaseConfig):
     SQLALCHEMY_DATABASE_URI = 'mysql://ajabpay:ajabpay@localhost:3306/ajabpay'
+
+    DEBUG = True
     
     PAYPAL_MODE = "sandbox"
     PAYPAL_CLIENT_ID = "ATo_Io1R9XCX9SmfHdGbeXYSKZnireDROhLUwcjO_VtLiUx7yB7CuMjTWJO0JgfGSXhxCLsLXna3KIn0"
@@ -35,6 +37,8 @@ class DevelopmentConfig(BaseConfig):
 
 #------------------
 class StagingBaseConfig(BaseConfig):
+    DEBUG = True
+    
     PAYPAL_MODE = os.environ.get('PAYPAL_MODE', 'live')
     
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
