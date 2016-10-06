@@ -21,7 +21,7 @@ app.config.from_object(get_default_config())
 #     formatter = jsonlogger.JsonFormatter()
 #     sentry = Sentry(app, dsn=app.config['RAVEN_DSN'], logging=True, level=logging.INFO)
 # else:
-logging.getLogger('flask_cors').level = logging.DEBUG
+# logging.getLogger('flask_cors').level = logging.DEBUG
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 sentry = Sentry(app, dsn=app.config['RAVEN_DSN'], logging=True, level=logging.DEBUG)
 
