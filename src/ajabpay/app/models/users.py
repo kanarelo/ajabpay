@@ -1,4 +1,6 @@
-from ajabpay.index import db, bcrypt, login_manager
+from flask import session
+
+from ajabpay.index import app, db, bcrypt, login_manager
 from decimal import Decimal as D
 
 class User(db.Model):
@@ -34,19 +36,19 @@ class User(db.Model):
         return '%s %s' % (self.first_name, self.last_name)
 
     def is_authenticated(self):
-        return True
+        return (int(session.get('user_id', 0)) == self.id)
  
     def is_active(self):
-        return True
+        return self.active
  
     def is_anonymous(self):
-        return False
+        return not self.is_authenticated()
  
     def get_id(self):
-        return unicode(self.phone)
+        return unicode(self.id)
  
     def __repr__(self):
-        return '<User %r>' % (self.username)
+        return '<User %r>' % (self.email)
 
     @staticmethod
     def hashed_password(password):
@@ -58,8 +60,6 @@ class User(db.Model):
         
         if user and bcrypt.check_password_hash(user.password, password):
             return user
-        else:
-            return None
 
 @login_manager.user_loader
 def load_user(id):

@@ -2,7 +2,7 @@ from flask import request, render_template, jsonify, url_for, redirect, g
 
 from ajabpay.app.models import *
 from ajabpay.app.utils import login_required
-from ajabpay.index import app, cross_origin
+from ajabpay.index import app, cross_origin, current_user
 
 from sqlalchemy import or_, Date, cast
 from sqlalchemy.sql import func
@@ -15,8 +15,6 @@ from .webhooks import webhook
 
 import wtforms as forms 
 class PaypalPaymentForm(forms.Form):
-    email = forms.StringField('Email Address', validators=[
-        forms.validators.required(), forms.validators.Length(min=6, max=72)])
     amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
         forms.validators.required(), forms.validators.NumberRange(0, 250)])
 
@@ -26,7 +24,7 @@ def paypal2mpesa():
     form = PaypalPaymentForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        email = form.email.data  
+        email = current_user.email
         amount = form.amount.data
 
         try:

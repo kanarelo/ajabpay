@@ -65,7 +65,7 @@ def login_via_paypal():
     return redirect(login_url)
 
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
-# @cross_origin()
+@cross_origin()
 def create_session():
     data = request.args
     user = None
