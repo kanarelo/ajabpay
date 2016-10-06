@@ -23,7 +23,7 @@ app.config.from_object(get_default_config())
 # else:
 # logging.getLogger('flask_cors').level = logging.DEBUG
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-sentry = Sentry(app, dsn=app.config['RAVEN_DSN'], logging=True, level=logging.DEBUG)
+sentry = Sentry(app, dsn=app.config['RAVEN_DSN'], logging=True, level=logging.INFO)
 
 log_handler = RotatingFileHandler(app.config['LOGGING_LOCATION'], maxBytes=10000, backupCount=10)
 log_handler.setFormatter(formatter)
