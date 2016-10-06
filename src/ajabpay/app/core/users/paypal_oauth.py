@@ -20,6 +20,8 @@ def configure_paypal_api():
         openid_client_secret=app.config['PAYPAL_CLIENT_SECRET'],
         openid_redirect_uri=app.config['PAYPAL_OAUTH_REDIRECT_URI'])
 
+    return paypalrestsdk
+
 def configure_openid_request(scope=None, code=None):
     if scope is None:
         scope = (

@@ -20,6 +20,8 @@ from .paypal_oauth import (
 
 #------------
 paypalrestsdk = configure_paypal_api()
+from paypalrestsdk.openid_connect import Tokeninfo
+#------------
 
 @app.route("/auth/user/get_token", methods=["POST"])
 def get_token():
@@ -50,8 +52,6 @@ def get_user():
 def login_via_paypal():
     try:
         options = configure_openid_request()
-        
-        from paypalrestsdk.openid_connect import Tokeninfo
 
         login_url = Tokeninfo.authorize_url(options=options)
     except (ConnectionError, MissingParam, MissingConfig) as e:
@@ -64,38 +64,41 @@ def login_via_paypal():
     #redirect to login page for approval
     return redirect(login_url)
 
-@cross_origin()
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
+@cross_origin()
 def create_session():
     data = request.args
     user = None
 
     if 'code' in data:
         code = data.get('code')
-        options = configure_openid_request(code=code)
-
-        from paypalrestsdk.openid_connect import Tokeninfo
         
-        tokeninfo = Tokeninfo.create(options=options)
-        userinfo = tokeninfo.userinfo(options=options)
+        try:
+            options = configure_openid_request(code=code)
+            
+            tokeninfo = Tokeninfo.create(options=options)
+            userinfo = tokeninfo.userinfo(options=options)
 
-        userinfo_dict = userinfo.to_dict()
+            userinfo_dict = userinfo.to_dict()
 
-        if 'email' in userinfo_dict:
-            user = User.query\
-                .filter_by(email=userinfo_dict.get('email'))\
-                .first()
+            if 'email' in userinfo_dict:
+                user = User.query\
+                    .filter_by(email=userinfo_dict.get('email'))\
+                    .first()
 
-            if user is None:
-                user = create_user_from_userinfo(userinfo_dict)
+                if user is None:
+                    user = create_user_from_userinfo(userinfo_dict)
 
-            login_user(user, remember=False)
-        
-        if user is not None:
-            return render_template("authenticated_popup.html",
-                token=session['token'], user=user)
-        else:
-            return jsonify(success=False, message="could not authenticate via paypal"), 403
+                login_user(user, remember=False)
+            
+            if user is not None:
+                return render_template("authenticated_popup.html",
+                    token=session['token'], user=user)
+            else:
+                return jsonify(success=False, message="could not authenticate via paypal"), 403
+        except Exception as e:
+            app.logger.exception(e)
+            return internal_server_error(e)
     elif 'error_uri' in data:
         error_uri = data.get('error_uri')
         error_description = data.get('error_description')
