@@ -3,51 +3,6 @@ from decimal import Decimal as D
 
 from sqlalchemy_utils import ChoiceType
 
-class ConfigPaypalAPIAccount(db.Model):
-    __tablename__ = "configpaypalapiaccount"
-    
-    id = db.Column(db.Integer(), primary_key=True)
-
-    account_email = db.Column(db.String(100))
-
-    client_id = db.Column(db.String(100))
-    client_secret = db.Column(db.String(100))
-
-    live = db.Column(db.Boolean, default=False)
-    date_created = db.Column(db.DateTime())
-
-    def __unicode__(self):
-        return self.account_email
-
-class ConfigWebhookEventType(db.Model):
-    __tablename__ = "configwebhookeventtype"
-    
-    id = db.Column(db.Integer(), primary_key=True)
-
-    name = db.Column(db.String(100))
-    code = db.Column(db.String(50), unique=True)
-
-    is_active = db.Column(db.Boolean, default=False)
-
-    def __unicode__(self):
-        return self.name
-
-class ConfigPaypalAccountWebhook(db.Model):
-    __tablename__ = "configpaypalaccountwebhook"
-    
-    id = db.Column(db.Integer(), primary_key=True)
-
-    name = db.Column(db.String(100))
-    code = db.Column(db.String(50), unique=True)
-
-    paypal_api = db.relationship('ConfigPaypalAPIAccount')
-    paypal_api_id = db.Column(db.Integer, db.ForeignKey('configpaypalapiaccount.id'))
-
-    url_for = db.Column(db.String(20))
-
-    def __unicode__(self):
-        return self.name
-
 class ConfigExchangeRate(db.Model):
     __tablename__ = "configexchangerate"
     

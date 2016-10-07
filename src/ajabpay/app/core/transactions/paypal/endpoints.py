@@ -63,7 +63,7 @@ def paypal2mpesa_return():
         if payment_id and payer_id and token:
             acknowledge_payment(payment_id, payer_id, token)
 
-    return jsonify(success=True)
+        return jsonify(success=True)
 
 @app.route('/txn/paypal2mpesa/c')
 @cross_origin()
