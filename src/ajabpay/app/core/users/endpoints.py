@@ -1,4 +1,5 @@
-from flask import (request, render_template, jsonify, url_for, redirect, g, session)
+from flask import (request, render_template, 
+    jsonify, url_for, redirect, g, session, flash)
 
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
@@ -10,6 +11,7 @@ from ajabpay.app.utils import (
     generate_token, verify_token, 
     login_user, login_required, api_login_required)
 
+from ajabpay.app.core.utils import clean_phone_no, VALID_SAFARICOM_NO_REGEX
 from ajabpay.app.core.endpoint_helpers import (
     page_not_found, access_forbidden, internal_server_error)
 
@@ -17,6 +19,7 @@ from .paypal_oauth import (
     create_user_from_userinfo, 
     configure_openid_request, 
     configure_paypal_api)
+import wtforms as forms
 
 #------------
 paypalrestsdk = configure_paypal_api()
@@ -92,6 +95,9 @@ def create_session():
                 login_user(user, remember=False)
             
             if user is not None:
+                if not clean_phone_no(user.phone):
+                    redirect(url_for('mpesa_mobile_phone_no'))
+
                 return render_template("authenticated_popup.html",
                     token=session['token'], user=user)
             else:
@@ -109,3 +115,31 @@ def create_session():
         return page_not_found()
 
     return jsonify(dict(**data))
+
+class MobileNoForm(forms.Form):
+    #0703266888, not +254703266888
+    mobile_phone_no = forms.StringField('M-Pesa Recipient',
+        validators=[forms.validators.required(), 
+        forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
+    amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
+        forms.validators.required(), forms.validators.NumberRange(0, 251)])
+
+@app.route("/auth/profiles/mobile-no/complete", methods=["GET", "POST"])
+def mpesa_mobile_phone_no():
+    form = MobileNoForm(request.form)
+
+    if request.method == "POST" and form.validated():
+        try:
+            user = User.query\
+                .filter_by(email=g.user.email)
+            user.phone = form.phone.data
+
+            flash("Phone number '%s' added successfully!" % user.phone)
+            db.session.commit()
+        except Exception as e:
+            app.logger.exception(e)
+
+        return redirect(url_for('home'))
+
+    return render_template('mpesa_phone_number.html', form=form)
+    
