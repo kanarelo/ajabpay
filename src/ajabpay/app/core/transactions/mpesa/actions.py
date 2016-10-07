@@ -35,17 +35,20 @@ def send_money(mobile_phone_no, total_amount,
 
         db.session.add(mpesa_transaction)
 
-def send_money_success(mpesa_txn_id, response):
+def send_money_success(mpesa_txn_id, response=None):
     try:
         mpesa_transaction = MPesaTransaction.query\
             .filter_by(mpesa_txn_id=mpesa_txn_id)\
             .first()
 
+        if response is None:
+            raise Exception("invalid response received")
+
         if mpesa_transaction is None:
             raise Exception("mpesa_transaction not found")
 
-        if 'mpesa_transaction_no' in response:
-            mpesa_transaction.mpesa_transaction_no = response['mpesa_transaction_no']
+        if 'mpesa_transaction_no' in data:
+            mpesa_transaction.mpesa_transaction_no = data['mpesa_transaction_no']
 
         mpesa_transaction.date_approved = db.func.now()
         transaction = mpesa_transaction.transaction
@@ -53,13 +56,16 @@ def send_money_success(mpesa_txn_id, response):
         status_code = 'POSTED'
         #update status to posted
         transaction_commons.update_transaction_status(transaction, status_code)
-        transaction_commons.notify_transaction_parties(transaction, [
+        responses = transaction_commons.notify_transaction_parties(transaction, [
             {'type': 'SMS', 'message': transaction_commons.create_sms_message(transaction, 
                 notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
             {'type': 'EMAIL', 'message': transaction_commons.create_email_message(transaction, 
                 notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)},
             {'type': 'PUSH', 'message': transaction_commons.create_push_message(transaction, 
                 notification_type='PAYMENT_DONE', mpesa_transaction_no=mpesa_transaction_no)}])
+        
+        app.logger.info('PAYMENT_NOTIFICATION_RESPONSES', responses=responses)
+        db.session.commit()
     except Exception as e:
         app.logger.exception(e)
         db.session.rollback() 

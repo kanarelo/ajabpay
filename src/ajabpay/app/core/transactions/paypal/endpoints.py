@@ -63,11 +63,14 @@ def length(min=-1, max=-1):
 
 class PaypalReturnForm(forms.Form):
     paymentId = forms.StringField('paymentId', validators=[
-        forms.validators.required(), length(min=27, max=30)])
+        forms.validators.required(), length(min=26, max=31),
+        forms.validators.Regexp(r'^PAY-(\w{22,27})$')])
     PayerID = forms.StringField('PayerID', validators=[
-        forms.validators.required(), length(min=12, max=14)])
+        forms.validators.required(), length(min=11, max=18),
+        forms.validators.Regexp(r'^(\w{11,18})$')])
     token = forms.StringField('token', validators=[
-        forms.validators.required(), length(min=19, max=25)])
+        forms.validators.required(), length(min=19, max=23),
+        forms.validators.Regexp(r'^EC-(\w{16,20})$')])
 
 @app.route('/txn/paypal2mpesa/r', methods=['GET'])
 @cross_origin()
@@ -89,6 +92,9 @@ def paypal2mpesa_return():
             except Exception as e:
                 app.logger.exception(e)
                 return jsonify
+
+    else:
+        return jsonify(success=False, message="Data did not validate."), 403
 
 @app.route('/txn/paypal2mpesa/c')
 @cross_origin()
