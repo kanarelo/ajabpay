@@ -4,7 +4,8 @@ from ajabpay.app.utils import login_required
 
 @app.route('/', methods=['GET'])
 def index():
-    if g.user.is_authenticated():
+    
+    if g.user.is_authenticated:
         return redirect(url_for('home'))
 
     return render_template('index.html')

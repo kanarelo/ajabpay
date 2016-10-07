@@ -35,14 +35,17 @@ class User(db.Model):
     def get_full_name(self):
         return '%s %s' % (self.first_name, self.last_name)
 
+    @property
     def is_authenticated(self):
         return (int(session.get('user_id', 0)) == self.id)
  
+    @property
     def is_active(self):
         return self.active
  
+    @property
     def is_anonymous(self):
-        return not self.is_authenticated()
+        return not self.is_authenticated
  
     def get_id(self):
         return unicode(self.id)

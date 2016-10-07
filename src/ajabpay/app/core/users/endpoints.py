@@ -91,17 +91,16 @@ def create_session():
 
                 if user is None:
                     user = create_user_from_userinfo(userinfo_dict)
-
-                login_user(user, remember=False)
             
             if user is not None:
-                if not clean_phone_no(user.phone):
-                    redirect_to = url_for('mpesa_mobile_phone_no')
+                login_user(user, remember=True)
+                app.logger.debug("logged in user: %s" % user.email)
+                
+                if clean_phone_no(user.phone):
+                    return render_template("authenticated_popup.html",
+                        token=session['token'], user=user, redirect_to=url_for('home'))
                 else:
-                    redirect_to = url_for('home')
-
-                return render_template("authenticated_popup.html",
-                    token=session['token'], user=user, redirect_to=redirect_to)
+                    return redirect(url_for('mpesa_mobile_phone_no'))
             else:
                 return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:
@@ -119,13 +118,12 @@ def create_session():
     return jsonify(dict(**data))
 
 class MobileNoForm(forms.Form):
-    mobile_phone_no = forms.StringField('M-Pesa Recipient',
+    mobile_phone_no = forms.StringField('Update your M-Pesa Safaricom number',
         validators=[forms.validators.required(), 
         forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
-    amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
-        forms.validators.required(), forms.validators.NumberRange(0, 251)])
 
 @app.route("/auth/profiles/mobile-no/complete", methods=["GET", "POST"])
+@login_required
 def mpesa_mobile_phone_no():
     form = MobileNoForm(request.form)
 
@@ -141,7 +139,7 @@ def mpesa_mobile_phone_no():
             app.logger.exception(e)
 
         return render_template("authenticated_popup.html",
-            token=session['token'], user=user, redirect_to=redirect_to)
+            token=session['token'], user=user, redirect_to=url_for('home'))
 
     return render_template('mpesa_phone_number.html', form=form)
     
