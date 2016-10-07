@@ -48,9 +48,10 @@ login_manager.init_app(app)
 def before_request():
     g.user = current_user
     
-    client.user_context({
-        'email': g.user.email
-    })
+    if hasattr(g.user, 'email'):
+        client.user_context({
+            'email': g.user.email
+        })
 #-------------
 
 cors = CORS(app)
