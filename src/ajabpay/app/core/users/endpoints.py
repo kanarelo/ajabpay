@@ -119,7 +119,6 @@ def create_session():
     return jsonify(dict(**data))
 
 class MobileNoForm(forms.Form):
-    #0703266888, not +254703266888
     mobile_phone_no = forms.StringField('M-Pesa Recipient',
         validators=[forms.validators.required(), 
         forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])

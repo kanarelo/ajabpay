@@ -54,3 +54,6 @@ def before_request():
 #-------------
 
 cors = CORS(app)
+
+from datetime import timedelta
+app.permanent_session_lifetime = timedelta(hours=1)
