@@ -7,11 +7,14 @@
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
     <script type="text/javascript">
         $(function(){
-            window.opener.location = '{{ url_for('paypal2mpesa') }}';
-            localStorage.setItem('_.token', "{{ token }}");
-            setTimeout(function() {
+            if (window.opener){
+                window.opener.location = '{{ redirect_to }}';
+                localStorage.setItem('_.token', "{{ token }}");
+
+                setTimeout(function() { window.close() }, 100);
+            } else {
                 window.close();
-            }, 100);
+            }
         })
     </script>
   </head>

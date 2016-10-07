@@ -41,6 +41,8 @@ class PaypalTransaction(db.Model):
     payer_id = db.Column(db.Integer(), db.ForeignKey('paypalprofile.id'), nullable=True)
     payer = db.relationship('PaypalProfile', backref='transactions')
 
+    mpesa_recipient = db.Column(db.String(25))
+
     transaction = db.relationship('Transaction', backref='paypal_transactions', uselist=False,
         primaryjoin="Transaction.transaction_no==PaypalTransaction.paypal_transaction_id")
     paypal_transaction_id = db.Column(db.String(50), db.ForeignKey('transaction.transaction_no'), unique=True)

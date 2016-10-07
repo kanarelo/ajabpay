@@ -96,10 +96,12 @@ def create_session():
             
             if user is not None:
                 if not clean_phone_no(user.phone):
-                    redirect(url_for('mpesa_mobile_phone_no'))
+                    redirect_to = url_for('mpesa_mobile_phone_no')
+                else:
+                    redirect_to = url_for('home')
 
                 return render_template("authenticated_popup.html",
-                    token=session['token'], user=user)
+                    token=session['token'], user=user, redirect_to=redirect_to)
             else:
                 return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:
@@ -139,7 +141,8 @@ def mpesa_mobile_phone_no():
         except Exception as e:
             app.logger.exception(e)
 
-        return redirect(url_for('home'))
+        return render_template("authenticated_popup.html",
+            token=session['token'], user=user, redirect_to=redirect_to)
 
     return render_template('mpesa_phone_number.html', form=form)
     

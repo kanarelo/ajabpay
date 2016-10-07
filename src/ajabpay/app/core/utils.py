@@ -23,10 +23,12 @@ def get_reference_no(limit=10,
 def get_account_no(limit=8):
     return get_reference_no(possible_chars="1234567890")
 
-VALID_SAFARICOM_NO_REGEX = r"^07(?P<prefix>(([0-2]|[9])[0-9]))(?P<postfix>\d{6})$" 
-SAFARICOM_PHONE_REGEX = r"^\+2547(?P<prefix>(([0-2]|[9])[0-9]))(?P<postfix>\d{6})$"
-MOBILE_PHONE_REGEX = r"^\+2547(?P<prefix>([0-9][0-9]))(?P<postfix>\d{6})$"
+SAFARICOM_PHONE_REGEX = r"^(\+2547|07)(?P<prefix>(([0-2]|[9])[0-9]))(?P<postfix>\d{6})$"
+VALID_SAFARICOM_NO_REGEX = SAFARICOM_PHONE_REGEX 
+MOBILE_PHONE_REGEX = r"^(\+2547|07)(?P<prefix>([0-9][0-9]))(?P<postfix>\d{6})$"
 def clean_phone_no(phone_no):
+    phone_no = phone_no or ''
+
     if re.match(MOBILE_PHONE_REGEX, phone_no):
         return phone_no
 

@@ -3,7 +3,7 @@ from flask import request, render_template, jsonify, url_for, redirect, g
 from ajabpay.app.models import *
 from ajabpay.app.utils import login_required
 from ajabpay.app.core.utils import VALID_SAFARICOM_NO_REGEX
-from ajabpay.index import app, cross_origin, current_user
+from ajabpay.index import app, cross_origin
 
 from sqlalchemy import or_, Date, cast
 from sqlalchemy.sql import func
@@ -30,11 +30,12 @@ def paypal2mpesa():
     form = PaypalPaymentForm(request.form)
 
     if request.method == 'POST' and form.validate():
-        email = current_user.email
+        email = g.user.email
         amount = form.amount.data
+        mpesa_recipient = form.mobile_phone_no.data
 
         try:
-            payment = create_payment_transaction(email, amount=amount,
+            payment = create_payment_transaction(email, mpesa_recipient, amount=amount,
                 return_url=url_for('paypal2mpesa_return'), cancel_url=url_for('paypal2mpesa_cancel'))
         except PaypalTransactionException as e:
             app.logger.exception(e)
@@ -91,12 +92,16 @@ def paypal2mpesa_return():
         if payment_id and payer_id and token:
             try:
                 acknowledge_payment(payment_id, payer_id, token)
+                db.session.commit()
+
                 return jsonify(
                     message='Payment %s acknownledged and posted to ledger' % payment_id, 
                     success=True)
             except Exception as e:
+                db.session.rollback()
+
                 app.logger.exception(e)
-                return jsonify
+                return jsonify(message='Could not acknowledge payment', success=False), 500
 
     else:
         return jsonify(success=False, message="Data did not validate."), 403

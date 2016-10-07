@@ -67,6 +67,7 @@ def make_paypal_payment_request(
 
 def create_payment_transaction(
     email,
+    mpesa_recipient,
     amount=D('100.00'), 
     transaction_type=None,
     currency='USD',
@@ -143,6 +144,7 @@ def create_payment_transaction(
             paypal_transaction_type_code='PAYMENT',
             payer_id=paypal_profile.id,
             paypal_transaction_id=transaction_no,
+            mpesa_recipient=mpesa_recipient,
             intent=payment.intent,
             state=payment.state,
             create_time=payment.create_time,
@@ -172,7 +174,7 @@ def get_exchange_amount(foreign_amount, currency='USD'):
         .get_exchange_amount(foreign_amount, currency=currency)
 
 def acknowledge_payment(payment_id, payer_id, token):
-    try:
+    with db.session.begin_nested():
         paypal_transaction = PaypalTransaction.query\
             .filter_by(paypal_transaction_id=payment_id)\
             .first()
@@ -188,7 +190,7 @@ def acknowledge_payment(payment_id, payer_id, token):
 
         mpesa_profile = \
             MPesaProfile.query\
-                .filter_by(phone=mpesa_recipient)\
+                .filter_by(mobile_phone_no=mpesa_recipient)\
                 .first()
         
         if mpesa_profile is None:
@@ -201,14 +203,9 @@ def acknowledge_payment(payment_id, payer_id, token):
         amount_to_send = \
             get_exchange_amount(transaction.amount, transaction.currency.code)
         mpesa_transactions\
-            .send_money(mpesa_recipient, amount_to_send, transaction,
+            .send_money(mpesa_recipient, amount_to_send,
                 client_name=client_name, client_location=client_location,
                 merchant_transaction_id=transaction_no, reference_id=payer_id)
-
-        db.session.commit()
-    except Exception as e:
-        app.logger.exception(e)
-        db.session.rollback()
 
 def refund_payment(paypal_transaction):
     db.session.begin_nested()

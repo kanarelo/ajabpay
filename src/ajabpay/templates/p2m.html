@@ -3,6 +3,7 @@
     <meta charset="utf-8">
     <title>AjabPay</title>
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
     <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
   </head>
   <body>
@@ -16,18 +17,15 @@
                 </ul>
             {% endif %}
         {% endwith %}
+        {% from "macros/_formhelpers.html" import render_field %}
         {% block body %}
             <form method="POST" action="{{ url_for('paypal2mpesa') }}">
                 <div class="col-md-6 col-md-offset-3">
+                    {{ render_field(form.mobile_phone_no, value=(form.mobile_phone_no.data or g.user.phone)) }}
+                    {{ render_field(form.amount, value=(form.amount.data or "0.00")) }}
+
                     <div class="form-group">
-                        <label>KES</label>
-                    </div>
-                    <div class="form-group">
-                        <label>Amount</label>
-                        <input class="form-control" name="amount" />
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-default" type="submit">Submit</button>
+                        <button class="btn btn-default" type="submit">Pay with Paypal</button>
                     </div>
                 </div>
             </form>
