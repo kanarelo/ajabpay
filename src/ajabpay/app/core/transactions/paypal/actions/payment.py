@@ -76,7 +76,7 @@ def create_payment_transaction(
     cancel_url=None,
     create=True
 ):
-    PRODUCT_CODE = 'PP2MP'
+    PRODUCT_CODE = 'P2M'
 
     try:
         paypal_profile = db.session.query(PaypalProfile)\

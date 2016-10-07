@@ -57,7 +57,7 @@ class StagingAdminConfig(StagingBaseConfig):
 class ProductionBaseConfig(BaseConfig):
     PAYPAL_MODE = "live"
 
-    DEBUG = True
+    DEBUG = False
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     
     PAYPAL_CLIENT_ID = os.environ.get('PAYPAL_CLIENT_ID', '')
