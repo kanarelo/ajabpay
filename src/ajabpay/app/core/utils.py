@@ -50,5 +50,5 @@ def clean_phone_no(phone_no):
 def clean_safaricom_no(phone_no):
     phone_no = clean_phone_no(phone_no)
 
-    if re.match(SAFARICOM_PHONE_REGEX, phone_no):
+    if phone_no is not None and re.match(SAFARICOM_PHONE_REGEX, phone_no):
         return phone_no

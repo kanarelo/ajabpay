@@ -9,14 +9,16 @@ class User(db.Model):
     id = db.Column(db.Integer(), primary_key=True)
     first_name = db.Column(db.String(255), nullable=False)
     last_name = db.Column(db.String(255), nullable=False)
-    email = db.Column(db.String(255), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
+    
+    email = db.Column(db.String(255), unique=True, nullable=False)
+    email_verified = db.Column(db.Boolean, default=False)
+
     phone = db.Column(db.String(25), unique=True, nullable=False)
+    phone_verified = db.Column(db.Boolean, default=False)
 
     date_joined = db.Column(db.DateTime(), nullable=False)
     last_login = db.Column(db.DateTime(), nullable=True)
-
-    active = db.Column(db.Boolean(), default=False, nullable=False)
 
     date_updated = db.Column(db.DateTime(), nullable=False)
     date_created = db.Column(db.DateTime(), nullable=False)
@@ -41,7 +43,7 @@ class User(db.Model):
  
     @property
     def is_active(self):
-        return self.active
+        return (self.email_verified and self.phone_verified)
  
     @property
     def is_anonymous(self):

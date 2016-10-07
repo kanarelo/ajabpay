@@ -8,8 +8,8 @@ from ajabpay.index import app, db, cross_origin
 from ajabpay.app.models import User
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import (
-    generate_token, verify_token, 
-    login_user, login_required, api_login_required)
+    generate_token, verify_token, login_user,
+    send_verification_notification, login_required, api_login_required)
 
 from ajabpay.app.core.utils import clean_phone_no, VALID_SAFARICOM_NO_REGEX
 from ajabpay.app.core.endpoint_helpers import (
@@ -93,14 +93,24 @@ def create_session():
                     user = create_user_from_userinfo(userinfo_dict)
             
             if user is not None:
-                login_user(user, remember=True)
-                app.logger.debug("logged in user: %s" % user.email)
-                
-                if clean_phone_no(user.phone):
-                    return render_template("authenticated_popup.html",
-                        token=session['token'], user=user, redirect_to=url_for('home'))
+                if not user.is_active:
+                    flash("Your e-mail is not verified. Please check your "
+                     "inbox to verify & activate your account.")
+                    send_verification_notification(user)
+
+                    return redirect(url_for("email-verification"))
                 else:
-                    return redirect(url_for('mpesa_mobile_phone_no'))
+                    if login_user(user, remember=True):
+                        app.logger.debug("logged in user: %s" % user.email)
+                        app.logger.debug('session == %s' % session)
+                        
+                        if clean_phone_no(user.phone):
+                            return render_template("authenticated_popup.html",
+                                token=session['token'], user=user, redirect_to=url_for('home'))
+                        else:
+                            return redirect(url_for('mpesa_mobile_phone_no'))
+                    else:
+                        jsonify(success=False, message="Forbidden: error logging you in."), 403
             else:
                 return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:

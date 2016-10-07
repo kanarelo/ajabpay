@@ -168,6 +168,16 @@ def send_sms_via_tumasms(smses):
 
     return tumasms.response_dict
 
+def send_verification_notification():
+    if user.is_active:
+        return
+    
+    if not user.email_verified:
+        send_email_via_sendgrid(emails)
+
+    if not user.phone_verified:
+        send_sms_via_tumasms(sms)    
+
 def send_html_email(emails):
     '''
     API Call to Send HTML Email(s)
