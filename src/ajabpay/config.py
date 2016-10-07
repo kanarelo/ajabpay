@@ -24,8 +24,13 @@ class BaseConfig(object):
     TUMA_SMS_MESSAGES_TEMPLATE = "<request>%s</request>"
 
     SENTRY_INCLUDE_PATHS = [__name__.split('.', 1)[0]]
-    SENTRY_USER_ATTRS = ['username', 'first_name', 'last_name', 'email'] 
-    SENTRY_RELEASE = raven.fetch_git_sha(os.path.dirname(__file__))
+    SENTRY_USER_ATTRS = ['email']
+
+    try: 
+        SENTRY_RELEASE = raven.fetch_git_sha(os.path.dirname(__file__))
+    except:
+        pass
+    
     SENTRY_STAGE = STAGE.split('-')[0]
     SENTRY_DSN = os.environ.get('SENTRY_DSN')
     SITE_URL = 'http://localhost:8000'

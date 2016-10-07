@@ -2,11 +2,8 @@ import dateutil.parser
 
 from ajabpay.index import db
 from ajabpay.app.core.utils import (get_account_no,
-    get_reference_no, generate_random_password)
+    get_reference_no, generate_random_password, clean_phone_no)
 from ajabpay.app.models import *
-
-def get_phone_number(phone_number):
-    return '+254%s' % phone_number
 
 def create_user_object(phone=None, **kwargs):
     with db.session.begin_nested() as transaction:
@@ -15,7 +12,7 @@ def create_user_object(phone=None, **kwargs):
         date_created = db.func.now()
 
         user = User(
-            phone=get_phone_number(phone), 
+            phone=clean_phone_no(phone), 
             date_created=date_created,
             date_updated=date_created,
             date_joined=date_created,

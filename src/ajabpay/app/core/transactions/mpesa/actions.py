@@ -4,11 +4,16 @@ from ajabpay.index import db, app
 from ajabpay.app.core.transactions import common as transaction_commons
 from ajabpay.app.utils import (
     create_mpesa_payment_request, confirm_mpesa_payment_request)
+from ajabpay.app.core.utils import clean_phone_no
 
 def send_money(mobile_phone_no, total_amount, 
     client_name='', client_location='', 
     merchant_transaction_id=None, reference_id=None):
 
+    mobile_phone_no = clean_phone_no(mobile_phone_no)
+    if mobile_phone_no is None:
+        raise Exception("Invalid mobile phone number")
+    
     with db.session.begin_nested():
         mpesa_transaction = MPesaTransaction(
             merchant_transaction_id=merchant_transaction_id,

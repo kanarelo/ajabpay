@@ -2,6 +2,7 @@ from flask import request, render_template, jsonify, url_for, redirect, g
 
 from ajabpay.app.models import *
 from ajabpay.app.utils import login_required
+from ajabpay.app.core.utils import VALID_SAFARICOM_NO_REGEX
 from ajabpay.index import app, cross_origin, current_user
 
 from sqlalchemy import or_, Date, cast
@@ -16,8 +17,12 @@ from .webhooks import webhook
 import wtforms as forms
 
 class PaypalPaymentForm(forms.Form):
+    #0703266888, not +254703266888
+    mobile_phone_no = forms.StringField('M-Pesa Recipient',
+        validators=[forms.validators.required(), 
+        forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
     amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
-        forms.validators.required(), forms.validators.NumberRange(0, 250)])
+        forms.validators.required(), forms.validators.NumberRange(0, 251)])
 
 @app.route('/txn/paypal2mpesa', methods=['GET', 'POST'])
 @login_required
