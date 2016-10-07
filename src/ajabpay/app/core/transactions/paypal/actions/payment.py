@@ -33,7 +33,6 @@ def make_paypal_payment_request(
     cancel_url=None,
     create=False
 ):
-    api = create_paypalrestsdk_api()
     formated_amount = format_amount(amount)
 
     request = dict(
@@ -169,8 +168,8 @@ def get_exchange_amount(foreign_amount, currency='USD'):
         .limit(1)\
         .first()
 
-    return paypal_parameter.get_exchange_amount(
-        foreign_amount, currency=currency)
+    return paypal_parameter\
+        .get_exchange_amount(foreign_amount, currency=currency)
 
 def acknowledge_payment(payment_id, payer_id, token):
     try:
@@ -184,11 +183,27 @@ def acknowledge_payment(payment_id, payer_id, token):
         transaction = paypal_transaction.transaction
         transaction_no = transaction.transaction_no
         paypal_payer = paypal_transaction.payer
-        mpesa_profile = paypal_payer.user.mpesa_profile
 
-        exchange_amount = get_exchange_amount(transaction.amount, transaction.currency.code)
+        mpesa_recipient = paypal_transaction.mpesa_recipient
+
+        mpesa_profile = \
+            MPesaProfile.query\
+                .filter_by(phone=mpesa_recipient)\
+                .first()
+        
+        if mpesa_profile is None:
+            client_name = paypal_payer.name
+            client_location = paypal_payer.address.locality
+        else:
+            client_name = mpesa_profile.registered_name
+            client_location = mpesa_profile.registered_name
+        
+        amount_to_send = \
+            get_exchange_amount(transaction.amount, transaction.currency.code)
         mpesa_transactions\
-            .send_money(mpesa_profile, exchange_amount, parent_transaction=transaction)
+            .send_money(mpesa_recipient, amount_to_send, transaction,
+                client_name=client_name, client_location=client_location,
+                merchant_transaction_id=transaction_no, reference_id=payer_id)
 
         db.session.commit()
     except Exception as e:
@@ -213,11 +228,11 @@ def refund_payment(paypal_transaction):
                 .first()
 
             paypal_transaction = PaypalTransaction(
-                paypal_transaction_type_code='REFUND',
                 paypal_transaction_id=refund.id,
+                paypal_transaction_type_code='REFUND',
+                state=refund.state,
                 create_time=dateutil.parser.parse(refund.create_time),
                 update_time=dateutil.parser.parse(refund.update_time),
-                state=refund.state,
                 date_created=db.func.now())
 
             if parent_transaction is not None:

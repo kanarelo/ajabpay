@@ -134,7 +134,7 @@ def send_sms_via_tumasms(smses):
     Usage:
         >>> send_sms_via_tumasms(<smsobject>)
     '''
-    tumasms = Tumasms(API_KEY, API_SIGNATURE) # Instantiate API library
+    tumasms = Tumasms(app.config['API_KEY'], app.config['API_SIGNATURE']) # Instantiate API library
 
     if smses is not None and type(smses) not in (list, tuple):
         smses = [smses]
@@ -144,9 +144,7 @@ def send_sms_via_tumasms(smses):
     for sms in smses:
         tumasms.queue_sms(sms.message_recipient, sms.message)
         app.logger.debug('SMS_QUEUED', extra=dict(
-            recipient=sms.message_recipient,
-            message=sms.message
-        ))
+            recipient=sms.message_recipient, message=sms.message))
     
     try:
         tumasms.send_sms()

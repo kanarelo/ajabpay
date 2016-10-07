@@ -5,30 +5,33 @@ from ajabpay.app.core.transactions import common as transaction_commons
 from ajabpay.app.utils import (
     create_mpesa_payment_request, confirm_mpesa_payment_request)
 
-def send_money(mpesa_profile, total_amount, parent_transaction):
+def send_money(mobile_phone_no, total_amount, 
+    client_name='', client_location='', 
+    merchant_transaction_id=None, reference_id=None):
+
     with db.session.begin_nested():
         mpesa_transaction = MPesaTransaction(
-            merchant_transaction_id=parent_transaction.transaction_no,
-            recipient_phone_no=mpesa_profile.mobile_phone_no,
+            merchant_transaction_id=merchant_transaction_id,
+            recipient_phone_no=mobile_phone_no,
             total_amount=total_amount,
-            date_created=db.func.now()
-        )
+            date_created=db.func.now())
         
         response = create_mpesa_payment_request(
-            phoneNumber=mpesa_profile.mobile_phone_no,
+            phoneNumber=mobile_phone_no,
             totalAmount=total_amount,
-            clientName=mpesa_profile.registered_name,
-            clientLocation=mpesa_profile.location
-        )
+            clientLocation=client_location,
+            clientName=client_name,
+            merchantTransactionID=merchant_transaction_id,
+            referenceID=reference_id)
 
         if 'reference_id' in response:
             mpesa_transaction.reference_id = response['reference_id']
 
         if 'txn_id' in response:
             mpesa_txn_id = response['txn_id']
-            mpesa_transaction.mpesa_txn_id = mpesa_txn_id
-            
-            confirmation_response = confirm_mpesa_payment_request(mpesa_txn_id)
+            mpesa_transaction.mpesa_txn_id = mpesa_txn_id        
+            confirmation_response = \
+                confirm_mpesa_payment_request(mpesa_txn_id)
 
         db.session.add(mpesa_transaction)
 

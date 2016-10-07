@@ -1,5 +1,5 @@
 import os
-
+import raven
 from setup import basedir
 
 class BaseConfig(object):
@@ -15,13 +15,19 @@ class BaseConfig(object):
     MPESA_HTACCESS_USER = os.environ.get('MPESA_HTACCESS_USER')
     MPESA_HTACCESS_PASSWORD = os.environ.get('MPESA_HTACCESS_PASSWORD')
 
+    TUMA_SMS_API_KEY = os.environ.get('TUMA_SMS_API_KEY')
+    TUMA_SMS_API_SECRET = os.environ.get('TUMA_SMS_API_SECRET')
     TUMA_SMS_API_URL = "http://tumasms.co.ke/ts/api/"
     TUMA_SMS_API_SEND_PATH = "send_sms"
     TUMA_SMS_API_GET_PATH = "get_balance"
     TUMA_SMS_XML_TEMPLATE = "<sms><recipient>%s</recipient><message>%s</message><sender>%s</sender><scheduled_date>%s</scheduled_date></sms>"
     TUMA_SMS_MESSAGES_TEMPLATE = "<request>%s</request>"
 
-    RAVEN_DSN = os.environ.get('RAVEN_DSN')
+    SENTRY_INCLUDE_PATHS = [__name__.split('.', 1)[0]]
+    SENTRY_USER_ATTRS = ['username', 'first_name', 'last_name', 'email'] 
+    SENTRY_RELEASE = raven.fetch_git_sha(os.path.dirname(__file__))
+    SENTRY_STAGE = STAGE.split('-')[0]
+    SENTRY_DSN = os.environ.get('SENTRY_DSN')
     SITE_URL = 'http://localhost:8000'
 
 #------------------

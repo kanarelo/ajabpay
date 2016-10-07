@@ -13,7 +13,8 @@ from .actions.payment import *
 
 from .webhooks import webhook
 
-import wtforms as forms 
+import wtforms as forms
+
 class PaypalPaymentForm(forms.Form):
     amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
         forms.validators.required(), forms.validators.NumberRange(0, 250)])
@@ -50,20 +51,44 @@ def paypal2mpesa():
 
     return render_template('p2m.html', form=form)
 
-@app.route('/txn/paypal2mpesa/r')
+def length(min=-1, max=-1):
+    message = 'Must be between %d and %d characters long.' % (min, max)
+
+    def _length(form, field):
+        l = field.data and len(field.data) or 0
+        if l < min or max != -1 and l > max:
+            raise forms.validators.ValidationError(message)
+
+    return _length
+
+class PaypalReturnForm(forms.Form):
+    paymentId = forms.StringField('paymentId', validators=[
+        forms.validators.required(), length(min=27, max=30)])
+    PayerID = forms.StringField('PayerID', validators=[
+        forms.validators.required(), length(min=12, max=14)])
+    token = forms.StringField('token', validators=[
+        forms.validators.required(), length(min=19, max=25)])
+
+@app.route('/txn/paypal2mpesa/r', methods=['GET'])
 @cross_origin()
 def paypal2mpesa_return():
     data = request.args
+    form = PaypalReturnForm(data)
 
-    if data:
+    if form.validate():
         payment_id = data.get('paymentId')
         payer_id = data.get('PayerID')
         token = data.get('token')
 
         if payment_id and payer_id and token:
-            acknowledge_payment(payment_id, payer_id, token)
-
-        return jsonify(success=True)
+            try:
+                acknowledge_payment(payment_id, payer_id, token)
+                return jsonify(
+                    message='Payment %s acknownledged and posted to ledger' % payment_id, 
+                    success=True)
+            except Exception as e:
+                app.logger.exception(e)
+                return jsonify
 
 @app.route('/txn/paypal2mpesa/c')
 @cross_origin()
