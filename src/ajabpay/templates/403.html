@@ -1,4 +1,9 @@
-<h1>You are Forbidden from seeing this page, sorry.</h1>
+{% extends "home.html" %}
 
-<h3>Try again later</h3>
-<h4>Call us at +254703266966</h4>
+{% block panes %}
+    <div class="container error-pane">
+        <h1>Access Forbidden, sorry.</h1>
+        <h3 style="color: #539DDB;">403.</h4>
+        <h5>Contact us: <a href="mailto:info@ajabworld.net">info@ajabworld.net</a></h5>
+    </div>
+{% endblock panes %}

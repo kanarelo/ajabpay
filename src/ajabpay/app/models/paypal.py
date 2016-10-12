@@ -75,7 +75,7 @@ class ConfigPaypalParameter(db.Model):
     def _get_percentage_service_charge(self, amount): 
         return (amount * (self.service_charge_percentage / D('100')))
 
-    def _do_foreign_exchange(self, foreign_amount, currency='USD'):
+    def _do_foreign_exchange(self, foreign_amount, from_currency='USD', to_currency='KES'):
         return (self.foreign_exchange_rate * foreign_amount)
 
     def _deduct_paypal_percentage(self, foreign_amount):
@@ -95,15 +95,19 @@ class ConfigPaypalParameter(db.Model):
     def _deduct_mobile_money_charge(self, subtotal): 
         return round_up(subtotal - self.mobile_money_charge)
 
-    def get_exchange_amount(self, amount, currency='USD'):
+    def get_exchange_amount(self, amount, from_currency='USD', to_currency='KES'):
         foreign_total = self._deduct_paypal_percentage(amount)
 
-        subtotal = self._do_foreign_exchange(foreign_total, currency=currency)
+        subtotal = self._do_foreign_exchange(foreign_total, 
+            from_currency=from_currency, to_currency=to_currency)
         subtotal = self._deduct_foreign_charge(subtotal)
         subtotal = self._deduct_service_charge(subtotal)
         total = self._deduct_mobile_money_charge(subtotal)
 
-        return total
+        if total > 0:
+            return total
+
+        return 0
 
     def get_effective_rate(amount):
         total_charge = self.get_total_charge(amount)

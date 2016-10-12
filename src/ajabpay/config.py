@@ -1,6 +1,24 @@
 import os
-import raven
 from setup import basedir
+
+from flask import g
+from flask_bcrypt import Bcrypt
+from flask_sqlalchemy import SQLAlchemy
+from flask_login import LoginManager, current_user
+from flask_cors import CORS, cross_origin
+
+import raven
+from raven.contrib.flask import Sentry
+from raven import Client
+
+import logging
+from datetime import timedelta
+
+from logging.handlers import RotatingFileHandler
+from pythonjsonlogger import jsonlogger as json_logger
+
+STATIC_FOLDER = os.path.join(basedir, "..", "static") 
+TEMPLATE_FOLDER = os.path.join(basedir, "templates")
 
 class BaseConfig(object):
     SECRET_KEY = os.environ.get('SESSION_SECRET_KEY',
@@ -8,6 +26,9 @@ class BaseConfig(object):
     
     SQLALCHEMY_TRACK_MODIFICATIONS = True
     STAGE = os.environ.get('STAGE', 'develop')
+
+    STATIC_FOLDER = os.environ.get("STATIC_FOLDER", STATIC_FOLDER)
+    TEMPLATE_FOLDER = os.environ.get("TEMPLATE_FOLDER", TEMPLATE_FOLDER)
 
     LOGGING_LOCATION = os.environ.get('LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')
 
@@ -110,3 +131,48 @@ def get_default_config(mode='app'):
             return ProductionAppConfig()
     else:
         raise Exception('Kindly set a valid stage for AjabPay')
+
+def setup_database(app):
+    db = SQLAlchemy(app)
+    bcrypt = Bcrypt(app)
+
+    return db, bcrypt
+
+def setup_auth(app):
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    return login_manager
+
+def setup_cors(app):
+    cors = CORS(app)
+
+    return cors
+
+def setup_session(app):
+    app.permanent_session_lifetime = timedelta(hours=1)
+
+def setup_logging(app):
+    if (app.config['DEBUG'] == False) or ('production' in app.config['STAGE']):
+        formatter = json_logger.JsonFormatter()
+    else:
+        logging.getLogger('flask_cors').level = logging.DEBUG
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    client = Client()
+    sentry = Sentry(app, client=client, logging=True, level=logging.INFO)
+
+    log_handler = RotatingFileHandler(app.config['LOGGING_LOCATION'], maxBytes=10000, backupCount=10)
+    log_handler.setFormatter(formatter)
+    app.logger.addHandler(log_handler)
+
+    return (sentry, client)
+
+def setup_current_user(client):
+    def wrap():
+        g.user = current_user
+        
+        if hasattr(g.user, 'email'):
+            client.user_context({ 'email': g.user.email })
+
+    return wrap

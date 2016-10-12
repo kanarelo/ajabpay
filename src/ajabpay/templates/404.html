@@ -1,1 +1,9 @@
-<h1>No Such Page</h1>
+{% extends "home.html" %}
+
+{% block panes %}
+    <div class="container error-pane">
+        <h1>No Such Page</h1>
+        <h3 style="color: #539DDB;">404.</h4>
+        <h5>Contact us: <a href="mailto:info@ajabworld.net">info@ajabworld.net</a></h5>
+    </div>
+{% endblock panes %}

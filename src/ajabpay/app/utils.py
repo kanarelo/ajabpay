@@ -19,8 +19,10 @@ import requests
 TWO_WEEKS = 1209600
 
 def login_user(user, *args, **kwargs):
-    flask_login_user(user, *args, **kwargs)
+    logged_in = flask_login_user(user, *args, **kwargs)
     session['token'] = generate_token(user)
+
+    return logged_in
 
 def generate_token(user, expiration=TWO_WEEKS):
     s = Serializer(app.config['SECRET_KEY'], expires_in=expiration)

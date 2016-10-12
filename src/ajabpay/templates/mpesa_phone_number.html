@@ -1,13 +1,30 @@
-<html>
-  <head>
-    <meta charset="utf-8">
-    <title>AjabPay</title>
-    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
-    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-  </head>
-  <body>
-    <div id="app">
+{% extends "baase.html" %}
+
+{% block body %}
+    <nav class="navbar navbar-default navbar-primary">
+        <div class="container">
+            <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapsable" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">
+                <strong class="ajab">ajab</strong><span class="pay">pay</span>
+            </a>
+            </div>
+            <div id="navbar" class="clearfix">
+            <div class="collapse navbar-collapse" id="collapsable">
+                {% block navbar_buttons %}
+                    <ul class="nav navbar-nav navbar-right">
+                    </ul>
+                {% endblock navbar_buttons %}
+            </div>
+            </div>
+        </div>
+    </nav>
+    <div class="container">
         {% with messages = get_flashed_messages() %}
             {% if messages %}
                 <ul class=flashes>
@@ -20,14 +37,15 @@
         {% from "macros/_formhelpers.html" import render_field %}
         {% block body %}
             <form method="POST" action="{{ url_for('paypal2mpesa') }}">
-                <div class="col-md-6 col-md-offset-3">
-                    {{ render_field(form.mobile_phone_no, value=(form.mobile_phone_no.data or g.user.phone)) }}
-                    <div class="form-group">
-                        <button class="btn btn-default" type="submit">Pay with Paypal</button>
+                <div class="row">
+                    <div class="col-md-6 col-md-offset-3">
+                        {{ render_field(form.mobile_phone_no, value=(form.mobile_phone_no.data or g.user.phone)) }}
+                        <div class="form-group">
+                            <button class="btn btn-primary btn-block" type="submit">Update Profile</button>
+                        </div>
                     </div>
                 </div>
             </form>
         {% endblock %}
     </div>
-  </body>
-</html>
+{% endblock %}

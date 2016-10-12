@@ -16,5 +16,5 @@ class MPesaProfile(db.Model):
     date_updated = db.Column(db.DateTime(), nullable=False)
 
     def __unicode__(self):
-        return '[%s] %s' % (self.paypal_user_id, self.email)
+        return '[%s] %s' % (self.user_id, self.mobile_phone_no)
 

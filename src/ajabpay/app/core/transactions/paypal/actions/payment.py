@@ -99,7 +99,7 @@ def create_payment_transaction(
         if account is None:
             raise ObjectNotFoundException('Account %s not found' % email)
 
-        validate_product_policy = lambda account, transaction: True #TODO, implement validate_product_policy
+        validate_product_policy = lambda account, transaction: True #TODO: Implement validate_product_policy
         # is_valid = validate_product_policy(account, transaction)
 
         # if not is_valid:
@@ -164,14 +164,20 @@ def create_payment_transaction(
         db.session.rollback()
         raise PaypalTransactionException(str(e))
 
-def get_exchange_amount(foreign_amount, currency='USD'):
+def get_exchange_amount(foreign_amount, from_currency='USD', to_currency='KES'):
+    if (foreign_amount < 0) or \
+       (foreign_amount > 500) and (from_currency == 'USD') or \
+       (foreign_amount > 50000) and (from_currency == 'KES'):
+        return 0 
+
     paypal_parameter = ConfigPaypalParameter.query\
         .order_by(text('date_created desc'))\
         .limit(1)\
         .first()
 
     return paypal_parameter\
-        .get_exchange_amount(foreign_amount, currency=currency)
+        .get_exchange_amount(foreign_amount, 
+            from_currency=from_currency, to_currency=to_currency)
 
 def acknowledge_payment(payment_id, payer_id, token):
     with db.session.begin_nested():
@@ -185,7 +191,6 @@ def acknowledge_payment(payment_id, payer_id, token):
         transaction = paypal_transaction.transaction
         transaction_no = transaction.transaction_no
         paypal_payer = paypal_transaction.payer
-
         mpesa_recipient = paypal_transaction.mpesa_recipient
 
         mpesa_profile = \
@@ -195,17 +200,20 @@ def acknowledge_payment(payment_id, payer_id, token):
         
         if mpesa_profile is None:
             client_name = paypal_payer.name
-            client_location = paypal_payer.address.locality
         else:
             client_name = mpesa_profile.registered_name
-            client_location = mpesa_profile.registered_name
+
+        client_location = paypal_payer.address.locality
         
         amount_to_send = \
             get_exchange_amount(transaction.amount, transaction.currency.code)
         mpesa_transactions\
-            .send_money(mpesa_recipient, amount_to_send,
-                client_name=client_name, client_location=client_location,
-                merchant_transaction_id=transaction_no, reference_id=payer_id)
+            .send_money(mpesa_recipient, 
+                amount_to_send,
+                client_name=client_name, 
+                client_location=client_location,
+                merchant_transaction_id=transaction_no, 
+                reference_id=payer_id)
 
 def refund_payment(paypal_transaction):
     db.session.begin_nested()

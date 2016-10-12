@@ -3,15 +3,17 @@ from flask import (request, render_template,
 
 from paypalrestsdk.exceptions import (
     ConnectionError, MissingParam, MissingConfig)
+from paypalrestsdk.openid_connect import Tokeninfo
 
 from ajabpay.index import app, db, cross_origin
 from ajabpay.app.models import User
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import (
-    generate_token, verify_token, login_user,
+    generate_token, verify_token, login_user, logout_user,
     send_verification_notification, login_required, api_login_required)
 
-from ajabpay.app.core.utils import clean_phone_no, VALID_SAFARICOM_NO_REGEX
+from ajabpay.app.core.utils import (
+    clean_phone_no, VALID_SAFARICOM_NO_REGEX)
 from ajabpay.app.core.endpoint_helpers import (
     page_not_found, access_forbidden, internal_server_error)
 
@@ -23,13 +25,13 @@ import wtforms as forms
 
 #------------
 paypalrestsdk = configure_paypal_api()
-from paypalrestsdk.openid_connect import Tokeninfo
 #------------
 
 @app.route("/auth/user/get_token", methods=["POST"])
 def get_token():
     incoming = request.get_json()
-    user = User.get_user_with_email_and_password(incoming["email"], incoming["password"])
+    user = User.get_user_with_email_and_password\
+        (incoming["email"], incoming["password"])
     
     if user:
         return jsonify(token=generate_token(user))
@@ -45,6 +47,16 @@ def is_token_valid():
         return jsonify(token_is_valid=True)
     else:
         return jsonify(token_is_valid=False), 403
+
+@app.route("/auth/user/logout", methods=["POST"])
+@login_required
+def logout():
+    user = g.user
+
+    if logout_user(user):
+        return redirect(url_for("index"))
+    
+    return redirect(url_for("home"))
 
 @app.route("/auth/user", methods=["GET"])
 @api_login_required
@@ -72,6 +84,7 @@ def login_via_paypal():
 def create_session():
     data = request.args
     user = None
+    registered = False
 
     if 'code' in data:
         code = data.get('code')
@@ -85,47 +98,59 @@ def create_session():
             userinfo_dict = userinfo.to_dict()
 
             if 'email' in userinfo_dict:
+                email = userinfo_dict.get('email')
+
                 user = User.query\
-                    .filter_by(email=userinfo_dict.get('email'))\
+                    .filter_by(email=email)\
                     .first()
 
                 if user is None:
                     user = create_user_from_userinfo(userinfo_dict)
+                    registered = True
+                    app.logger.debug("Paypal User %s created using userinfo" % email)
+                else:
+                    app.logger.debug("User %s found using email" % email)
+            else:
+                app.logger.debug("No email found using email")
             
             if user is not None:
                 if not user.is_active:
+                    app.logger.debug("User provided is inactive.")
+
                     flash("Your e-mail is not verified. Please check your "
                      "inbox to verify & activate your account.")
-                    send_verification_notification(user)
+                    # send_verification_notification(user)
 
                     return redirect(url_for("email-verification"))
                 else:
+                    app.logger.debug("User provided is active.")
+                    
                     if login_user(user, remember=True):
                         app.logger.debug("logged in user: %s" % user.email)
                         app.logger.debug('session == %s' % session)
                         
-                        if clean_phone_no(user.phone):
+                        if not registered and clean_phone_no(user.phone):
                             return render_template("authenticated_popup.html",
                                 token=session['token'], user=user, redirect_to=url_for('home'))
                         else:
                             return redirect(url_for('mpesa_mobile_phone_no'))
                     else:
-                        jsonify(success=False, message="Forbidden: error logging you in."), 403
+                        app.logger.debug("Could not login user")
+                        return jsonify(success=False, message="Forbidden: error logging you in."), 403
             else:
                 return jsonify(success=False, message="could not authenticate via paypal"), 403
         except Exception as e:
             app.logger.exception(e)
             return internal_server_error(e)
+
     elif 'error_uri' in data:
         error_uri = data.get('error_uri')
         error_description = data.get('error_description')
         error = data.get('error')
 
-        return internal_server_error()
-    else:
-        return page_not_found()
-
-    return jsonify(dict(**data))
+        return internal_server_error(error)
+    
+    return page_not_found()
 
 class MobileNoForm(forms.Form):
     mobile_phone_no = forms.StringField('Update your M-Pesa Safaricom number',

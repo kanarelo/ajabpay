@@ -18,13 +18,13 @@ import wtforms as forms
 
 class PaypalPaymentForm(forms.Form):
     #0703266888, not +254703266888
-    mobile_phone_no = forms.StringField('M-Pesa Recipient',
-        validators=[forms.validators.required(), 
+    mobile_phone_no = forms.StringField('recipient',
+        validators=[forms.validators.data_required(), 
         forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
-    amount = forms.DecimalField('Amount', places=2, rounding=None, validators=[
-        forms.validators.required(), forms.validators.NumberRange(0, 251)])
+    amount = forms.DecimalField('amount', places=2, rounding=None, validators=[
+        forms.validators.data_required(), forms.validators.NumberRange(0, 251)])
 
-@app.route('/txn/paypal2mpesa', methods=['GET', 'POST'])
+@app.route('/txn/p2m', methods=['GET', 'POST'])
 @login_required
 def paypal2mpesa():
     form = PaypalPaymentForm(request.form)
@@ -62,23 +62,56 @@ def length(min=-1, max=-1):
 
     def _length(form, field):
         l = field.data and len(field.data) or 0
-        if l < min or max != -1 and l > max:
+        if (l < min) or (max != -1) and (l > max):
             raise forms.validators.ValidationError(message)
 
     return _length
 
 class PaypalReturnForm(forms.Form):
     paymentId = forms.StringField('paymentId', validators=[
-        forms.validators.required(), length(min=26, max=31),
+        forms.validators.data_required(), length(min=26, max=31),
         forms.validators.Regexp(r'^PAY-(\w{22,27})$')])
     PayerID = forms.StringField('PayerID', validators=[
-        forms.validators.required(), length(min=11, max=18),
+        forms.validators.data_required(), length(min=11, max=18),
         forms.validators.Regexp(r'^(\w{11,18})$')])
     token = forms.StringField('token', validators=[
-        forms.validators.required(), length(min=19, max=23),
+        forms.validators.data_required(), length(min=19, max=23),
         forms.validators.Regexp(r'^EC-(\w{16,20})$')])
 
-@app.route('/txn/paypal2mpesa/r', methods=['GET'])
+def clean_amount(amount):
+    if not amount:
+        return 0
+
+    try:
+        amount = D(amount)
+    except:
+        return 0
+    else:
+        if (amount < 0) and (amount > 50000):
+            return 0
+
+        return amount
+
+@app.route('/txn/p2m/calc', methods=['POST'])
+def paypal2mpesa_calculate():
+    incoming = request.get_json() or {}
+
+    exchange_amount = 0
+    
+    from_currency = incoming.get("from_currency", "KES")
+    amount = clean_amount(incoming.get("amount", "0"))
+    to_currency = incoming.get("to_currency", "USD")
+
+    try:
+        exchange_amount = get_exchange_amount(D(amount), 
+            from_currency=from_currency, to_currency=to_currency)
+    except:
+        return jsonify(message="Error calculating: Invalid data", success=False), 400
+
+    return jsonify(success=True,
+        exchange_amount=exchange_amount, product="p2m")
+
+@app.route('/txn/p2m/r', methods=['GET'])
 @cross_origin()
 def paypal2mpesa_return():
     data = request.args
@@ -95,20 +128,23 @@ def paypal2mpesa_return():
                 db.session.commit()
 
                 return jsonify(
-                    message='Payment %s acknownledged and posted to ledger' % payment_id, 
-                    success=True)
+                    message='Payment %s acknownledged and posted to ledger' % payment_id, success=True)
             except Exception as e:
                 db.session.rollback()
 
                 app.logger.exception(e)
                 return jsonify(message='Could not acknowledge payment', success=False), 500
-
+        else:
+            return jsonify(message='Resource not found', success=False), 404
     else:
         return jsonify(success=False, message="Data did not validate."), 403
 
-@app.route('/txn/paypal2mpesa/c')
+@app.route('/txn/p2m/c')
 @cross_origin()
 def paypal2mpesa_cancel():
     data = request.args
 
-    return jsonify(success=True)
+    message = 'Paypal to M-Pesa transaction cancelled'
+    app.logger.info(message, extra=dict(data))
+
+    return jsonify(success=True, message=message)

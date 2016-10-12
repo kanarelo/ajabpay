@@ -1,0 +1,202 @@
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>AjabPay</title>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800|Quicksand:400,700|Raleway:400,500,600,700,800,900" rel="stylesheet" />
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+    <script type="text/javascript" src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/js/accounting.min.js"></script>
+    <script type="text/javascript">
+        window.value = null;
+
+        function popupWindow(url, title, w, h) {
+            //http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
+            var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
+            var dualScreenTop = window.screenTop != undefined ? window.screenTop : screen.top;
+
+            var width = window.innerWidth ? window.innerWidth : document.documentElement.clientWidth ? document.documentElement.clientWidth : screen.width;
+            var height = window.innerHeight ? window.innerHeight : document.documentElement.clientHeight ? document.documentElement.clientHeight : screen.height;
+
+            var left = ((width / 2) - (w / 2)) + dualScreenLeft;
+            var top = ((height / 2) - (h / 2)) + dualScreenTop;
+            var mainProperties = "directories=no,titlebar=no,toolbar=no,location=no,status=no,menubar=no,scrollbars=no,resizable=no,width="+ w +",height=" + h;
+            var newWindow = window.open(url, title, mainProperties + ', top=' + top + ', left=' + left);
+
+            // Puts focus on the newWindow
+            if (window.focus) newWindow.focus();
+        }
+
+        function cleanAmount(amount) {
+            if (!amount)
+                return 0; 
+
+            if (isNaN(amount))
+                return 0
+            
+            if (amount < 0 && amount > 50000)
+                return 0 
+            
+            return amount;
+        }
+
+        //-------
+
+        $(function(){
+            $("#signup-via-paypal, #login-via-paypal").click(function(){
+                popupWindow("{{ url_for('login_via_paypal') }}", 'targetWindow', 480, 540);
+            })
+            $("#amount").keyup(function(e) {
+                e.preventDefault();
+
+                var theValue = this.value;
+                console.log('theValue', theValue);
+
+                var amount = cleanAmount(theValue);
+                var token = localStorage.getItem('_.token');
+
+                if (token && amount != 0) {
+                    var data = {
+                        amount: amount,
+                        from_currency: 'KES', 
+                        to_currency: 'USD'
+                    }
+
+                    if (window.value !== theValue) {
+                        window.value = theValue;
+
+                        $.ajax({
+                            url: "/txn/p2m/calc",
+                            headers: { 'Authorization': token },
+                            type: "POST",
+                            contentType: 'application/json',
+                            dataType: "json",
+                            data: JSON.stringify(data)
+                        })
+                        .done(function(response){
+                            if (response.success) { 
+                                $("#exchange-amount").text(
+                                    accounting.formatMoney(response.exchange_amount, "", 2));
+                            }
+                        })
+                        .fail(function(jqXHR, textStatus, errorThrown){
+                            console.error(errorThrown);
+                        })
+                    }
+                } 
+            })
+        });
+    </script>
+    <style>
+        html, body{
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 400;
+        }
+        input {
+            font-family: 'Open Sans', sans-serif;
+        }
+        h1, h2, h3, h4, h5 {
+            font-family: 'Open Sans', sans-serif;
+        }
+        .left-pane, .right-pane{
+            padding: 10rem 15rem;
+            height: 91.25%;
+        }
+        .left-pane{
+            background-color: #FFFFFF;
+            padding-right: 20rem;
+        } 
+        .btn-info{
+            background-color: #539DDB;
+            color: #FFFFFF;
+            font-weight: 700;
+            border-color: #539DDB   
+        }
+        .btn-info.focus, .btn-info:hover{
+            border-color: #3E77A8;
+            background-color: #3E77A8;
+        }
+        .right-pane{
+            text-align: center;
+            background-color: #FBFBFB;
+        }
+        .right-pane h3 {
+            margin-bottom: 3rem;
+        }
+        .footer{
+            background-color: #539DDB;
+            color: #FFFFFF;
+            text-align: center;
+            height: 4%;
+            width: 100%;
+            font-size: 10px;
+            padding-top: 9px;
+            position: absolute;
+            bottom: 0;
+        }
+        .navbar{
+            margin-bottom: 0;
+            background-color: #FBFBFB;
+            /*border-bottom: #FBFBFB;*/
+        }
+        .call{
+            margin-bottom: 2rem;
+        }
+        h1.call{
+            font-weight: 900;
+        }
+        .call-1{
+            color: #539DDB;
+        }
+        .fee {
+            font-weight: 900;
+        }
+        .call-2{
+            font-weight: 12px;
+        }
+        .form-paypal2mpesa {
+            margin-top: 5rem;
+        }
+        .form-paypal2mpesa h2 {
+            text-align: center;
+            font-family: 'Raleway', sans-serif;
+            font-size: 20px;
+            color: #003179;
+        }
+        .form-paypal2mpesa h2 img {
+            margin-right: 1.5rem;
+        }
+        .form-paypal2mpesa .exchange > h1 {
+            font-family: 'Raleway', sans-serif;
+            text-align: center;
+            font-size: 50px;
+        }
+        .form-paypal2mpesa .exchange > h1 > small {
+            font-size: 14px;
+            font-weight: 700;
+        }
+        .btn-pay-with-paypal {
+            background-image: linear-gradient(-90deg, #002F78 0%, #0090CD 100%);
+            border: 1px solid #979797;
+        }
+        .bold{
+            font-weight: 700;
+        }
+        .pp {
+            font-style: italic;
+        }
+        .btn-logout{
+            font-family: 'Open Sans', sans-serif;
+            font-weight: 900;
+            font-size: 12px;
+        }
+        .error-pane{
+            margin-top: 3rem;
+        }
+    </style>
+  </head>
+  <body>
+      {% block body %}
+      {% endblock body %}
+  </body>
+</html>
