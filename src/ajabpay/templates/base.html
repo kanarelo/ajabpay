@@ -43,7 +43,7 @@
         //-------
 
         $(function(){
-            $("#signup-via-paypal, #login-via-paypal").click(function(){
+            $("#signup-via-paypal, #login-via-paypal, .btn-login").click(function(){
                 popupWindow("{{ url_for('login_via_paypal') }}", 'targetWindow', 480, 540);
             })
             $("#amount").keyup(function(e) {

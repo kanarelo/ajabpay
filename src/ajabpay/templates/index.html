@@ -44,18 +44,40 @@
             </div>
             <div class="right-pane col-md-6 col-lg-6 col-sm-12 col-xs-12">
                 <h3>Our Products</h3>
-                {% if g.user.is_authenticated %}
-                    <ul class="products">
-                        <li class="product m2p">
-                            <a href="{{ url_for("paypal2mpesa") }}"></a>
-                        </li>
-                        <li class="product p2m hidden">
-                        </li>
-                    </ul>
-                {% else %}
-                    <h5>login to continue</h5>
-                    <a class="btn btn-info" id="login-via-paypal">Login Via Paypal</a>
-                {% endif %}
+                <div class="row">
+                    <div class="col-md-8 col-md-offset-2">
+                        <ul class="products">
+                            {% with logged_in = g.user.is_authenticated %}
+                                <li class="product p2m">
+                                    <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
+                                         logged_in and url_for("paypal2mpesa") or "#"
+                                    }}">
+                                        <img src="/static/img/p2m-xxxlarge.png" height="35px" />
+                                    </a>
+                                </li>
+                                <li class="product m2p">
+                                    <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
+                                        logged_in and url_for("paypal2mpesa") or "#"
+                                    }}">
+                                        <img src="/static/img/m2p-xxxlarge.png" height="35px" />
+                                    </a>
+                                </li>
+                                <li class="product p2e">
+                                    <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
+                                        logged_in and url_for("paypal2mpesa") or "#"
+                                    }}">
+                                        <img src="/static/img/p2e-xxxlarge.png" height="35px" />
+                                    </a>
+                                </li>
+                            {% endwith %}
+                        </ul>
+                        <br />
+                        <h5>login to continue</h5>
+                        <a id="login-via-paypal" href="#">
+                            <img src="https://www.paypalobjects.com/webstatic/en_US/developer/docs/lipp/loginwithpaypalbutton.png" />    
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="footer">
