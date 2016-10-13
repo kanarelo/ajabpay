@@ -113,7 +113,7 @@ def paypal2mpesa_calculate():
         return jsonify(message="Error calculating: Invalid data", success=False), 400
 
     return jsonify(success=True,
-        exchange_amount=exchange_amount, product="p2m")
+        exchange_amount=round_down(exchange_amount), product="p2m")
 
 @app.route('/txn/p2m/r', methods=['GET'])
 @cross_origin()
