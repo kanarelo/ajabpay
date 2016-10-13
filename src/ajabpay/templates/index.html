@@ -1,5 +1,16 @@
 {% extends "base.html" %}
 
+{% block extracss %}
+    <style>
+        .products.index {
+            margin-top: 0;
+        }
+        .products.index .product:first-child {
+           padding-top: 1rem;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <nav class="navbar navbar-default navbar-primary">
         <div class="container">
@@ -44,9 +55,10 @@
             </div>
             <div class="right-pane col-md-6 col-lg-6 col-sm-12 col-xs-12">
                 <h3>Our Products</h3>
+                <hr>
                 <div class="row">
                     <div class="col-md-8 col-md-offset-2">
-                        <ul class="products">
+                        <ul class="products index">
                             {% with logged_in = g.user.is_authenticated %}
                                 <li class="product p2m">
                                     <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
@@ -71,13 +83,12 @@
                                 </li>
                             {% endwith %}
                         </ul>
-                        <br />
-                        <h5>login to continue</h5>
-                        <a id="login-via-paypal" href="#">
-                            <img src="https://www.paypalobjects.com/webstatic/en_US/developer/docs/lipp/loginwithpaypalbutton.png" />    
-                        </a>
                     </div>
                 </div>
+                <hr>
+                <a id="login-via-paypal" href="#">
+                    <img src="https://www.paypalobjects.com/webstatic/en_US/developer/docs/lipp/loginwithpaypalbutton.png" />    
+                </a>
             </div>
         </div>
         <div class="footer">
