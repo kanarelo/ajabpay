@@ -34,14 +34,12 @@
             <div id="navbar" class="clearfix">
                 <div class="collapse navbar-collapse" id="collapsable">
                     {% block navbar_buttons %}
+                        {% if g.user.is_authenticated %}
                         <ul class="nav navbar-nav navbar-right">
                             <li class="dropdown">
-                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+                                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{{ g.user.get_full_name() }} <span class="caret"></span></a>
                                 <ul class="dropdown-menu">
-                                    <li><a href="#">Action</a></li>
-                                    <li><a href="#">Another action</a></li>
-                                    <li><a href="#">Something else here</a></li>
-                                    <li role="separator" class="divider"></li>
+                                    <li role="separator" class="divider hidden"></li>
                                     <li>
                                         <a href="#" onclick="$('#logout-form').submit();">
                                             Logout
@@ -51,6 +49,7 @@
                                 </ul>
                             </li>
                         </ul>
+                        {% endif %}
                     {% endblock navbar_buttons %}
                 </div>
             </div>
@@ -84,17 +83,17 @@
                             <ul class="products">
                                 <li class="product p2m">
                                     <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
-                                        <img src="/static/img/p2m-xxxlarge.png" height="35px" />
+                                        <img src="/static/img/p2m-xxxlarge.png" height="30px" />
                                     </a>
                                 </li>
                                 <li class="product m2p hidden">
                                     <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
-                                        <img src="/static/img/m2p-xxxlarge.png" height="35px" />
+                                        <img src="/static/img/m2p-xxxlarge.png" height="30px" />
                                     </a>
                                 </li>
                                 <li class="product p2e hidden">
                                     <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
-                                        <img src="/static/img/p2e-xxxlarge.png" height="35px" />
+                                        <img src="/static/img/p2e-xxxlarge.png" height="30px" />
                                     </a>
                                 </li>
                             </ul>

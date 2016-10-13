@@ -8,6 +8,9 @@
         .products.index .product:first-child {
            padding-top: 1rem;
         }
+        .product{
+            padding-top: 1.25rem;
+        }
     </style>
 {% endblock %}
 
@@ -48,7 +51,7 @@
         {% endwith %}
         <div class="panes">
             <div class="left-pane col-md-6 col-lg-6 hidden-sm hidden-xs">
-                <h1 class="call">Supercharge your M-Pesa Account</h1>
+                <h1 class="call">Supercharge your <br>M-Pesa Account</h1>
                 <h4 class="call call-1">Sign up to try our low cost option</h4>
                 <h5 class="call call-2"><span class="fee">Fee:</span> Just 4.5% + $1</h5>
                 <a class="btn btn-info btn-lg" id="signup-via-paypal">Signup Via Paypal</a>
@@ -64,21 +67,21 @@
                                     <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
                                          logged_in and url_for("paypal2mpesa") or "#"
                                     }}">
-                                        <img src="/static/img/p2m-xxxlarge.png" height="35px" />
+                                        <img src="/static/img/p2m-xxxlarge.png" height="28px" />
                                     </a>
                                 </li>
                                 <li class="product m2p">
                                     <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
                                         logged_in and url_for("paypal2mpesa") or "#"
                                     }}">
-                                        <img src="/static/img/m2p-xxxlarge.png" height="35px" />
+                                        <img src="/static/img/m2p-xxxlarge.png" height="28px" />
                                     </a>
                                 </li>
                                 <li class="product p2e">
                                     <a class="btn btn-default btn-block btn-lg {% if not logged_in %}btn-login{% endif %}" href="{{ 
                                         logged_in and url_for("paypal2mpesa") or "#"
                                     }}">
-                                        <img src="/static/img/p2e-xxxlarge.png" height="35px" />
+                                        <img src="/static/img/p2e-xxxlarge.png" height="28px" />
                                     </a>
                                 </li>
                             {% endwith %}
