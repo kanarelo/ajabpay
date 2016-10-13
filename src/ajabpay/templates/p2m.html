@@ -1,71 +1,40 @@
-{% extends "base.html" %}
+{% extends "home.html" %}
 
-{% block body %}
-    <nav class="navbar navbar-default navbar-primary">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#collapsable" aria-expanded="false">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="/">
-                    <strong class="ajab">ajab</strong><span class="pay">pay</span>
-                </a>
-            </div>
-            <!-- Note that the .navbar-collapse and .collapse classes have been removed from the #navbar -->
-            <div id="navbar" class="clearfix">
-                <div class="collapse navbar-collapse" id="collapsable">
-                    {% block navbar_buttons %}
-                        <ul class="nav navbar-nav navbar-right">
-                            <li>
-                                <form class="form-inline" method="POST" action="{{ url_for("logout") }}">
-                                    <a class="btn btn-default btn-logout">Log Out</a>
-                                </form>
-                            </li>
-                        </ul>
-                    {% endblock navbar_buttons %}
-                </div>
-            </div>
-        </div>
-    </nav>
-    <div class="outer-container">
-        {% with messages = get_flashed_messages() %}
-            {% if messages %}
-                <ul class=flashes>
-                {% for message in messages %}
-                <li>{{ message }}</li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        {% from "macros/_formhelpers.html" import render_field %}
-        <div class="container">
-            <form class="form-paypal2mpesa" method="POST" action="{{ url_for('paypal2mpesa') }}" autocomplete="off">
-                <div class="row">
-                    <div class="col-md-4 col-md-offset-4">
-                        <h2><img src="/static/img/p2m.png" />paypal to m-pesa</h2>
-                        <br />
-                        {{ render_field(form.mobile_phone_no, value=(form.mobile_phone_no.data or g.user.phone)) }}
-                        {{ render_field(form.amount, value=(form.amount.data or ""), placeholder="0") }}
+{% block outer_container %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul class=flashes>
+            {% for message in messages %}
+            <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    {% from "macros/_formhelpers.html" import render_field %}
+    <div class="container">
+        <form class="form-paypal2mpesa" method="POST" action="{{ url_for('paypal2mpesa') }}" autocomplete="off">
+            <div class="row">
+                <div class="col-md-4 col-md-offset-4">
+                    <h2><img src="/static/img/p2m.png" />paypal to m-pesa</h2>
+                    <br />
+                    {{ render_field(form.mobile_phone_no, value=(form.mobile_phone_no.data or g.user.phone)) }}
+                    {{ render_field(form.amount, value=(form.amount.data or ""), placeholder="0") }}
 
-                        <div class="form-group">
-                            <button class="btn btn-primary btn-pay-with-paypal btn-block" type="submit">
-                                Pay with <span class="bold">PayPal</span>
-                            </button>
-                        </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary btn-pay-with-paypal btn-block" type="submit">
+                            Pay with <span class="bold">PayPal</span>
+                        </button>
                     </div>
                 </div>
-                <div class="row">
-                    <div class="exchange col-md-4 col-md-offset-4">
-                        <h1><small>KES</small><span id="exchange-amount">0.00</span></h1>
-                    </div>
+            </div>
+            <div class="row">
+                <div class="exchange col-md-4 col-md-offset-4">
+                    <h1><small>KES</small><span id="exchange-amount">0.00</span></h1>
                 </div>
-            </form>
-        </div>
-        <div class="footer">
-            AJABWORLD LTD
-        </div>
+            </div>
+        </form>
     </div>
-{% endblock body %}
+    <div class="footer">
+        AJABWORLD LTD
+    </div>
+{% endblock outer_container %}

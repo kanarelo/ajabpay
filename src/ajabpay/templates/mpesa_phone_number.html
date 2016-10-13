@@ -1,4 +1,16 @@
-{% extends "baase.html" %}
+{% extends "base.html" %}
+
+{% block extracss %}
+    <style>
+    .mobile-phone-form {
+        margin: 2rem;
+
+    }
+    </style>
+{% endblock extracss %}
+
+{% block extrajs %}
+{% endblock extrajs %}
 
 {% block body %}
     <nav class="navbar navbar-default navbar-primary">
@@ -34,9 +46,11 @@
                 </ul>
             {% endif %}
         {% endwith %}
-        {% from "macros/_formhelpers.html" import render_field %}
-        {% block body %}
-            <form method="POST" action="{{ url_for('paypal2mpesa') }}">
+        {% block form %}
+            {% from "macros/_formhelpers.html" import render_field %}
+            <form class="mobile-phone-form" method="POST" action="{{ url_for('mpesa_mobile_phone_no') }}">
+                <h4>Please confirm your particulars</h4>
+                <hr />
                 <div class="row">
                     <div class="col-md-6 col-md-offset-3">
                         {{ render_field(form.mobile_phone_no, value=(form.mobile_phone_no.data or g.user.phone)) }}

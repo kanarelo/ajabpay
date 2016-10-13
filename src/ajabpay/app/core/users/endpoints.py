@@ -53,7 +53,7 @@ def is_token_valid():
 def logout():
     user = g.user
 
-    if logout_user(user):
+    if logout_user():
         return redirect(url_for("index"))
     
     return redirect(url_for("home"))
@@ -153,7 +153,7 @@ def create_session():
     return page_not_found()
 
 class MobileNoForm(forms.Form):
-    mobile_phone_no = forms.StringField('Update your M-Pesa Safaricom number',
+    mobile_phone_no = forms.StringField('Your mobile number',
         validators=[forms.validators.required(), 
         forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
 
@@ -162,11 +162,14 @@ class MobileNoForm(forms.Form):
 def mpesa_mobile_phone_no():
     form = MobileNoForm(request.form)
 
-    if request.method == "POST" and form.validated():
+    if request.method == "POST" and form.validate():
         try:
             user = User.query\
-                .filter_by(email=g.user.email)
-            user.phone = form.phone.data
+                .filter_by(email=g.user.email)\
+                .first()
+
+            if user is not None:
+                user.phone = form.mobile_phone_no.data
 
             flash("Phone number '%s' added successfully!" % user.phone)
             db.session.commit()

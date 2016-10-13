@@ -1,9 +1,13 @@
 from flask import request, render_template, jsonify, url_for, redirect, g
 
+from ajabpay.index import app, cross_origin
+
 from ajabpay.app.models import *
 from ajabpay.app.utils import login_required
 from ajabpay.app.core.utils import VALID_SAFARICOM_NO_REGEX
-from ajabpay.index import app, cross_origin
+
+from ajabpay.app.core.endpoint_helpers import (
+    page_not_found, access_forbidden, internal_server_error)
 
 from sqlalchemy import or_, Date, cast
 from sqlalchemy.sql import func
@@ -122,22 +126,18 @@ def paypal2mpesa_return():
         payer_id = data.get('PayerID')
         token = data.get('token')
 
-        if payment_id and payer_id and token:
-            try:
-                acknowledge_payment(payment_id, payer_id, token)
-                db.session.commit()
+        try:
+            acknowledge_payment(payment_id, payer_id, token)
+            db.session.commit()
 
-                return jsonify(
-                    message='Payment %s acknownledged and posted to ledger' % payment_id, success=True)
-            except Exception as e:
-                db.session.rollback()
+            return render_template("paypal2mpesa_return.html")
+        except Exception as e:
+            db.session.rollback()
 
-                app.logger.exception(e)
-                return jsonify(message='Could not acknowledge payment', success=False), 500
-        else:
-            return jsonify(message='Resource not found', success=False), 404
+            app.logger.exception(e)
+            return internal_server_error(e)
     else:
-        return jsonify(success=False, message="Data did not validate."), 403
+        return access_forbidden()
 
 @app.route('/txn/p2m/c')
 @cross_origin()

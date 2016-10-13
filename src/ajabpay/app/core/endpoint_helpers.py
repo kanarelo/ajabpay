@@ -11,4 +11,4 @@ def access_forbidden(e=None):
 
 @app.errorhandler(500)
 def internal_server_error(e=None):
-    return render_template('500.html'), 404
+    return render_template('500.html'), 500

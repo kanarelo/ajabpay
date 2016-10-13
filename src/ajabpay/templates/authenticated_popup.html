@@ -11,10 +11,10 @@
             } else {
                 window.close();
             }
-        })
+        });
     </script>
     <div class="container">
         <h1>Authenticated Successfully</h1>
-        <h3 style="color: #539DDB;">Welcome, {{ user.get_full_name() }}</h3>
+        <h3 style="color: #539DDB;">Welcome, {{ g.user.get_full_name() }}</h3>
     </div>
 {% endblock panes %}
