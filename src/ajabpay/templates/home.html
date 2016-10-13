@@ -57,54 +57,54 @@
         </div>
     </nav>
     <div class="outer-container">
-    {% block outer_container %}
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                <ul class="flashes">
-                {% for category, message in messages %}
-                    <li>
-                        {% if category == 'message' %}
-                            <div class="alert alert-warning" role="alert">
-                        {% else %}
-                            <div class="alert alert-{{ category }}" role="alert">
-                        {% endif %}
-                                {{ message }}
-                            </div>
-                    </li>
-                {% endfor %}
-                </ul>
-            {% endif %}
-        {% endwith %}
-        <div class="panes">
-            {% block panes %}
-                <div class="container">
-                    <div class="home-container col-md-4 col-md-offset-4">
-                        <h3>Choose one of our Products</h3>
-                        <hr/>
-                        <ul class="products">
-                            <li class="product p2m">
-                                <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
-                                    <img src="/static/img/p2m-xxxlarge.png" height="35px" />
-                                </a>
-                            </li>
-                            <li class="product m2p hidden">
-                                <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
-                                    <img src="/static/img/m2p-xxxlarge.png" height="35px" />
-                                </a>
-                            </li>
-                            <li class="product p2e hidden">
-                                <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
-                                    <img src="/static/img/p2e-xxxlarge.png" height="35px" />
-                                </a>
-                            </li>
-                        </ul>
+        {% block outer_container %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <ul class="flashes">
+                    {% for category, message in messages %}
+                        <li>
+                            {% if category == 'message' %}
+                                <div class="alert alert-warning" role="alert">
+                            {% else %}
+                                <div class="alert alert-{{ category }}" role="alert">
+                            {% endif %}
+                                    {{ message }}
+                                </div>
+                        </li>
+                    {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+            <div class="panes">
+                {% block panes %}
+                    <div class="container">
+                        <div class="home-container col-md-4 col-md-offset-4">
+                            <h3>Choose one of our Products</h3>
+                            <hr/>
+                            <ul class="products">
+                                <li class="product p2m">
+                                    <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
+                                        <img src="/static/img/p2m-xxxlarge.png" height="35px" />
+                                    </a>
+                                </li>
+                                <li class="product m2p hidden">
+                                    <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
+                                        <img src="/static/img/m2p-xxxlarge.png" height="35px" />
+                                    </a>
+                                </li>
+                                <li class="product p2e hidden">
+                                    <a class="btn btn-default btn-block btn-lg" href="{{ url_for("paypal2mpesa") }}">
+                                        <img src="/static/img/p2e-xxxlarge.png" height="35px" />
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
-                </div>
-            {% endblock panes %}
-        </div>
-        <div class="footer">
-            AJABWORLD LTD
-        </div>
-    {% endblock outer_container %}
+                {% endblock panes %}
+            </div>
+            <div class="footer">
+                AJABWORLD LTD
+            </div>
+        {% endblock outer_container %}
     </div>
 {% endblock body %}

@@ -2,8 +2,11 @@
 
 {% block panes %}
     <div class="container error-pane">
-        <h1>Access Forbidden, sorry.</h1>
+        <h1>Intenal Server Error.</h1>
         <h3 style="color: #539DDB;">500.</h4>
+        {% if error_no %}
+        <h4>Error #: {{ error_no }}</h4>
+        {% endif %}
         <h5>Contact us: <a href="mailto:info@ajabworld.net">info@ajabworld.net</a></h5>
-    <div>
+    </div>
 {% endblock panes %}
