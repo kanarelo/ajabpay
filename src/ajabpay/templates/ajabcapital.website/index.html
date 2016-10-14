@@ -1,0 +1,808 @@
+{% extends "index.html" %}
+
+{% block title %}AjabWorld LTD{% endblock title %}
+
+{% block extracss %}
+    <style>
+        body {
+            background-image: linear-gradient(-180deg, #FFFFFF 0%, #F5F5F5 100%);
+        }
+        .navbar{
+            background-color: transparent;
+        }
+        .index-content{
+            text-align: center;
+            padding: 10rem 0 0;
+        }
+        .index-content h1 {
+            font-weight: 900;
+            text-transform: capitalize;
+            font-size: 42.5px;
+        }
+        .index-content h2 {
+            font-family: 'Open Sans', sans-serif;
+            font-size: 18px;
+            margin-top: 0;
+            color: #539DDB; 
+        }
+        .integrations {
+            width: 80%;
+            margin: 4rem auto;
+        }
+        .integrations img {
+            height: 30px;
+        }
+        .our-solutions{
+            font-family: 'Quicksand', sans-serif;
+            width: 300px;
+            margin: 12.5rem auto;
+        }
+        .our-solutions h4, .our-integrations h4 {
+            font-family: 'Raleway', sans-serif;
+            font-weight: 700;
+            font-weight: 15px;
+            color: #525252;
+        }
+        .solutions {
+            margin-top: 1.5rem;
+            font-size: 17px;
+        }
+        .solutions .mfi{
+            text-align: right;
+        }
+        .solutions .pay{
+            text-align: center;
+        }
+        .solutions .capital{
+            text-align: left;
+        }
+        .solutions a {
+            text-decoration: none;
+            cursor: pointer;
+            color: gray;
+        }
+        .solutions a:hover{
+            text-decoration: none;
+            color: #000;
+        }
+        .our-integrations{
+            margin: 7.5rem auto 0;
+        }
+        .font_regular, html, body, section.page, .call, .what-we-offer, .our-platform, .end-to-end-automation {
+        font-family: "Open Sans" sans-serif; }
+
+        .font_extra_bold {
+        font-family: "proxima_nova_thbold"; }
+
+        .font_black, .call .body .main-call, .end-to-end-automation .header h2 {
+        font-family: "Raleway", sans-serif; 
+        font-weight: 900;
+        }
+
+        .font_light, .end-to-end-automation .body .messages .message {
+        font-family: "proxima_nova_ltregular"; }
+
+        .font_semibold, .what-we-offer .body .offering .label, .our-platform .body .modules .module-row .module-name {
+        font-family: "proxima_nova_ltbold"; }
+
+        .skinny-letterspacing {
+        letter-spacing: .025em; }
+
+        .wide-letterspacing {
+        letter-spacing: .1em; }
+
+        html {
+        font-size: 14px; }
+
+        body {
+        padding: 0;
+        margin: 0;
+        font-weight: normal; }
+
+        * {
+        font-weight: normal; }
+
+        ul.horizontal-list {
+        list-style-type: none;
+        display: inline; }
+        ul.horizontal-list li {
+            float: left;
+            margin-right: 10px; }
+
+        .call .footer a.landing-btn, .what-we-offer .footer a.landing-btn, .our-platform .footer a.landing-btn {
+        transition: background-color .0025s linear;
+        color: #fff;
+        margin: auto auto;
+        padding: 12.5px 30px;
+        border-radius: 5px;
+        border: none;
+        font-size: 20px; }
+        .call .footer a.landing-btn:hover, .what-we-offer .footer a.landing-btn:hover, .our-platform .footer a.landing-btn:hover {
+            color: #fff; }
+
+        header {
+        padding-top: 1.5rem;
+        padding-bottom: 2.5rem; }
+        header .navbar-header .navbar-brand {
+            width: 285px;
+            position: relative; }
+            header .navbar-header .navbar-brand img {
+            display: inline;
+            height: 55px; }
+        header .navbar-collapse .nav.navbar-nav {
+            margin-top: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px; }
+            header .navbar-collapse .nav.navbar-nav li {
+            margin-right: 10px; }
+            header .navbar-collapse .nav.navbar-nav li a {
+                transition: background-color .4s ease-in;
+                border-radius: 2.5rem;
+                color: black; }
+                header .navbar-collapse .nav.navbar-nav li a:hover {
+                background-color: #CFE900; }
+
+        footer {
+        padding: 20px 30px; }
+        footer .copyright {
+            display: inline-block;
+            text-transform: uppercase;
+            font-size: 13px;
+            letter-spacing: 1px; }
+            footer .copyright img {
+            margin-right: 10px; }
+        footer .links {
+            display: inline-block; }
+            footer .links a {
+            font-size: 14px;
+            color: #3A3A3A;
+            text-transform: lowercase; }
+        footer .social-buttons {
+            display: inline-block; }
+            footer .social-buttons .horizontal-list {
+            float: right; }
+            footer .social-buttons .horizontal-list svg {
+                width: 16px;
+                height: 16px;
+                fill: #282828;
+                top: 2px;
+                position: relative;
+                opacity: 0.5;
+                filter: alpha(opacity=50);
+                transition: opacity .05s ease-in; }
+                footer .social-buttons .horizontal-list svg:hover {
+                opacity: 1;
+                filter: alpha(opacity=100); }
+
+        .alert {
+        margin-top: 30px;
+        margin-bottom: -4.25rem;
+        font-size: 16px; }
+
+        .call {
+        min-height: 33rem !important; }
+        .call .body {
+            padding-top: 11rem;
+            text-align: center; }
+            .call .body .main-call {
+            letter-spacing: 2px;
+            font-size: 3.2rem;
+            text-transform: uppercase; }
+            .call .body .secondary-call {
+            font-size: 1.5rem;
+            color: #6C6C6C;
+            padding: 0.3rem 4.2rem;
+            text-transform: lowercase; }
+        .call .footer {
+            text-align: center; }
+            .call .footer a.landing-btn {
+            margin: 3.1rem auto auto;
+            background-color: #75BE8B;
+            background-repeat: repeat-x;
+            background-image: -webkit-linear-gradient(-145deg, #75BE8B, #2B9784);
+            background-image: -o-linear-gradient(-145deg, #75BE8B, #2B9784);
+            background-image: linear-gradient(-145deg, #75BE8B, #2B9784);
+            filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#75BE8B', end-colourStr='#2B9784');
+            text-transform: uppercase;
+            font-size: 17px;
+            font-weight: 700; }
+            .call .footer a.landing-btn:hover {
+                background: #2B3438 !important; }
+            .call .footer ul.partners {
+            list-style-type: none;
+            margin-top: 4.3rem;}
+            .call .footer ul.partners li.partner {
+                float: left;
+                margin-right: 30px;
+                max-height: 50px;
+                padding: 2.5px; }
+                .call .footer ul.partners li.partner img {
+                height: 35px; }
+
+        .what-we-offer {
+        min-height: 40rem !important;
+        background-color: #F8F9F9; }
+        .what-we-offer .header {
+            padding: 3.1rem 1.1rem 3.8rem; }
+            .what-we-offer .header h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 500;
+            font-family: "Open Sans";
+            text-transform: capitalize; }
+        .what-we-offer .body {
+            margin-bottom: 1.6rem; }
+            .what-we-offer .body .offering {
+            text-align: center; }
+            .what-we-offer .body .offering .label {
+                text-align: center;
+                color: #000;
+                font-size: 18px;
+                margin-top: 10px;
+                margin-bottom: 10px;
+                font-weight: 600; 
+                font-family: "Raleway", sans-serif;}
+            .what-we-offer .body .offering .text {
+                margin-top: 15px;
+                text-align: center;
+                color: #767676;
+                font-size: 15px; }
+            .what-we-offer .body .offering .image {
+                margin-bottom: 15px;
+                height: 85px; }
+                .what-we-offer .body .offering .image img {
+                margin: auto;
+                height: 80px; }
+        .what-we-offer .footer {
+            margin-top: 6rem;
+            text-align: center; }
+            .what-we-offer .footer a.landing-btn {
+            text-transform: uppercase;
+            font-size: 15px;
+            font-weight: 600;
+            background-color: #40484C; }
+            .what-we-offer .footer a.landing-btn:hover {
+                background: #2B3438 !important; }
+
+        .our-platform {
+        min-height: 44rem;
+        padding-bottom: 5.5rem;
+        background-color: #75BE8B;
+        background-image: -webkit-linear-gradient(-145deg, #75BE8B 0%, #6BB88A 0%, #75BE8B 0%, #2B9784 100%);
+        background-image: -moz-linear-gradient(-145deg, #75BE8B 0%, #6BB88A 0%, #75BE8B 0%, #2B9784 100%);
+        background-image: -ms-linear-gradient(-145deg, #75BE8B 0%, #6BB88A 0%, #75BE8B 0%, #2B9784 100%);
+        background-image: -o-linear-gradient(-145deg, #75BE8B 0%, #6BB88A 0%, #75BE8B 0%, #2B9784 100%);
+        background-image: linear-gradient(-145deg, #75BE8B 0%, #6BB88A 0%, #75BE8B 0%, #2B9784 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#75BE8B', end-colourStr='#6BB88A'); }
+        .our-platform .header {
+            padding: 3.3rem 1.1rem; }
+            .our-platform .header h2 {
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 500;
+            font-family: "Open Sans", sans-serif;
+            text-transform: capitalize;
+            color: #fff; }
+            .our-platform .header .secondary-text {
+            color: #fff;
+            margin-top: 10px;
+            text-align: center;
+            font-size: 15px;
+            font-family: "Raleway", sans-serif;
+            font-weight: 500; }
+        .our-platform .body {
+            text-align: center; }
+            .our-platform .body .modules {
+            margin: 10px auto 40px;
+            position: relative;
+            right: 16.5%; }
+            .our-platform .body .modules .module-row {
+                float: right; }
+                .our-platform .body .modules .module-row:first-child .module:first-child {
+                border-top-left-radius: 10px; }
+                .our-platform .body .modules .module-row:first-child .module:last-child {
+                border-top-right-radius: 10px; }
+                .our-platform .body .modules .module-row:last-child .module:first-child {
+                border-bottom-left-radius: 10px; }
+                .our-platform .body .modules .module-row:last-child .module:last-child {
+                border-bottom-right-radius: 10px; }
+                .our-platform .body .modules .module-row .module {
+                background-color: #fff;
+                border-right: 1px solid #57AE88;
+                border-top: 1px solid #57AE88;
+                display: inline-block;
+                margin: 0;
+                float: left;
+                width: 256px;
+                height: 256px; }
+                .our-platform .body .modules .module-row .module-initials {
+                    background-color: #000;
+                    font-size: 30px;
+                    line-height: 40px;
+                    border-radius: 5px;
+                    margin: 20px auto;
+                    color: #FFFFFF;
+                    padding-top: 12.5px;
+                    text-align: center;
+                    vertical-align: middle;
+                    width: 62px;
+                    height: 62px;
+                    font-family: 'Quicksand', sans-serif;
+                    font-weight: 400; }
+                    .our-platform .body .modules .module-row .module-initials.app {
+                    background-color: #6E1E7D;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #6E1E7D, #35013F);
+                    background-image: -o-linear-gradient(-145deg, #6E1E7D, #35013F);
+                    background-image: linear-gradient(-145deg, #6E1E7D, #35013F);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#6E1E7D', end-colourStr='#35013F'); }
+                    .our-platform .body .modules .module-row .module-initials.backoffice {
+                    background-color: #92338A;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #92338A, #561050);
+                    background-image: -o-linear-gradient(-145deg, #92338A, #561050);
+                    background-image: linear-gradient(-145deg, #92338A, #561050);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#92338A', end-colourStr='#561050'); }
+                    .our-platform .body .modules .module-row .module-initials.crm {
+                    background-color: #DA3C8D;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #DA3C8D, #951556);
+                    background-image: -o-linear-gradient(-145deg, #DA3C8D, #951556);
+                    background-image: linear-gradient(-145deg, #DA3C8D, #951556);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#DA3C8D', end-colourStr='#951556'); }
+                    .our-platform .body .modules .module-row .module-initials.decisioning {
+                    background-color: #C47486;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #C47486, #A75265);
+                    background-image: -o-linear-gradient(-145deg, #C47486, #A75265);
+                    background-image: linear-gradient(-145deg, #C47486, #A75265);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#C47486', end-colourStr='#A75265'); }
+                    .our-platform .body .modules .module-row .module-initials.credit-officer {
+                    background-color: #F4978C;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #F4978C, #EC7263);
+                    background-image: -o-linear-gradient(-145deg, #F4978C, #EC7263);
+                    background-image: linear-gradient(-145deg, #F4978C, #EC7263);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#F4978C', end-colourStr='#EC7263'); }
+                    .our-platform .body .modules .module-row .module-initials.compliance-reporting {
+                    background-color: #FFDCBA;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #FFDCBA, #FEBE7E);
+                    background-image: -o-linear-gradient(-145deg, #FFDCBA, #FEBE7E);
+                    background-image: linear-gradient(-145deg, #FFDCBA, #FEBE7E);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#FFDCBA', end-colourStr='#FEBE7E');
+                    color: #B36072; }
+                    .our-platform .body .modules .module-row .module-initials.debt-collection {
+                    background-color: #40859C;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #40859C, #114B5F);
+                    background-image: -o-linear-gradient(-145deg, #40859C, #114B5F);
+                    background-image: linear-gradient(-145deg, #40859C, #114B5F);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#40859C', end-colourStr='#114B5F'); }
+                    .our-platform .body .modules .module-row .module-initials.financial-accounting {
+                    background-color: #4EBD9C;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #4EBD9C, #1A936F);
+                    background-image: -o-linear-gradient(-145deg, #4EBD9C, #1A936F);
+                    background-image: linear-gradient(-145deg, #4EBD9C, #1A936F);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#4EBD9C', end-colourStr='#1A936F'); }
+                    .our-platform .body .modules .module-row .module-initials.loan-origination {
+                    background-color: #A6EDB5;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #A6EDB5, #88D498);
+                    background-image: -o-linear-gradient(-145deg, #A6EDB5, #88D498);
+                    background-image: linear-gradient(-145deg, #A6EDB5, #88D498);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#A6EDB5', end-colourStr='#88D498');
+                    color: #114B5F; }
+                    .our-platform .body .modules .module-row .module-initials.payments {
+                    background-color: #2F60CE;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #2F60CE, #062C80);
+                    background-image: -o-linear-gradient(-145deg, #2F60CE, #062C80);
+                    background-image: linear-gradient(-145deg, #2F60CE, #062C80);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#2F60CE', end-colourStr='#062C80'); }
+                    .our-platform .body .modules .module-row .module-initials.risk-management {
+                    background-color: #3891EB;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #3891EB, #0E6AC7);
+                    background-image: -o-linear-gradient(-145deg, #3891EB, #0E6AC7);
+                    background-image: linear-gradient(-145deg, #3891EB, #0E6AC7);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#3891EB', end-colourStr='#0E6AC7'); }
+                    .our-platform .body .modules .module-row .module-initials.syndicated-loans {
+                    background-color: #85C9F3;
+                    background-repeat: repeat-x;
+                    background-image: -webkit-linear-gradient(-145deg, #85C9F3, #4FB9FC);
+                    background-image: -o-linear-gradient(-145deg, #85C9F3, #4FB9FC);
+                    background-image: linear-gradient(-145deg, #85C9F3, #4FB9FC);
+                    filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#85C9F3', end-colourStr='#4FB9FC'); }
+                .our-platform .body .modules .module-row .module-name {
+                    text-transform: uppercase;
+                    color: #6b6b6b;
+                    font-family: "Open Sans", sans-serif;
+                    font-size: 14px;
+                    font-weight: 800; }
+                .our-platform .body .modules .module-row .module-description {
+                    padding: 5px 15px;
+                    font-size: 13px;
+                    font-family: "Raleway", sans-serif;
+                    font-weight: 500;
+                    min-height: 90px; }
+                .our-platform .body .modules .module-row .module-learn-more a {
+                    font-size: 15px; }
+                .our-platform .body .modules .module-row .module:hover {
+                    opacity: 0.9;
+                    filter: alpha(opacity=90); }
+        .our-platform .footer {
+            text-align: center; }
+            .our-platform .footer a.landing-btn {
+            color: #000;
+            background-color: #FFFFFF;
+            background-repeat: repeat-x;
+            background-image: -webkit-linear-gradient(-145deg, #FFFFFF, #DDE1E2);
+            background-image: -o-linear-gradient(-145deg, #FFFFFF, #DDE1E2);
+            background-image: linear-gradient(-145deg, #FFFFFF, #DDE1E2);
+            font-weight: 700;
+            filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#FFFFFF', end-colourStr='#DDE1E2'); }
+            .our-platform .footer a.landing-btn:hover {
+                color: #000;
+                background-color: #DDE1E2;
+                background-repeat: repeat-x;
+                background-image: -webkit-linear-gradient(-145deg, #DDE1E2, #FFFFFF);
+                background-image: -o-linear-gradient(-145deg, #DDE1E2, #FFFFFF);
+                background-image: linear-gradient(-145deg, #DDE1E2, #FFFFFF);
+                filter: progid:DXImageTransform.Microsoft.gradient(start-colourStr='#DDE1E2', end-colourStr='#FFFFFF'); }
+
+        .end-to-end-automation {
+        min-height: 55rem;
+        background-image: url("/static/img/dark-bg-computer.png");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: 50% 10%; }
+        .end-to-end-automation .header {
+            margin: 0;
+            width: 100%;
+            border-bottom: none; }
+            .end-to-end-automation .header h2 {
+            text-align: center;
+            font-size: 35px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #fff;
+            margin-top: 4.4rem; }
+        .end-to-end-automation .body .messages {
+            margin-top: 11rem; }
+            .end-to-end-automation .body .messages .message {
+            color: #fff;
+            font-size: 24px;
+            line-height: 45px;
+            margin-right: 20px;
+            text-align: center; }
+        .end-to-end-automation .body .devices {
+            background-image: url("/static/img/devices.png");
+            background-repeat: no-repeat;
+            background-position: center;
+            height: 46.75rem;
+            background-size: 88%; }
+    </style>
+{% endblock extracss %}
+
+{% block product %}<span class="capital">capital</span>{% endblock product %}
+
+{% block outer_container_container %}
+    <section class="page call">
+        <div class="container">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert{% if message.tags %} alert-{% if message.tags == 'error' %}danger{% else %}{{ message.tags }}{% endif %}{% endif %} alert-dismissable">
+                        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&#215;</button>
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+            <div class="body">
+                <div class="main-call">
+                    cloud based Core Banking Platform
+                </div>
+                <div class="secondary-call hidden-xs">
+                    an end-to-end loan and risk management solution for unsecured micro loans. designed for mobile banks, online lenders, sacco’s and microfinance institutions.
+                </div>
+            </div>
+            <div class="footer">
+                <div class="row">
+                    <a class="btn landing-btn btn-lg" href="/demo-booking">Book A Demo &gt;</a>
+                </div>
+                <div class="row hidden-xs">
+                    <ul class="partners clearfix col-lg-10 col-lg-offset-1">
+                        <li class="partner">
+                            <img src="/static/img/mpesa.png" />
+                        </li>
+                        <li class="partner">
+                            <img src="/static/img/airtel.png" />
+                        </li>
+                        <li class="partner">
+                            <img src="/static/img/metropol.png" />
+                        </li>
+                        <li class="partner">
+                            <img src="/static/img/creditinfo.png" />
+                        </li>
+                        <li class="partner">
+                            <img src="/static/img/transunion.png" />
+                        </li>
+                        <li class="partner">
+                            <img src="/static/img/pp-logo-200px.png" />
+                        </li>
+                        <li class="partner">
+                            <img src="/static/img/equity_bank.png" />
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+    <section class="page what-we-offer">
+        <div class="container">
+            <div class="header">
+                <h2>What we offer</h2>
+            </div>
+            <div class="body clearfix">
+                <div class="offering col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class="image">
+                        <img src="/static/img/mobile.png" />
+                    </div>
+                    <div class="label">
+                        Mobile First
+                    </div>
+                    <div class="text">
+                        We put mobile at the center piece of your innovation cycle. Our Core banking solution allows this
+                    </div>
+                    <div></div>
+                </div>
+                <div class="offering col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class="image">
+                        <img src="/static/img/risk-based-analytics.png" />
+                    </div>
+                    <div class="label">
+                        Risk Based Analytics
+                    </div>
+                    <div class="text">
+                        We have onboard 3 Credit Reference Bureaus on board to choose from, or combine in the Underwriting process
+                    </div>
+                    <div></div>
+                </div>
+                <div class="offering col-xs-12 col-sm-12 col-md-4 col-lg-4">
+                    <div class="image">
+                        <img src="/static/img/powerful-crm.png" />
+                    </div>
+                    <div class="label">
+                        Powerful CRM
+                    </div>
+                    <div class="text">
+                        Access your Customers via campaigns on various digital channels. This includes SMS, Push notifications and even Telegram
+                    </div>
+                    <div></div>
+                </div>
+            </div>
+            <div class="footer">
+                <a class="btn landing-btn btn-lg" href="#our-platform">Our Platform &gt;</a>
+            </div>
+        </div>
+    </section>
+    <section id="our-platform" class="page our-platform">
+        <div class="container">
+            <div class="header">
+                <h2>Our Platform</h2>
+                <div class="secondary-text">
+                    Our industry solutions involve a combination of services, products and systems
+                </div>
+            </div>
+            <div class="body">
+                <div class="modules clearfix hidden-xs hidden-sm">
+                    <div class="module-row">
+                        <div class="module">
+                            <div class="module-initials app">A</div>
+                            <div class="module-name">App</div>
+                            <div class="module-description">
+                                The core module on the platform. Manages: Funds, 
+                                Credit Control, Transaction Processing and Users.
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials backoffice">B</div>
+                            <div class="module-name">Back Office</div>
+                            <div class="module-description">
+                                Designed for Manual Operations. 
+                                Manage: KYC, Collateral, Underwriting, Appraisal, Disbursement.
+                                Reports: Loan Ledger, General Journal.
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials crm">C</div>
+                            <div class="module-name">CRM</div>
+                            <div class="module-description">
+                                Handle your Customer Data, Communication and Document Management. 
+                                This is through SMS, Email and Web.
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-row">
+                        <div class="module">
+                            <div class="module-initials decisioning">CD</div>
+                            <div class="module-name">Credit Decisioning</div>
+                            <div class="module-description">
+                                Access automated underwriting and 
+                                appraisal software that can make credit decisions 
+                                based on your own decisioning rules.
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials credit-officer">CO</div>
+                            <div class="module-name">Credit Officer</div>
+                            <div class="module-description">
+                                Officer/Agent module provides a mobile app 
+                                for field-based Agents. Manages KYC, 
+                                Appraisal and follow up on NPLs.
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials compliance-reporting">CR</div>
+                            <div class="module-name">Compliance Reporting</div>
+                            <div class="module-description">
+                                For Microfinance Banks (MFBs), or MFIs that are keen on Core Capital 
+                                requirements among other KPIs
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-row">
+                        <div class="module">
+                            <div class="module-initials debt-collection">DC</div>
+                            <div class="module-name">Debt Collection</div>
+                            <div class="module-description">
+                                Bad Debts? We can link up your system to several Collection agencies via API
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials financial-accounting">FA</div>
+                            <div class="module-name">Financial Accounting</div>
+                            <div class="module-description">
+                                Comprehensive financial accounting and reporting. 
+                                It includes a General Ledger, Balance Sheet, the P&amp;L, 
+                                and Accounting Consultancy 
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials loan-origination">LO</div>
+                            <div class="module-name">Loan Origination</div>
+                            <div class="module-description">
+                                Extend your CRM with our Core modules. 
+                                We provide you with Mobile and Web based channels for your 
+                                customers to apply for loans 
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="module-row">
+                        <div class="module">
+                            <div class="module-initials payments">PY</div>
+                            <div class="module-name">Payments</div>
+                            <div class="module-description">
+                                Manages user and bank balances. This module Links up 
+                                with M-Pesa, Airtel Money, Paypal and RTGS to ensure seemless
+                                transfer of funds to and from the AjabCapital platform. 
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials risk-management">RM</div>
+                            <div class="module-name">Risk Management</div>
+                            <div class="module-description">
+                                Intgrations with up to 3 Credit Bureaus to help protect your Loan 
+                                Portfolio. Assess and set Risk Metrics for regulation, insurance and credit control
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                        <div class="module">
+                            <div class="module-initials syndicated-loans">SL</div>
+                            <div class="module-name">Syndicated Loans</div>
+                            <div class="module-description">
+                                You can tag pool of Investors, Partners cash and even external loans
+                                to your product to ensure accountability for your loans.
+                            </div>
+                            <div class="module-learn-more">
+                                <a class="hidden" href="#">Learn More &gt;</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="footer">
+                <a class="btn landing-btn btn-lg" href="/demo-booking">Book a Demo</a>
+            </div>
+        </div>
+    </section>
+    <section class="page end-to-end-automation hidden">
+        <div class="container">
+            <div class="header">
+                <h2 class="">
+                    Multiple channels of Loan Origination
+                </h2>
+            </div>
+            <div class="body clearfix">
+                <div class="messages col-lg-4 col-md-5 hidden-xs hidden-sm">
+                    <div class="message">Android</div>
+                    <div class="message">iOS</div>
+                    <div class="message">USSD</div>
+                    <div class="message">Web</div>
+                    <div class="message">Telegram</div>
+                </div>
+                <div class="devices col-lg-8 col-md-7 col-xs-12">
+                </div>
+            </div>
+            <div class="footer">
+            </div>
+        </div>
+    </section>
+    <footer class="clearfix">
+        <div class="copyright col-md-4 col-sm-12 col-xs-12">
+            <img src="/static/img/logo-icon.png" width="25px" height="25px" />
+            &copy; AjabWorld Limited <strong>2016</strong>
+        </div>
+        <div class="social-buttons clearfix col-md-offset-6 col-md-2">
+            <ul class="horizontal-list">
+                <li>
+                    <a href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" width="38" height="38" viewBox="0 0 38 38">
+                            <path d="M38.000,-0.000 C38.000,-0.000 31.682,-0.000 31.682,-0.000 C31.682,-0.000 31.682,0.001 31.682,0.001 C31.677,0.001 31.672,-0.000 31.667,-0.000 C31.667,-0.000 8.444,-0.000 8.444,-0.000 C8.444,-0.000 6.334,-0.000 6.334,-0.000 C6.334,-0.000 0.000,-0.000 0.000,-0.000 C0.000,-0.000 0.000,6.334 0.000,6.334 C0.000,6.334 0.000,8.444 0.000,8.444 C0.000,8.444 0.000,29.556 0.000,29.556 C0.000,29.556 0.000,31.666 0.000,31.666 C0.000,31.666 0.000,38.000 0.000,38.000 C0.000,38.000 6.334,38.000 6.334,38.000 C6.334,38.000 8.444,38.000 8.444,38.000 C8.444,38.000 19.000,38.000 19.000,38.000 C19.000,38.000 19.000,23.644 19.000,23.644 C19.000,23.644 14.356,23.644 14.356,23.644 C14.356,23.644 14.356,17.311 14.356,17.311 C14.356,17.311 19.000,17.311 19.000,17.311 C19.000,17.311 19.000,14.844 19.000,14.844 C19.000,10.588 22.196,6.756 26.125,6.756 C26.125,6.756 31.244,6.756 31.244,6.756 C31.244,6.756 31.244,13.089 31.244,13.089 C31.244,13.089 26.125,13.089 26.125,13.089 C25.565,13.089 24.911,13.769 24.911,14.788 C24.911,14.788 24.911,17.311 24.911,17.311 C24.911,17.311 31.244,17.311 31.244,17.311 C31.244,17.311 31.244,23.644 31.244,23.644 C31.244,23.644 24.911,23.644 24.911,23.644 C24.911,23.644 24.911,38.000 24.911,38.000 C24.911,38.000 29.556,38.000 29.556,38.000 C29.556,38.000 31.667,38.000 31.667,38.000 C31.667,38.000 38.000,38.000 38.000,38.000 C38.000,38.000 38.000,31.666 38.000,31.666 C38.000,31.666 38.000,29.556 38.000,29.556 C38.000,29.556 38.000,6.334 38.000,6.334 C38.000,6.329 37.999,6.323 37.999,6.318 C37.999,6.318 38.000,6.318 38.000,6.318 C38.000,6.318 38.000,-0.000 38.000,-0.000 Z" id="path-1" class="cls-2" fill-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" preserveAspectRatio="xMidYMid" width="46" height="38" viewBox="0 0 46 38">
+                            <path d="M14.627,38.000 C9.240,38.000 4.225,36.412 0.003,33.690 C0.750,33.779 1.509,33.824 2.279,33.824 C6.748,33.824 10.862,32.291 14.127,29.718 C9.952,29.640 6.429,26.867 5.215,23.055 C5.798,23.167 6.395,23.227 7.010,23.227 C7.880,23.227 8.723,23.110 9.524,22.891 C5.159,22.010 1.871,18.132 1.871,13.484 C1.871,13.444 1.871,13.403 1.872,13.363 C3.158,14.082 4.629,14.514 6.193,14.563 C3.633,12.843 1.949,9.907 1.949,6.578 C1.949,4.820 2.419,3.172 3.240,1.756 C7.946,7.560 14.975,11.379 22.903,11.779 C22.741,11.077 22.656,10.344 22.656,9.593 C22.656,4.295 26.928,-0.001 32.196,-0.001 C34.940,-0.001 37.419,1.165 39.160,3.029 C41.333,2.599 43.374,1.800 45.217,0.701 C44.505,2.941 42.993,4.821 41.023,6.009 C42.953,5.777 44.791,5.261 46.502,4.498 C45.223,6.422 43.606,8.111 41.742,9.464 C41.760,9.875 41.769,10.289 41.769,10.705 C41.769,23.382 32.174,38.000 14.627,38.000 " id="path-1" class="cls-2" fill-rule="evenodd"></path>
+                        </svg>
+                    </a>
+                </li>
+                <li>
+                    <a href="#">
+                        <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 100 100" enable-background="new 0 0 100 100" xml:space="preserve">
+                            <path d="M92.6,0H7.4C3.3,0,0,3.2,0,7.2v85.6c0,4,3.3,7.2,7.4,7.2h85.2c4.1,0,7.4-3.2,7.4-7.2V7.2C100,3.2,96.7,0,92.6,0z M29.7,85.2
+                                H14.8V37.5h14.8V85.2z M22.2,31c-4.8,0-8.6-3.9-8.6-8.6c0-4.7,3.8-8.6,8.6-8.6c4.7,0,8.6,3.9,8.6,8.6C30.8,27.1,27,31,22.2,31z
+                                M85.2,85.2H70.4V62c0-5.5-0.1-12.7-7.7-12.7c-7.7,0-8.9,6-8.9,12.3v23.6H39V37.5h14.2V44h0.2c2-3.8,6.8-7.7,14-7.7
+                                c15,0,17.8,9.9,17.8,22.7V85.2z"></path>
+                        </svg>
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </footer>
+{% endblock outer_container_container %}

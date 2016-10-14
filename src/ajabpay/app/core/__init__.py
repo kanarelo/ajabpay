@@ -20,6 +20,10 @@ def home():
 def aw():
     return render_template('ajabworld.website/index.html')
 
+@app.route('/ac', methods=['GET'])
+def ac():
+    return render_template('ajabcapital.website/index.html')
+
 from .users import *
 from .transactions import *
 
