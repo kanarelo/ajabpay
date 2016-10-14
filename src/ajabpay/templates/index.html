@@ -11,21 +11,29 @@
         .product{
             padding-top: 1.25rem;
         }
+        .right-pane h3 {
+                margin-bottom: 1rem;
+                font-size: 15px;
+                text-transform: uppercase;
+                font-weight: 700;
+                /* color: #539ddb; */
+                font-family: "Open Sans";
+        }
     </style>
 {% endblock %}
 
 {% block panes %}
-    <div class="left-pane col-md-6 col-lg-6 hidden-sm hidden-xs">
-        <h1 class="call">Supercharge your <br>M-Pesa Account</h1>
+    <div class="left-pane col-md-8 col-lg-8 hidden-sm hidden-xs">
+        <h1 class="call">Transfer your money fast <br/>to any Platform</h1>
         <h4 class="call call-1">Sign up to try our low cost option</h4>
         <h5 class="call call-2"><span class="fee">Fee:</span> Just 4.5% + $1</h5>
         <a class="btn btn-info btn-lg" id="signup-via-paypal">Signup Via Paypal</a>
     </div>
-    <div class="right-pane col-md-6 col-lg-6 col-sm-12 col-xs-12">
+    <div class="right-pane col-md-4 col-lg-4 col-sm-12 col-xs-12">
         <h3>Our Products</h3>
         <hr>
         <div class="row">
-            <div class="col-md-8 col-md-offset-2">
+            <div class="col-md-12">
                 <ul class="products index">
                     {% with logged_in = g.user.is_authenticated %}
                         <li class="product p2m">
