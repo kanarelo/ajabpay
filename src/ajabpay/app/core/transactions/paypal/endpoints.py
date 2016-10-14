@@ -20,13 +20,15 @@ from .webhooks import webhook
 
 import wtforms as forms
 
-class PaypalPaymentForm(forms.Form):
-    #0703266888, not +254703266888
-    mobile_phone_no = forms.StringField('recipient',
-        validators=[forms.validators.data_required(), 
-        forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
-    amount = forms.DecimalField('amount', places=2, rounding=None, validators=[
-        forms.validators.data_required(), forms.validators.NumberRange(0, 251)])
+def PaypalPaymentForm(data, amount_min=0, amount_max=250, *args, **kwargs):
+    class Form(forms.Form):
+        mobile_phone_no = forms.StringField('recipient',
+            validators=[forms.validators.data_required(), 
+            forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
+        amount = forms.DecimalField('amount', places=2, rounding=None, validators=[
+            forms.validators.data_required(), forms.validators.NumberRange(amount_min, amount_max)])
+
+    return Form(data, *args, **kwargs)
 
 @app.route('/txn/p2m', methods=['GET', 'POST'])
 @login_required

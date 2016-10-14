@@ -1,0 +1,139 @@
+{% extends "index.html" %}
+
+{% block title %}AjabWorld LTD{% endblock title %}
+
+{% block extracss %}
+    <style>
+        body {
+            background-image: linear-gradient(-180deg, #FFFFFF 0%, #F5F5F5 100%);
+        }
+        .navbar{
+            background-color: transparent;
+        }
+        .index-content{
+            text-align: center;
+            padding: 10rem 0 0;
+        }
+        .index-content h1 {
+            font-weight: 900;
+            text-transform: capitalize;
+            font-size: 42.5px;
+        }
+        .index-content h2 {
+            font-family: "Open Sans", sans-serif;
+            font-size: 18px;
+            margin-top: 0;
+            color: #539DDB; 
+        }
+        .integrations {
+            width: 80%;
+            margin: 4rem auto;
+        }
+        .integrations img {
+            height: 30px;
+        }
+        .our-solutions{
+            font-family: 'Quicksand', sans-serif;
+            width: 300px;
+            margin: 12.5rem auto;
+        }
+        .our-solutions h4, .our-integrations h4 {
+            font-family: 'Raleway', sans-serif;
+            font-weight: 700;
+            font-weight: 15px;
+            color: #525252;
+        }
+        .solutions {
+            margin-top: 1.5rem;
+            font-size: 17px;
+        }
+        .solutions .mfi{
+            text-align: right;
+        }
+        .solutions .pay{
+            text-align: center;
+        }
+        .solutions .capital{
+            text-align: left;
+        }
+        .solutions a {
+            text-decoration: none;
+            cursor: pointer;
+            color: gray;
+        }
+        .solutions a:hover{
+            text-decoration: none;
+            color: #000;
+        }
+        .our-integrations{
+            margin: 7.5rem auto 0;
+        }
+    </style>
+{% endblock extracss %}
+
+{% block product %}<span class="world">world</span>{% endblock product %}
+
+{% block panes_container %}
+{% endblock panes_container %}
+
+{% block alternate_content %}
+    <div class="container index-content">
+        <h1>Risk Management + Digital Finance</h1>
+        <h2>we develop and provide you with banking and insurance integrations</h2>
+
+        <div class="our-solutions clearfix">
+            <h4>OUR SOLUTIONS</h4>
+            <div class="solutions row">
+                <div class="mfi col-md-4 col-sm-6 col-xs-12">
+                    <a href="https://ajabcapital.ajabworld.net" target="_blank"><strong>ajab</strong>mfi</a>
+                </div>
+                <div class="pay col-md-4 col-sm-6 col-xs-12">
+                    <a href="https://ajabpay.ajabworld.net" target="_blank"><strong>ajab</strong>pay</a>
+                </div>
+                <div class="capital col-md-4 col-sm-6 col-xs-12">
+                    <a href="https://ajabcapital.ajabworld.net" target="_blank"><strong>ajab</strong>capital</a>
+                </div>
+            </div>
+        </div>
+        <div class="our-integrations clearfix">
+            <h4>OUR INTEGRATIONS</h4>
+            <div class="integrations row">
+                <div class="col-md-1 col-sm-3 col-xs-12">
+                    <a href="http://www.safaricom.co.ke/personal/m-pesa" target="_blank">
+                        <img src="/static/img/mpesa.png" />
+                    </a>
+                </div>
+                <div class="col-md-1 col-sm-3 col-xs-12">
+                    <a href="http://africa.airtel.com/wps/wcm/connect/africarevamp/Kenya/" target="_blank">
+                        <img src="/static/img/airtel.png" />
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-3 col-xs-12">
+                    <a href="http://www.metropol.co.ke/" target="_blank">
+                        <img src="/static/img/metropol.png" />
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-3 col-xs-12">
+                    <a href="http://creditinfo.com/" target="_blank">
+                        <img src="/static/img/creditinfo.png" />
+                    </a>
+                </div>
+                <div class="col-md-1 col-sm-6 col-xs-12">
+                    <a href="http://ke.equitybankgroup.com/" target="_blank">
+                        <img src="/static/img/equity_bank.png" />
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-6 col-xs-12">
+                    <a href="https://www.paypal.com/" target="_blank">
+                        <img src="/static/img/pp-logo-200px.png" />
+                    </a>
+                </div>
+                <div class="col-md-2 col-sm-6 col-xs-12">
+                    <a target="_blank" href="https://www.transunion.com">
+                        <img src="/static/img/transunion.png" />
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock alternate_content %}

@@ -16,6 +16,10 @@ def index():
 def home():
     return render_template('home.html')
 
+@app.route('/aw', methods=['GET'])
+def aw():
+    return render_template('ajabworld.website/index.html')
+
 from .users import *
 from .transactions import *
 
