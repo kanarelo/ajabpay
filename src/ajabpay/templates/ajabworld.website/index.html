@@ -25,9 +25,13 @@
             margin-top: 0;
             color: #539DDB; 
         }
+        .our-integrations h4 {
+            text-align: left;
+            font-size: 14px;
+            padding-left: 1.25rem;
+        }
         .integrations {
-            width: 80%;
-            margin: 4rem auto;
+            margin: 2.5rem 0;
         }
         .integrations img {
             height: 30px;
@@ -48,13 +52,13 @@
             font-size: 17px;
         }
         .solutions .mfi{
-            text-align: right;
+            text-align: center;
         }
         .solutions .pay{
             text-align: center;
         }
         .solutions .capital{
-            text-align: left;
+            text-align: center;
         }
         .solutions a {
             text-decoration: none;
@@ -65,8 +69,8 @@
             text-decoration: none;
             color: #000;
         }
-        .our-integrations{
-            margin: 7.5rem auto 0;
+        .contact-us {
+            text-align: right;
         }
     </style>
 {% endblock extracss %}
@@ -84,54 +88,67 @@
         <div class="our-solutions clearfix">
             <h4>OUR SOLUTIONS</h4>
             <div class="solutions row">
-                <div class="mfi col-md-4 col-sm-6 col-xs-12">
+                <div class="mfi col-md-4 col-sm-12 col-xs-12">
                     <a href="https://ajabcapital.ajabworld.net" target="_blank"><strong>ajab</strong>mfi</a>
                 </div>
-                <div class="pay col-md-4 col-sm-6 col-xs-12">
+                <div class="pay col-md-4 col-sm-12 col-xs-12">
                     <a href="https://ajabpay.ajabworld.net" target="_blank"><strong>ajab</strong>pay</a>
                 </div>
-                <div class="capital col-md-4 col-sm-6 col-xs-12">
+                <div class="capital col-md-4 col-sm-12 col-xs-12">
                     <a href="https://ajabcapital.ajabworld.net" target="_blank"><strong>ajab</strong>capital</a>
                 </div>
             </div>
         </div>
-        <div class="our-integrations clearfix">
-            <h4>OUR INTEGRATIONS</h4>
-            <div class="integrations row">
-                <div class="col-md-1 col-sm-3 col-xs-12">
-                    <a href="http://www.safaricom.co.ke/personal/m-pesa" target="_blank">
-                        <img src="/static/img/mpesa.png" />
-                    </a>
+        <div class="row">
+            <div class="our-integrations clearfix col-lg-10 col-md-10 col-sm-6">
+                <h4>OUR INTEGRATIONS</h4>
+                <div class="integrations row">
+                    <div class="col-md-1 col-sm-3 col-xs-12">
+                        <a href="http://www.safaricom.co.ke/personal/m-pesa" target="_blank">
+                            <img src="/static/img/mpesa.png" />
+                        </a>
+                    </div>
+                    <div class="col-md-1 col-sm-3 col-xs-12">
+                        <a href="http://africa.airtel.com/wps/wcm/connect/africarevamp/Kenya/" target="_blank">
+                            <img src="/static/img/airtel.png" />
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-sm-3 col-xs-12">
+                        <a href="http://www.metropol.co.ke/" target="_blank">
+                            <img src="/static/img/metropol.png" />
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-sm-3 col-xs-12">
+                        <a href="http://creditinfo.com/" target="_blank">
+                            <img src="/static/img/creditinfo.png" />
+                        </a>
+                    </div>
+                    <div class="col-md-1 col-sm-6 col-xs-12">
+                        <a href="http://ke.equitybankgroup.com/" target="_blank">
+                            <img src="/static/img/equity_bank.png" />
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-sm-6 col-xs-12">
+                        <a href="https://www.paypal.com/" target="_blank">
+                            <img src="/static/img/pp-logo-200px.png" />
+                        </a>
+                    </div>
+                    <div class="col-md-2 col-sm-6 col-xs-12">
+                        <a target="_blank" href="https://www.transunion.com">
+                            <img src="/static/img/transunion.png" />
+                        </a>
+                    </div>
                 </div>
-                <div class="col-md-1 col-sm-3 col-xs-12">
-                    <a href="http://africa.airtel.com/wps/wcm/connect/africarevamp/Kenya/" target="_blank">
-                        <img src="/static/img/airtel.png" />
-                    </a>
-                </div>
-                <div class="col-md-2 col-sm-3 col-xs-12">
-                    <a href="http://www.metropol.co.ke/" target="_blank">
-                        <img src="/static/img/metropol.png" />
-                    </a>
-                </div>
-                <div class="col-md-2 col-sm-3 col-xs-12">
-                    <a href="http://creditinfo.com/" target="_blank">
-                        <img src="/static/img/creditinfo.png" />
-                    </a>
-                </div>
-                <div class="col-md-1 col-sm-6 col-xs-12">
-                    <a href="http://ke.equitybankgroup.com/" target="_blank">
-                        <img src="/static/img/equity_bank.png" />
-                    </a>
-                </div>
-                <div class="col-md-2 col-sm-6 col-xs-12">
-                    <a href="https://www.paypal.com/" target="_blank">
-                        <img src="/static/img/pp-logo-200px.png" />
-                    </a>
-                </div>
-                <div class="col-md-2 col-sm-6 col-xs-12">
-                    <a target="_blank" href="https://www.transunion.com">
-                        <img src="/static/img/transunion.png" />
-                    </a>
+            </div>
+            <div class="contact-us clearfix col-lg-2 col-md-2 col-sm-6">
+                <div class="address">
+                    <address>
+                        <strong>AjabWorld LTD.</strong><br>
+                        61, Mai Mahiu Rd, N.West<br>
+                        Nairobi, Kenya<br>
+                        <abbr title="Phone">P:</abbr> +(254) 712-22-7777<br>
+                        <abbr title="Email">E:</abbr> info@ajabworld.net
+                    </address>
                 </div>
             </div>
         </div>
