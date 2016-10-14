@@ -2,6 +2,8 @@
   <head>
     <meta charset="utf-8">
     <title>{% block title %}AjabPay{% endblock title %}</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon"/>
+    
     <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800|Quicksand:400,700|Raleway:400,500,600,700,800,900" rel="stylesheet" />
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
@@ -9,7 +11,6 @@
     <script type="text/javascript" src="/static/js/accounting.min.js"></script>
     <script type="text/javascript">
         window.value = null;
-
         function popupWindow(url, title, w, h) {
             //http://stackoverflow.com/questions/4068373/center-a-popup-window-on-screen
             var dualScreenLeft = window.screenLeft != undefined ? window.screenLeft : screen.left;
@@ -26,22 +27,15 @@
             // Puts focus on the newWindow
             if (window.focus) newWindow.focus();
         }
-
         function cleanAmount(amount) {
             if (!amount)
                 return 0; 
-
             if (isNaN(amount))
-                return 0
-            
+                return 0;
             if (amount < 0 && amount > 50000)
-                return 0 
-            
+                return 0;
             return amount;
         }
-
-        //-------
-
         $(function(){
             $("#signup-via-paypal, #login-via-paypal, .btn-login").click(function(){
                 popupWindow("{{ url_for('login_via_paypal') }}", 'targetWindow', 480, 540);
@@ -61,7 +55,6 @@
                         from_currency: 'KES', 
                         to_currency: 'USD'
                     }
-
                     if (window.value !== theValue) {
                         window.value = theValue;
 
