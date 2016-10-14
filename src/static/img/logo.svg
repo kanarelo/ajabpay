@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg width="230px" height="42px" viewBox="0 0 230 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 40.2 (33826) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 6</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-1">
+            <stop stop-color="#58B28D" offset="0%"></stop>
+            <stop stop-color="#58B28D" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="100%" id="linearGradient-2">
+            <stop stop-color="#D8E129" offset="0%"></stop>
+            <stop stop-color="#D6E029" offset="100%"></stop>
+        </linearGradient>
+        <polygon id="path-3" points="0.192061207 32.4569861 0.192061207 0.202355048 30.4255969 0.202355048"></polygon>
+        <filter x="-50%" y="-50%" width="200%" height="200%" filterUnits="objectBoundingBox" id="filter-4">
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Index" transform="translate(-218.000000, -96.000000)">
+            <g id="Main">
+                <g id="Group-6" transform="translate(222.000000, 90.000000)">
+                    <g id="Logo" transform="translate(39.000000, 0.000000)" fill="#000000">
+                        <text id="Text" font-family="ProximaNova-Black, Proxima Nova" font-size="34.6027505" font-weight="700" line-spacing="34" letter-spacing="2.20000005">
+                            <tspan x="0.880769231" y="32">ajab</tspan>
+                            <tspan x="78.936958" y="32" font-family="ProximaNova-Light, Proxima Nova" font-weight="300">capital</tspan>
+                        </text>
+                        <text id="by-ajabworld" font-family="ProximaNova-Regular, Proxima Nova" font-size="10" font-weight="normal" line-spacing="16" letter-spacing="0.821428537">
+                            <tspan x="122.014928" y="46">by ajabworld</tspan>
+                        </text>
+                    </g>
+                    <g id="Icon" transform="translate(0.000000, 10.000000)">
+                        <polygon id="Path-1" fill="url(#linearGradient-1)" points="0.305389249 0.325804354 30.5389249 0.325804354 30.5389249 32.5804354"></polygon>
+                        <polygon id="Path-1" fill="#A1DBE6" points="30.5225542 32.3981305 0.289018517 32.3981305 0.289018517 0.14349941"></polygon>
+                        <g id="Path-1">
+                            <use fill="black" fill-opacity="1" filter="url(#filter-4)" xlink:href="#path-3"></use>
+                            <use fill="url(#linearGradient-2)" fill-rule="evenodd" xlink:href="#path-3"></use>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
