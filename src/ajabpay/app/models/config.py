@@ -170,23 +170,11 @@ class ConfigNotificationType(db.Model):
     name = db.Column(db.String(100))
     code = db.Column(db.String(100), unique=True)
 
-    def __unicode__(self):
-        return self.name
-
-class ConfigNotificationTemplate(db.Model):
-    __tablename__ = "confignotificationtemplate"
-    
-    id = db.Column(db.Integer(), primary_key=True)
-
-    name = db.Column(db.String(100))
-    code = db.Column(db.String(100), unique=True)
-
-    notification_type_id = db.Column(db.Integer, 
-        db.ForeignKey('confignotificationtype.id'))
-    notification_type = db.relationship('ConfigNotificationType')
-
     email_template = db.Column(db.String(500), nullable=True)
+    email_html_template = db.Column(db.String(500), nullable=True)
     sms_template = db.Column(db.String(160), nullable=True)
+
+    date_created = db.Column(db.DateTime())
 
     def __unicode__(self):
         return self.name
@@ -198,6 +186,9 @@ class SMSMessage(db.Model):
     OUTGOING = 1
 
     id = db.Column(db.Integer(), primary_key=True)
+
+    notification_type_id = db.Column(db.Integer, db.ForeignKey('confignotificationtype.id'), nullable=False)
+    notification_type = db.relationship('ConfigNotificationType')
 
     message_type = db.Column(db.Integer(), default=INCOMING)
     message_sender = db.Column(db.String(15), nullable=True)
@@ -220,7 +211,12 @@ class EmailMessage(db.Model):
 
     id = db.Column(db.Integer(), primary_key=True)
 
-    email_type = db.Column(db.Integer(), default=INCOMING)
+    email_type = db.Column(db.Integer(), default=OUTGOING)
+
+    notification_type_id = db.Column(db.Integer, db.ForeignKey('confignotificationtype.id'), nullable=False)
+    notification_type = db.relationship('ConfigNotificationType')
+
+    message_subject = db.Column(db.String(255))
     
     message_recipient = db.Column(db.String(100))
     message_sender = db.Column(db.String(100))

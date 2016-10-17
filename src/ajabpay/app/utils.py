@@ -196,7 +196,44 @@ def send_html_email(emails):
     Usage:
         >>> send_html_email(<emailobject>)
     '''
-    pass
+    for email in emails:
+        files = None 
+        cc = None
+        bcc = None
+        
+        email_from = email.message_sender 
+        email_to = email.message_recipient
+        subject = email.message_subject
+
+        html_template = email.notification_type.email_html_template
+        html_template_file = get_abs_path_from_root(html_template)
+
+        text_template = email.notification_type.email_template
+        text_template_file = get_abs_path_from_root(text_template)
+
+        html = get_html_from_template(html_template, context={})
+        text = get_text_from_template(text_template, context={})
+
+        try:
+            file_opened = open(template_file)
+        except Exception as e:
+            app.logger.exception(e)
+
+        data = {"from": email_from,
+                "to": email_to,
+                "subject": subject,
+                "text": text,
+                "html": html}
+        if cc:
+            data["cc"]  = cc
+        if bcc:
+            data["bcc"] = bcc
+
+        return requests.post(
+            app.config['MAILGUN_ENDPOINT'],
+            auth=("api", app.config["MAILGUN_API_KEY"]),
+            files=files,
+            data=data)
 
 def send_push_notification(notifications):
     '''
