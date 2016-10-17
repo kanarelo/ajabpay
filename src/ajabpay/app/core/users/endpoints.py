@@ -81,7 +81,7 @@ def login_via_paypal():
     return redirect(login_url)
 
 class AccountVerificationForm(forms.Form):
-    email_code = forms.StringField('Email verification code',
+    email_verification_code = forms.StringField('Email verification code',
         validators=[forms.validators.required()])
     mobile_verification_code = forms.StringField('Mobile verification code',
         validators=[forms.validators.required()])
@@ -89,7 +89,9 @@ class AccountVerificationForm(forms.Form):
 @app.route("/auth/account-verification/verify", methods=["GET", "POST"])
 def account_verification():
     form = AccountVerificationForm(request.form)
-    
+    mobile_code = None
+    email_code = None
+
     if  form.validate():
         email_code  = form.email_code.data
         mobile_code = form.mobile_verification_code.data
@@ -111,9 +113,10 @@ def account_verification():
                 token=session['token'], 
                 user=user)
 
-    return render_template("account-verification.html", 
-        inital_mobile_code=initial_mobile_code, 
-        initial_email_code=initial_email_code)
+    return render_template("account_verification.html",
+        form=form, 
+        inital_mobile_code=mobile_code, 
+        initial_email_code=email_code)
 
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
 @cross_origin()
