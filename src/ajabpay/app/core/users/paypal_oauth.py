@@ -1,7 +1,7 @@
 import dateutil.parser
 
 from ajabpay.index import app, db
-from ajabpay.app.core.utils import extract_string
+from ajabpay.app.core.utils import extract_string, clean_phone_no
 from ajabpay.app.models import Product
 
 import paypalrestsdk
@@ -80,7 +80,7 @@ def create_user_from_userinfo(userinfo=None):
             gender=userinfo.get('gender'),
             paypal_user_id=extract_paypal_user_id(userinfo.get('user_id')),
             birthday=dateutil.parser.parse(userinfo.get('birthday')),
-            phone_number=get_phone_number(userinfo.get('phone_number')),
+            phone_number=clean_phone_no(userinfo.get('phone_number')),
             email_verified=userinfo.get('email_verified') == 'true',
             verified_account=userinfo.get('verified_account') == 'true',
             account_creation_date=dateutil.parser.parse(userinfo.get('account_creation_date')),
