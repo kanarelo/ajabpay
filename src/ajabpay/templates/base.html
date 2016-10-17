@@ -52,8 +52,8 @@
                 if (token && amount != 0) {
                     var data = {
                         amount: amount,
-                        from_currency: 'KES', 
-                        to_currency: 'USD'
+                        from_currency: 'USD', 
+                        to_currency: 'KES'
                     }
                     if (window.value !== theValue) {
                         window.value = theValue;
@@ -69,7 +69,9 @@
                         .done(function(response){
                             if (response.success) { 
                                 $("#exchange-amount").text(
-                                    accounting.formatMoney(response.exchange_amount, "", 2));
+                                    accounting.formatMoney(response.exchange.total, "", 2));
+                                $("#equivalent-amount").text(
+                                    accounting.formatMoney(response.exchange.equivalent_amount, "", 2));
                             }
                         })
                         .fail(function(jqXHR, textStatus, errorThrown){
@@ -152,7 +154,14 @@
             text-align: center;
             font-family: 'Raleway', sans-serif;
             font-size: 20px;
-            color: #003179;
+        }
+        .form-paypal2mpesa h3 {
+            text-align: center;
+            font-family: 'Raleway', sans-serif;
+            font-size: 25px;
+        }
+        .form-paypal2mpesa h3 small {
+            font-size: 55%;
         }
         .form-paypal2mpesa h2 img {
             margin-right: 1.5rem;
