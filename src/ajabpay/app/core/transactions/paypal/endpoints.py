@@ -143,7 +143,7 @@ def paypal2mpesa_calculate():
             exchange=exchange, product="p2m")
     else:
         return jsonify(success=False,
-            message='Data did not validate.')
+            message='Data did not validate.', errors=[f for f in form.errors])
 
 @app.route('/txn/p2m/r', methods=['GET'])
 @cross_origin()
