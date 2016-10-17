@@ -239,7 +239,7 @@ def get_text_message(text_template, context={}):
         with get_file_from_template(text_template) as text_template_file:
             email_text_message = format_template(html_template_file, context=context)
 
-def get_sms_message(sms_template, context={})
+def get_sms_message(sms_template, context={}):
     if sms_template is not None:
         with get_file_from_template(sms_template) as sms_template_file:
             sms_message = format_template(sms_template_file, context=context)
