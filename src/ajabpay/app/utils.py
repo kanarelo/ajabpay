@@ -4,8 +4,8 @@ from itsdangerous import SignatureExpired, BadSignature
 
 from ajabpay.index import app, db
 
-from flask import (
-    request, render_template, jsonify, url_for, redirect, g, session)
+from flask import (request, render_template, 
+    jsonify, url_for, redirect, g, session)
 from flask_login import (login_user as flask_login_user, 
     logout_user, current_user, login_required)
 
@@ -145,7 +145,7 @@ def send_sms_via_tumasms(smses):
     Usage:
         >>> send_sms_via_tumasms(<smsobject>)
     '''
-    tumasms = Tumasms(app.config['API_KEY'], app.config['API_SIGNATURE']) # Instantiate API library
+    tumasms = Tumasms(app.config['TUMA_SMS_API_KEY'], app.config['TUMA_SMS_API_SECRET']) # Instantiate API library
 
     if smses is not None and type(smses) not in (list, tuple):
         smses = [smses]
@@ -180,48 +180,63 @@ def send_sms_via_tumasms(smses):
     return tumasms.response_dict
 
 def send_registration_notification(user):
+    app.logger.debug('entered > send_registration_notification')
     return send_verification_notification(user, just_registered=True)
 
 def send_verification_notification(user, just_registered=False):
-    with db.session.begin_nested():
-        if user.is_active:
-            return
+    app.logger.debug('entered > send_verification_notification')
+    response = []
 
-        if just_registered:
-            code = 'REGISTRATION_COMPLETE'
-            message_subject = 'Please complete your account registration'
-        else:
-            code = 'ACCOUNT_VERIFICATION'
-            message_subject = 'Please verify your AjabPay account'
+    if user.is_active:
+        return
 
-        notification_type = ConfigNotificationType.query\
-            .filter_by(code=code)\
-            .first()
+    if just_registered:
+        code = 'REGISTRATION_COMPLETE'
+        message_subject = 'Please complete your account registration'
+    else:
+        code = 'ACCOUNT_VERIFICATION'
+        message_subject = 'Please verify your AjabPay account'
+
+    notification_type = ConfigNotificationType.query\
+        .filter_by(code=code)\
+        .first()
+
+    app.logger.debug('got notification_type %s' % notification_type.code)
+    
+    now = db.func.now()
+
+    if not user.email_verified:
+        email = EmailMessage(
+            email_type=EmailMessage.OUTGOING,
+            notification_type_id=notification_type.id,
+            message_subject=message_subject,
+            message_recipient_id=user.id,
+            message_sender=app.config['AJABPAY_MAIN_EMAIL'],
+            date_created=now,
+        )
+        db.session.add(email)
+        app.logger.debug('sending email to %s' % email)
         
-        now = db.func.now()
+    if not user.phone_verified:
+        sms = SMSMessage(
+            notification_type_id=notification_type.id,
+            message_type=SMSMessage.OUTGOING,
+            message_sender='AJABWORLD',
+            message_recipient_id=user.id,
+            date_created=now
+        ) 
+        db.session.add(sms)
+        app.logger.debug('sending sms %s' % sms)
+        
+    try:
+        db.session.commit()
 
-        if not user.email_verified:
-            email = EmailMessage(
-                email_type=EmailMessage.OUTGOING,
-                notification_type_id=notification_type.id,
-                message_subject=message_subject,
-                message_recipient=user.email,
-                message_sender=app.config['AJABPAY_MAIN_EMAIL'],
-                date_created=now,
-            )
-            db.session.add(email)
-            yield send_html_email(email)
-
-        if not user.phone_verified:
-            sms = SMSMessage(
-                notification_type_id=notification_type.id,
-                message_type=SMSMessage.OUTGOING,
-                message_sender='AJABWORLD',
-                message_recipient=user.phone,
-                date_created=now
-            ) 
-            db.session.add(sms)
-            yield send_sms_via_tumasms(sms)
+        response.append(send_html_email(email))
+        response.append(send_sms_via_tumasms(sms))
+    except Exception as e:
+        app.logger.exception(e)
+    
+    return response
 
 def get_file_from_template(file_path):
     abs_file_path = os.path.join(app.config['TEMPLATE_FOLDER'], 
@@ -229,20 +244,8 @@ def get_file_from_template(file_path):
     
     return open(abs_file_path, 'r')
 
-def get_html_message(html_template, context={}):
-    if html_template is not None:
-        with get_file_from_template(html_template) as html_template_file:
-            return format_template(html_template_file, context=context)
-    
-def get_text_message(text_template, context={}):
-    if text_template is not None:
-        with get_file_from_template(text_template) as text_template_file:
-            email_text_message = format_template(html_template_file, context=context)
-
-def get_sms_message(sms_template, context={}):
-    if sms_template is not None:
-        with get_file_from_template(sms_template) as sms_template_file:
-            sms_message = format_template(sms_template_file, context=context)
+def format_template(template, *args, **kwargs):
+    return render_template(template, *args, **kwargs)
 
 def send_html_email(emails):
     '''
@@ -265,25 +268,28 @@ def send_html_email(emails):
         bcc = None
         
         email_from = email.message_sender 
-        email_to = email.message_recipient
+        user = email.message_recipient
         subject = email.message_subject
 
         text_template = email.notification_type.email_template
-        sms_template = email.notification_type.sms_template
-        text_template = email.notification_type.text_template
+        html_template = email.notification_type.email_html_template
 
-        html = get_html_message(html_template, context={})
-        text = get_text_message(text_template, context={})
+        app.logger.debug('html %s' % html_template)
+        app.logger.debug('text %s' % text_template)
+
+        html = format_template(html_template, user=user)
+        text = format_template(text_template, user=user)
 
         data = {}
 
         if html or text:
             data.update({
-                "from": email_from,
-                "to": email_to,
                 "subject": subject,
+                "from": app.config['AJABPAY_MAIN_EMAIL'],
+                "to": user.email,
                 "text": text,
-                "html": html})
+                "html": html
+            })
         else:
             return 
 

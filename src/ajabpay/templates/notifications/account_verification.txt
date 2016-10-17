@@ -4,9 +4,7 @@ Thank you for joining AjabWorld!
 
 You have received this e-mail because you created an account at https://ajabpay.ajabworld.com. To complete registration, please click the following link.
 
-<a>CLICK HERE TO COMPLETE CONFIRMATION</a>
-
-Alternatively, the verification code is: {{ }} 
+The verification code is: {{ verification_code }} 
 
 Best,
 The AjabWorld Team

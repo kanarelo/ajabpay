@@ -92,6 +92,16 @@ def account_verification():
     mobile_code = ''
     email_code = ''
 
+    if request.method == "GET":
+        email_code = request.args.get("email_code", "")
+
+        if email_code:
+            if AccountVerification.query\
+                .filter(email_code=email_code)\
+                .first() is None:
+                
+                email_code = ''
+
     if request.method == "POST" and form.validate():
         email_code  = form.email_code.data
         mobile_code = form.mobile_verification_code.data
@@ -159,7 +169,15 @@ def create_session():
                     flash("Your e-mail is not verified. Please check your "
                      "inbox to verify & activate your account.")
                     
-                    send_verification_notification(user)
+                    try:
+                        response = send_verification_notification(user)
+                        app.logger.info(response)
+                        
+                        app.logger.debug('Sent verification notification to %s' % user.email)
+                    except Exception as e:
+                        app.logger.exception(e)
+
+                    app.logger.debug('Redirecting to %s' % url_for("account_verification"))
                     return redirect(url_for("account_verification"))
                 else:
                     app.logger.debug("User provided is active.")
