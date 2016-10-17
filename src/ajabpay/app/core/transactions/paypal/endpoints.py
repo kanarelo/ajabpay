@@ -3,7 +3,7 @@ from flask import request, render_template, jsonify, url_for, redirect, g
 from ajabpay.index import app, cross_origin
 
 from ajabpay.app.models import *
-from ajabpay.app.utils import login_required
+from ajabpay.app.utils import login_required, api_login_required
 from ajabpay.app.core.utils import VALID_SAFARICOM_NO_REGEX
 
 from ajabpay.app.core.endpoint_helpers import (
@@ -25,7 +25,7 @@ def PaypalPaymentForm(data, amount_min=0, amount_max=250, *args, **kwargs):
         mobile_phone_no = forms.StringField('recipient',
             validators=[forms.validators.data_required(), 
             forms.validators.Regexp(VALID_SAFARICOM_NO_REGEX)])
-        amount = forms.DecimalField('amount', places=2, rounding=None, validators=[
+        amount = forms.DecimalField('amount in USD($)', places=2, rounding=None, validators=[
             forms.validators.data_required(), forms.validators.NumberRange(amount_min, amount_max)])
 
     return Form(data, *args, **kwargs)
@@ -98,24 +98,49 @@ def clean_amount(amount):
 
         return amount
 
+def P2MCalculateForm(data, amount_min=0, amount_max=250, *args, **kwargs):
+    class Form(forms.Form):
+        from_currency = forms.StringField('from_currency',
+            validators=[forms.validators.data_required()])
+        to_currency = forms.StringField('from_currency',
+            validators=[forms.validators.data_required()])
+        amount = forms.DecimalField('amount', places=2, rounding=None, validators=[
+            forms.validators.data_required(), forms.validators.NumberRange(amount_min, amount_max)])
+
+    return Form(data, *args, **kwargs)
+
+class SimpleMultiDict(dict):
+    def getlist(self, key):
+        return self[key]
+
+    def __repr__(self):
+        return type(self).__name__ + '(' + dict.__repr__(self) + ')'
+
 @app.route('/txn/p2m/calc', methods=['POST'])
+@api_login_required
 def paypal2mpesa_calculate():
-    incoming = request.get_json() or {}
+    incoming = SimpleMultiDict(request.get_json() or {})
 
-    exchange_amount = 0
-    
-    from_currency = incoming.get("from_currency", "KES")
-    amount = clean_amount(incoming.get("amount", "0"))
-    to_currency = incoming.get("to_currency", "USD")
+    exchange = {}
+    form = P2MCalculateForm(incoming)
 
-    try:
-        exchange_amount = get_exchange_amount(D(amount), 
-            from_currency=from_currency, to_currency=to_currency)
-    except:
-        return jsonify(message="Error calculating: Invalid data", success=False), 400
+    if form.validate():
+        from_currency = incoming.get("from_currency", "USD")
+        amount = clean_amount(incoming.get("amount", "0"))
+        to_currency = incoming.get("to_currency", "KES")
 
-    return jsonify(success=True,
-        exchange_amount=round_down(exchange_amount), product="p2m")
+        try:
+            exchange = get_exchange_amount(D(amount), 
+                from_currency=from_currency, to_currency=to_currency)
+        except Exception as e:
+            print e
+            return jsonify(message="Error calculating: Invalid data", success=False), 400
+
+        return jsonify(success=True,
+            exchange=exchange, product="p2m")
+    else:
+        return jsonify(success=False,
+            message='Data did not validate.')
 
 @app.route('/txn/p2m/r', methods=['GET'])
 @cross_origin()
