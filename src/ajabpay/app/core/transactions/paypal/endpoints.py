@@ -134,7 +134,6 @@ def paypal2mpesa_calculate():
             exchange = get_exchange_amount(D(amount), 
                 from_currency=from_currency, to_currency=to_currency)
         except Exception as e:
-            print e
             return jsonify(message="Error calculating: Invalid data", success=False), 400
 
         return jsonify(success=True,

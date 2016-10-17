@@ -48,7 +48,7 @@ class BaseConfig(object):
     SENTRY_USER_ATTRS = ['email']
 
     MAILGUN_ENDPOINT = os.environ.get("MAILGUN_ENDPOINT")
-    MAILGUN_API_KEY  = os.environ.get("MAILGUN_API_KEY")
+    MAILGUN_API_KEY = os.environ.get("MAILGUN_API_KEY")
 
     try: 
         SENTRY_RELEASE = raven.fetch_git_sha(os.path.dirname(__file__))
