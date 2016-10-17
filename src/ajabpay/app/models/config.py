@@ -192,8 +192,10 @@ class SMSMessage(db.Model):
 
     message_type = db.Column(db.Integer(), default=INCOMING)
     message_sender = db.Column(db.String(15), nullable=True)
-    message_recipient = db.Column(db.String(15), nullable=True)
     message = db.Column(db.String(320))
+
+    message_recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message_recipient = db.relationship("User")
 
     delivered = db.Column(db.Boolean, default=False)
     date_delivered = db.Column(db.DateTime())
@@ -215,7 +217,9 @@ class EmailMessage(db.Model):
 
     message_subject = db.Column(db.String(255))
     
-    message_recipient = db.Column(db.String(100))
+    message_recipient_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    message_recipient = db.relationship("User")
+
     message_sender = db.Column(db.String(100))
 
     delivered = db.Column(db.Boolean, default=False)
