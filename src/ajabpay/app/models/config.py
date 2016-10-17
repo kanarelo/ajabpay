@@ -195,13 +195,10 @@ class SMSMessage(db.Model):
     message_recipient = db.Column(db.String(15), nullable=True)
     message = db.Column(db.String(320))
 
-    sms_gateway_id = db.Column(db.Integer, db.ForeignKey('configsmsgateway.id'), nullable=True)
-    sms_gateway = db.relationship('ConfigSMSGateway')
-
     delivered = db.Column(db.Boolean, default=False)
     date_delivered = db.Column(db.DateTime())
     
-    date_created = db.Column(db.DateTime())
+    date_created = db.Column(db.DateTime())    
 
 class EmailMessage(db.Model):
     __tablename__ = "emailmessage"

@@ -9,6 +9,8 @@ from flask import (
 from flask_login import (login_user as flask_login_user, 
     logout_user, current_user, login_required)
 
+from ajabpay.app.models import (EmailMessage, ConfigNotificationType, SMSMessage)
+
 from copy import copy
 import xml.etree.ElementTree as ET
 import urllib
@@ -177,15 +179,70 @@ def send_sms_via_tumasms(smses):
 
     return tumasms.response_dict
 
-def send_verification_notification():
-    if user.is_active:
-        return
-    
-    if not user.email_verified:
-        send_email_via_sendgrid(emails)
+def send_registration_notification(user):
+    return send_verification_notification(user, just_registered=True)
 
-    if not user.phone_verified:
-        send_sms_via_tumasms(sms)    
+def send_verification_notification(user, just_registered=False):
+    with db.session.begin_nested():
+        if user.is_active:
+            return
+
+        if just_registered:
+            code = 'REGISTRATION_COMPLETE'
+            message_subject = 'Please complete your account registration'
+        else:
+            code = 'ACCOUNT_VERIFICATION'
+            message_subject = 'Please verify your AjabPay account'
+
+        notification_type = ConfigNotificationType.query\
+            .filter_by(code=code)\
+            .first()
+        
+        now = db.func.now()
+
+        if not user.email_verified:
+            email = EmailMessage(
+                email_type=EmailMessage.OUTGOING,
+                notification_type_id=notification_type.id,
+                message_subject=message_subject,
+                message_recipient=user.email,
+                message_sender=app.config['AJABPAY_MAIN_EMAIL'],
+                date_created=now,
+            )
+            db.session.add(email)
+            yield send_html_email(email)
+
+        if not user.phone_verified:
+            sms = SMSMessage(
+                notification_type_id=notification_type.id,
+                message_type=SMSMessage.OUTGOING,
+                message_sender='AJABWORLD',
+                message_recipient=user.phone,
+                date_created=now
+            ) 
+            db.session.add(sms)
+            yield send_sms_via_tumasms(sms)
+
+def get_file_from_template(file_path):
+    abs_file_path = os.path.join(app.config['TEMPLATE_FOLDER'], 
+        file_path)
+    
+    return open(abs_file_path, 'r')
+
+def get_html_message(html_template, context={}):
+    if html_template is not None:
+        with get_file_from_template(html_template) as html_template_file:
+            return format_template(html_template_file, context=context)
+    
+def get_text_message(text_template, context={}):
+    if text_template is not None:
+        with get_file_from_template(text_template) as text_template_file:
+            email_text_message = format_template(html_template_file, context=context)
+
+def get_sms_message(sms_template, context={})
+    if sms_template is not None:
+        with get_file_from_template(sms_template) as sms_template_file:
+            sms_message = format_template(sms_template_file, context=context)
 
 def send_html_email(emails):
     '''
@@ -196,6 +253,12 @@ def send_html_email(emails):
     Usage:
         >>> send_html_email(<emailobject>)
     '''
+    if emails is None:
+        return
+
+    if not type(emails) == list:
+        emails = [emails]
+
     for email in emails:
         files = None 
         cc = None
@@ -205,25 +268,25 @@ def send_html_email(emails):
         email_to = email.message_recipient
         subject = email.message_subject
 
-        html_template = email.notification_type.email_html_template
-        html_template_file = get_abs_path_from_root(html_template)
-
         text_template = email.notification_type.email_template
-        text_template_file = get_abs_path_from_root(text_template)
+        sms_template = email.notification_type.sms_template
+        text_template = email.notification_type.text_template
 
-        html = get_html_from_template(html_template, context={})
-        text = get_text_from_template(text_template, context={})
+        html = get_html_message(html_template, context={})
+        text = get_text_message(text_template, context={})
 
-        try:
-            file_opened = open(template_file)
-        except Exception as e:
-            app.logger.exception(e)
+        data = {}
 
-        data = {"from": email_from,
+        if html or text:
+            data.update({
+                "from": email_from,
                 "to": email_to,
                 "subject": subject,
                 "text": text,
-                "html": html}
+                "html": html})
+        else:
+            return 
+
         if cc:
             data["cc"]  = cc
         if bcc:
@@ -262,8 +325,8 @@ def confirm_mpesa_payment_request(mpesa_txn_id):
         auth=(app.config['MPESA_HTACCESS_USER'], app.config['MPESA_HTACCESS_PASSWORD'])
     )
 
-    app.logger.info('confirm_mpesa_payment_request', extra={
-        'mpesa_transaction_id': mpesa_txn_id})
+    app.logger.info('confirm_mpesa_payment_request', extra={ 
+        'mpesa_transaction_id': mpesa_txn_id })
 
     return response
     

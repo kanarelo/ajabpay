@@ -50,6 +50,8 @@ class BaseConfig(object):
     MAILGUN_ENDPOINT = os.environ.get("MAILGUN_ENDPOINT")
     MAILGUN_API_KEY = os.environ.get("MAILGUN_API_KEY")
 
+    AJABPAY_MAIN_EMAIL = os.environ.get('AJABPAY_MAIN_EMAIL', "info@ajabworld.net")
+
     try: 
         SENTRY_RELEASE = raven.fetch_git_sha(os.path.dirname(__file__))
     except:

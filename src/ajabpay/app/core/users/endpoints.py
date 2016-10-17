@@ -10,7 +10,8 @@ from ajabpay.app.models import User
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import (
     generate_token, verify_token, login_user, logout_user,
-    send_verification_notification, login_required, api_login_required)
+    send_registration_notification, send_verification_notification, 
+    login_required, api_login_required)
 
 from ajabpay.app.core.utils import (
     clean_phone_no, VALID_SAFARICOM_NO_REGEX)
@@ -79,6 +80,41 @@ def login_via_paypal():
     #redirect to login page for approval
     return redirect(login_url)
 
+class AccountVerificationForm(forms.Form):
+    email_code = forms.StringField('Email verification code',
+        validators=[forms.validators.required()])
+    mobile_verification_code = forms.StringField('Mobile verification code',
+        validators=[forms.validators.required()])
+
+@app.route("/auth/account-verification/verify", methods=["GET", "POST"])
+def account_verification():
+    form = AccountVerificationForm(request.form)
+    
+    if  form.validate():
+        email_code  = form.email_code.data
+        mobile_code = form.mobile_verification_code.data
+
+        account_verification = AccountVerification.query\
+            .filter_by(mobile_code=mobile_code, email_code=email_code)\
+            .first()
+
+        if account_verification is not None:
+            user = account_verification.user
+
+            user.phone_verified = True
+            user.email_verified = True
+
+            db.session.commit()
+
+            return render_template("authenticated_popup.html",
+                redirect_to=url_for('home'),
+                token=session['token'], 
+                user=user)
+
+    return render_template("account-verification.html", 
+        inital_mobile_code=initial_mobile_code, 
+        initial_email_code=initial_email_code)
+
 @app.route("/auth/oauth/paypal/create_session", methods=["GET"])
 @cross_origin()
 def create_session():
@@ -119,9 +155,9 @@ def create_session():
 
                     flash("Your e-mail is not verified. Please check your "
                      "inbox to verify & activate your account.")
-                    # send_verification_notification(user)
-
-                    return redirect(url_for("email-verification"))
+                    
+                    send_verification_notification(user)
+                    return redirect(url_for("account_verification"))
                 else:
                     app.logger.debug("User provided is active.")
                     
@@ -132,8 +168,12 @@ def create_session():
                         if not registered and clean_phone_no(user.phone):
                             return render_template("authenticated_popup.html",
                                 token=session['token'], user=user, redirect_to=url_for('home'))
-                        else:
-                            return redirect(url_for('mpesa_mobile_phone_no'))
+                        elif registered:
+                            if not clean_phone_no(user.phone):
+                                return redirect(url_for('mpesa_mobile_phone_no'))
+                            else:
+                                send_registration_notification(user)
+                                return redirect(url_for("account_verification"))
                     else:
                         app.logger.debug("Could not login user")
                         return jsonify(success=False, message="Forbidden: error logging you in."), 403
