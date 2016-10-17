@@ -89,10 +89,10 @@ class AccountVerificationForm(forms.Form):
 @app.route("/auth/account-verification/verify", methods=["GET", "POST"])
 def account_verification():
     form = AccountVerificationForm(request.form)
-    mobile_code = None
-    email_code = None
+    mobile_code = ''
+    email_code = ''
 
-    if  form.validate():
+    if request.method == "POST" and form.validate():
         email_code  = form.email_code.data
         mobile_code = form.mobile_verification_code.data
 
@@ -175,6 +175,9 @@ def create_session():
                             if not clean_phone_no(user.phone):
                                 return redirect(url_for('mpesa_mobile_phone_no'))
                             else:
+                                flash("You have been registered successfully "
+                                    "check your e-mail and phone for verification codes.")
+                                
                                 send_registration_notification(user)
                                 return redirect(url_for("account_verification"))
                     else:

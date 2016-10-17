@@ -49,11 +49,11 @@
         {% block form %}
             {% from "macros/_formhelpers.html" import render_field %}
             <form class="mobile-phone-form" method="POST" action="{{ url_for('account_verification') }}">
-                <h4>Please confirm your particulars</h4>
+                <h4>Enter the codes received</h4>
                 <hr />
                 <div class="row">
                     <div class="col-md-6 col-md-offset-3">
-                        {{ render_field(form.email_verification, value=(form.email_verification_code.data or initial_email_code )) }}
+                        {{ render_field(form.email_verification_code, value=(form.email_verification_code.data or initial_email_code )) }}
                         {{ render_field(form.mobile_verification_code, value=(form.mobile_verification_code.data or initial_mobile_code)) }}
 
                         <div class="form-group">
