@@ -2,7 +2,7 @@ from functools import wraps
 from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
 from itsdangerous import SignatureExpired, BadSignature
 
-from ajabpay.index import app
+from ajabpay.index import app, db
 
 from flask import (
     request, render_template, jsonify, url_for, redirect, g, session)
@@ -21,6 +21,13 @@ TWO_WEEKS = 1209600
 def login_user(user, *args, **kwargs):
     logged_in = flask_login_user(user, *args, **kwargs)
     session['token'] = generate_token(user)
+
+    user.last_login = db.func.now()
+    
+    try:
+        db.session.commit()
+    except Exception as e:
+        app.logger.exception(e)
 
     return logged_in
 
