@@ -154,8 +154,8 @@ def send_sms_via_tumasms(smses):
     
     for sms in smses:
         tumasms.queue_sms(sms.message_recipient, sms.message)
-        app.logger.debug('SMS_QUEUED', extra=dict(
-            recipient=sms.message_recipient, message=sms.message))
+        app.logger.debug('SMS_QUEUED') #extra=dict(
+            #recipient=sms.message_recipient, message=sms.message))
     
     try:
         tumasms.send_sms()
@@ -163,17 +163,17 @@ def send_sms_via_tumasms(smses):
         if tumasms.status in ('SUCCESS', 'FAIL'):
             if tumasms.status == 'SUCCESS':
                 for sms in smses:
-                    app.logger.info('SMS_SENT', extra=dict(
-                        recipient=sms.message_recipient,
-                        message=sms.message,
-                        return_message=tumasms.message,
-                        return_description=tumasms.description,
-                        return_dict=tumasms.response_dict))
+                    app.logger.info('SMS_SENT')#, extra=dict(
+                        # recipient=sms.message_recipient,
+                        # message=sms.message,
+                        # return_message=tumasms.message,
+                        # return_description=tumasms.description,
+                        # return_dict=tumasms.response_dict))
             else:
-                app.logger.info('SMS_SEND_FAILED', extra=dict(
-                    return_message=tumasms.message,
-                    return_description=tumasms.description,
-                    return_dict=tumasms.response_dict))
+                app.logger.info('SMS_SEND_FAILED') #extra=dict(
+                    # return_message=tumasms.message,
+                    # return_description=tumasms.description,
+                    # return_dict=tumasms.response_dict))
     except Exception as e:
         app.logger.exception(e)
 
@@ -230,12 +230,12 @@ def send_verification_notification(user, just_registered=False):
         
     try:
         db.session.commit()
-
-        response.append(send_html_email(email))
-        response.append(send_sms_via_tumasms(sms))
     except Exception as e:
         app.logger.exception(e)
     
+    response.append(send_html_email(email))
+    response.append(send_sms_via_tumasms(sms))
+
     return response
 
 def get_file_from_template(file_path):
