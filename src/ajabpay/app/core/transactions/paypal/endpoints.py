@@ -101,11 +101,14 @@ def clean_amount(amount):
 def P2MCalculateForm(data, amount_min=0, amount_max=250, *args, **kwargs):
     class Form(forms.Form):
         from_currency = forms.StringField('from_currency',
-            validators=[forms.validators.data_required()])
+            validators=[forms.validators.data_required(), 
+            forms.validators.equal_to('USD')])
         to_currency = forms.StringField('from_currency',
-            validators=[forms.validators.data_required()])
-        amount = forms.DecimalField('amount', places=2, rounding=None, validators=[
-            forms.validators.data_required(), forms.validators.NumberRange(amount_min, amount_max)])
+            validators=[forms.validators.data_required(), 
+            forms.validators.equal_to('KES')])
+        amount = forms.DecimalField('amount', places=2, rounding=None, 
+            validators=[forms.validators.data_required(), 
+            forms.validators.NumberRange(amount_min, amount_max)])
 
     return Form(data, *args, **kwargs)
 
