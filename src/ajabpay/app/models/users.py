@@ -1,5 +1,7 @@
 from flask import session
 
+from sqlalchemy import UniqueConstraint
+
 from ajabpay.index import app, db, bcrypt, login_manager
 from decimal import Decimal as D
 
@@ -65,6 +67,23 @@ class User(db.Model):
         
         if user and bcrypt.check_password_hash(user.password, password):
             return user
+
+class AccountVerification(db.Model):
+    __tablename__ = "accountverification"
+    __table_args__ = (
+        db.UniqueConstraint('mobile_code', 'email_code'),
+    )
+
+    id = db.Column(db.Integer(), primary_key=True)
+    
+    email_code = db.Column(db.String(15), nullable=False)
+    mobile_code = db.Column(db.String(10), nullable=False)
+
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    user = db.relationship('User')
+
+    expiry_date  = db.Column(db.DateTime, nullable=False)
+    date_created = db.Column(db.DateTime, nullable=False)    
 
 @login_manager.user_loader
 def load_user(id):

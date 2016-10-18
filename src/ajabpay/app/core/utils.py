@@ -18,19 +18,28 @@ def extract_string(regex, test_string):
     except IndexError:
         return test_string
 
+#----------------------
 def generate_random_password(length=15):
     chars = string.ascii_letters + string.digits + '!@#$%^&*()'
     random.seed = (os.urandom(1024))
 
     return ''.join(random.choice(chars) for i in range(length))
 
-def get_reference_no(limit=10, 
-    possible_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"):
-
+def generate_random_code(limit, possible_chars):
     return ''.join(random.choice(possible_chars) for i in range(limit))
 
+def generate_alphanumeric_code(limit=10):
+    return generate_random_code(limit, possible_chars="ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
+
+def generate_random_number(limit=10):
+    return generate_random_code(limit, possible_chars="1234567890")
+
 def get_account_no(limit=8):
-    return get_reference_no(limit=limit, possible_chars="1234567890")
+    return generate_random_number(limit)
+
+def get_reference_no(limit=8):
+    return generate_alphanumeric_code(limit)
+#----------------------
 
 SAFARICOM_PHONE_REGEX = r"^(\+2547|07)(?P<prefix>(([0-2]|[9])[0-9]))(?P<postfix>\d{6})$"
 VALID_SAFARICOM_NO_REGEX = SAFARICOM_PHONE_REGEX 

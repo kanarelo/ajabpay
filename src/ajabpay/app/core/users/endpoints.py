@@ -6,7 +6,7 @@ from paypalrestsdk.exceptions import (
 from paypalrestsdk.openid_connect import Tokeninfo
 
 from ajabpay.index import app, db, cross_origin
-from ajabpay.app.models import User
+from ajabpay.app.models import User, AccountVerification
 from sqlalchemy.exc import IntegrityError
 from ajabpay.app.utils import (
     generate_token, verify_token, login_user, logout_user,

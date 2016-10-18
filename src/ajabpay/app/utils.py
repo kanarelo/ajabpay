@@ -9,6 +9,8 @@ from flask import (request, render_template,
 from flask_login import (login_user as flask_login_user, 
     logout_user, current_user, login_required)
 
+from ajabpay.app.core.utils import generate_alphanumeric_code
+
 from ajabpay.app.models import (EmailMessage, ConfigNotificationType, SMSMessage)
 
 from copy import copy
@@ -247,6 +249,20 @@ def get_file_from_template(file_path):
 def format_template(template, *args, **kwargs):
     return render_template(template, *args, **kwargs)
 
+def get_verification_code(user):
+    email_code = generate_alphanumeric_code(limit=10)
+    mobile_code = generate_alphanumeric_code(limit=6)
+
+    if AccountVerification.query\
+        .filter_by(email_code=email_code, mobile_code=mobile_code)\
+        .first() is None:
+
+        account_verification = AccountVerification(
+            email_code=email_code, 
+            mobile_code=mobile_code,
+            user_id=user
+        )
+
 def send_html_email(emails):
     '''
     API Call to Send HTML Email(s)
@@ -263,7 +279,7 @@ def send_html_email(emails):
         emails = [emails]
 
     for email in emails:
-        files = None 
+        files = {} 
         cc = None
         bcc = None
         
@@ -277,8 +293,12 @@ def send_html_email(emails):
         app.logger.debug('html %s' % html_template)
         app.logger.debug('text %s' % text_template)
 
-        html = format_template(html_template, user=user)
-        text = format_template(text_template, user=user)
+        account_verification = get_verification_code(user)
+
+        html = format_template(html_template, user=user, 
+            verification_code=verification_code)
+        text = format_template(text_template, user=user, 
+            verification_code=verification_code)
 
         data = {}
 
@@ -290,19 +310,19 @@ def send_html_email(emails):
                 "text": text,
                 "html": html
             })
+
+            if cc:
+                data["cc"]  = cc
+            if bcc:
+                data["bcc"] = bcc
+
+            return requests.post(
+                app.config['MAILGUN_ENDPOINT'],
+                auth=("api", app.config["MAILGUN_API_KEY"]),
+                files=files,
+                data=data)
         else:
             return 
-
-        if cc:
-            data["cc"]  = cc
-        if bcc:
-            data["bcc"] = bcc
-
-        return requests.post(
-            app.config['MAILGUN_ENDPOINT'],
-            auth=("api", app.config["MAILGUN_API_KEY"]),
-            files=files,
-            data=data)
 
 def send_push_notification(notifications):
     '''
