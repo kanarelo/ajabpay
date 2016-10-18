@@ -23,6 +23,7 @@ from .paypal_oauth import (
     configure_openid_request, 
     configure_paypal_api)
 import wtforms as forms
+import datetime
 
 #------------
 paypalrestsdk = configure_paypal_api()
@@ -86,9 +87,26 @@ class AccountVerificationForm(forms.Form):
     mobile_verification_code = forms.StringField('Mobile verification code',
         validators=[forms.validators.required()])
 
+def create_account_verification(user):
+    now = datetime.datetime.now()
+    expiry_date = now + datetime.timedelta(days=7)
+    
+    account_verification = AccountVerification(
+        email_code=email_code,
+        mobile_code=mobile_code,
+        user_id=user.id,
+        expiry_date=expiry_date,
+        date_created=now)
+    db.session.add(account_verification)
+
+    try:
+        db.session.commit()
+        return account_verification
+    except Exception as e:
+        app.logger.exception(e)
+
 @app.route("/auth/account-verification/verify", methods=["GET", "POST"])
 def account_verification():
-    form = AccountVerificationForm(request.form)
     mobile_code = ''
     email_code = ''
 
@@ -97,31 +115,36 @@ def account_verification():
 
         if email_code:
             if AccountVerification.query\
-                .filter(email_code=email_code)\
+                .filter_by(email_code=email_code)\
+                .filter(AccountVerification.expiry_date < datetime.datetime.now())\
                 .first() is None:
                 
                 email_code = ''
 
-    if request.method == "POST" and form.validate():
-        email_code  = form.email_code.data
-        mobile_code = form.mobile_verification_code.data
+    if request.method == "POST":
+        form = AccountVerificationForm(request.form)
 
-        account_verification = AccountVerification.query\
-            .filter_by(mobile_code=mobile_code, email_code=email_code)\
-            .first()
+        if form.validate():
+            email_code  = form.email_code.data
+            mobile_code = form.mobile_verification_code.data
 
-        if account_verification is not None:
-            user = account_verification.user
+            account_verification = AccountVerification.query\
+                .filter_by(mobile_code=mobile_code, email_code=email_code)\
+                .filter(AccountVerification.expiry_date < datetime.datetime.now())\
+                .first()
 
-            user.phone_verified = True
-            user.email_verified = True
+            if account_verification is not None:
+                user = account_verification.user
 
-            db.session.commit()
+                user.phone_verified = True
+                user.email_verified = True
 
-            return render_template("authenticated_popup.html",
-                redirect_to=url_for('home'),
-                token=session['token'], 
-                user=user)
+                db.session.commit()
+
+                return render_template("authenticated_popup.html",
+                    redirect_to=url_for('home'),
+                    token=session['token'], 
+                    user=user)
 
     return render_template("account_verification.html",
         form=form, 
