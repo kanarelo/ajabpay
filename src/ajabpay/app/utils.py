@@ -217,7 +217,7 @@ def send_verification_notification(
             message_subject=message_subject,
             message_recipient_id=user.id,
             message_sender=app.config['AJABPAY_MAIN_EMAIL'],
-            date_created=now])
+            date_created=now)
         db.session.add(email)
         app.logger.debug('sending email to %s' % email)
         
@@ -227,7 +227,7 @@ def send_verification_notification(
             message_type=SMSMessage.OUTGOING,
             message_sender='AJABWORLD',
             message_recipient_id=user.id,
-            date_created=now])
+            date_created=now)
         db.session.add(sms)
         app.logger.debug('sending sms %s' % sms)
         
