@@ -19,7 +19,7 @@ def home():
 
 @app.route('/instructions', methods=['GET'])
 @login_required
-def home():
+def instructions():
     return render_template('instructions.html')
 
 @app.route('/aw', methods=['GET'])
