@@ -16,9 +16,7 @@ def index():
 def home():
     return render_template('home.html')
 
-
 @app.route('/instructions', methods=['GET'])
-@login_required
 def instructions():
     return render_template('instructions.html')
 
