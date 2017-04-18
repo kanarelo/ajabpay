@@ -30,7 +30,7 @@ class BaseConfig(object):
     STATIC_FOLDER = os.environ.get("STATIC_FOLDER", STATIC_FOLDER)
     TEMPLATE_FOLDER = os.environ.get("TEMPLATE_FOLDER", TEMPLATE_FOLDER)
 
-    LOGGING_LOCATION = os.environ.get('LOGGING_LOCATION', '/var/log/ajabpay/ajabpay.app.log')
+    LOGGING_LOCATION = os.environ.get('LOGGING_LOCATION', os.path.join(basedir, '..', '..', '..', 'logs', 'ajabpay', 'ajabpay.app.log'))
 
     MPESA_PROJECT_MULLA_URL = os.environ.get('MPESA_ENDPOINT_URL')
     MPESA_HTACCESS_USER = os.environ.get('MPESA_HTACCESS_USER')
