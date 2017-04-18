@@ -11,7 +11,8 @@ from flask_login import (login_user as flask_login_user,
 
 from ajabpay.app.core.utils import generate_alphanumeric_code
 
-from ajabpay.app.models import (EmailMessage, ConfigNotificationType, SMSMessage)
+from ajabpay.app.models import (
+    AccountVerification, ConfigNotificationType, EmailMessage, SMSMessage)
 
 from copy import copy
 import xml.etree.ElementTree as ET
@@ -25,7 +26,6 @@ TWO_WEEKS = 1209600
 def login_user(user, *args, **kwargs):
     logged_in = flask_login_user(user, *args, **kwargs)
     session['token'] = generate_token(user)
-
     user.last_login = db.func.now()
     
     try:
@@ -141,11 +141,9 @@ class Tumasms(object):
 def send_sms_via_tumasms(smses):
     '''
     API Call to Send Message(s) Request
-
     Check: ajabpay.app.models.SMSMessage
-
     Usage:
-        >>> send_sms_via_tumasms(<smsobject>)
+        >>> send_sms_via_tumasms([<smsobject>])
     '''
     tumasms = Tumasms(app.config['TUMA_SMS_API_KEY'], app.config['TUMA_SMS_API_SECRET']) # Instantiate API library
 
@@ -185,7 +183,12 @@ def send_registration_notification(user):
     app.logger.debug('entered > send_registration_notification')
     return send_verification_notification(user, just_registered=True)
 
-def send_verification_notification(user, just_registered=False):
+def send_verification_notification(
+    user, email_code=None, mobile_code=None, just_registered=False):
+    '''
+
+    '''
+
     app.logger.debug('entered > send_verification_notification')
     response = []
 
@@ -214,8 +217,7 @@ def send_verification_notification(user, just_registered=False):
             message_subject=message_subject,
             message_recipient_id=user.id,
             message_sender=app.config['AJABPAY_MAIN_EMAIL'],
-            date_created=now,
-        )
+            date_created=now])
         db.session.add(email)
         app.logger.debug('sending email to %s' % email)
         
@@ -225,8 +227,7 @@ def send_verification_notification(user, just_registered=False):
             message_type=SMSMessage.OUTGOING,
             message_sender='AJABWORLD',
             message_recipient_id=user.id,
-            date_created=now
-        ) 
+            date_created=now])
         db.session.add(sms)
         app.logger.debug('sending sms %s' % sms)
         
@@ -235,7 +236,10 @@ def send_verification_notification(user, just_registered=False):
     except Exception as e:
         app.logger.exception(e)
     
-    response.append(send_html_email(email))
+    account_verification = get_verification_code(user)
+
+    response.append(send_html_email((email, 
+        dict(account_verification=account_verification))))
     response.append(send_sms_via_tumasms(sms))
 
     return response
@@ -249,19 +253,41 @@ def get_file_from_template(file_path):
 def format_template(template, *args, **kwargs):
     return render_template(template, *args, **kwargs)
 
+def create_account_verification(user):
+    now = datetime.datetime.now()
+    expiry_date = now + datetime.timedelta(days=7)
+    
+    account_verification = AccountVerification(
+        email_code=email_code,
+        mobile_code=mobile_code,
+        user_id=user.id,
+        expiry_date=expiry_date,
+        date_created=now)
+    db.session.add(account_verification)
+
+    try:
+        db.session.commit()
+        return account_verification
+    except Exception as e:
+        app.logger.exception(e)
+        
+
 def get_verification_code(user):
     email_code = generate_alphanumeric_code(limit=10)
     mobile_code = generate_alphanumeric_code(limit=6)
 
-    if AccountVerification.query\
+    account_verification_exists = AccountVerification.query\
         .filter_by(email_code=email_code, mobile_code=mobile_code)\
-        .first() is None:
+        .filter(AccountVerification.expiry_date > datetime.datetime.now())\
+        .first() is not None
 
-        account_verification = AccountVerification(
-            email_code=email_code, 
-            mobile_code=mobile_code,
-            user_id=user
-        )
+    if  not account_verification_exists:
+        account_verification = create_account_verification(user)
+        
+        if account_verification is not None:
+            return account_verification
+        else:
+            app.logger.debug("Account verification returned null")
 
 def send_html_email(emails):
     '''
@@ -292,8 +318,6 @@ def send_html_email(emails):
 
         app.logger.debug('html %s' % html_template)
         app.logger.debug('text %s' % text_template)
-
-        account_verification = get_verification_code(user)
 
         html = format_template(html_template, user=user, 
             verification_code=verification_code)

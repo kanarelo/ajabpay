@@ -87,24 +87,6 @@ class AccountVerificationForm(forms.Form):
     mobile_verification_code = forms.StringField('Mobile verification code',
         validators=[forms.validators.required()])
 
-def create_account_verification(user):
-    now = datetime.datetime.now()
-    expiry_date = now + datetime.timedelta(days=7)
-    
-    account_verification = AccountVerification(
-        email_code=email_code,
-        mobile_code=mobile_code,
-        user_id=user.id,
-        expiry_date=expiry_date,
-        date_created=now)
-    db.session.add(account_verification)
-
-    try:
-        db.session.commit()
-        return account_verification
-    except Exception as e:
-        app.logger.exception(e)
-
 @app.route("/auth/account-verification/verify", methods=["GET", "POST"])
 def account_verification():
     mobile_code = ''
